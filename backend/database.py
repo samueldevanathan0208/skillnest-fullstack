@@ -7,8 +7,14 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Read DATABASE_URL from environment
-# Fallback to local postgres if not set (for local development)
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:AcademyRootPassword@localhost:5432/skillnest")
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+# Production safety: Do not fallback to localhost if running on Vercel
+if not DATABASE_URL:
+    if os.getenv("VERCEL"):
+        raise ValueError("DATABASE_URL environment variable is missing in Vercel settings.")
+    # Local development fallback
+    DATABASE_URL = "postgresql://postgres:AcademyRootPassword@localhost:5432/skillnest"
 
 engine = create_engine(
     DATABASE_URL,
