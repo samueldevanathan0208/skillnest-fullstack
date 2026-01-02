@@ -1,4 +1,5 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, Request
+from fastapi.responses import Response
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from fastapi.middleware.cors import CORSMiddleware
@@ -30,7 +31,7 @@ from py_schemas.progress_schemas import (
 app = FastAPI(title="SkillNest API")
 
 # --------------------------------------------------
-# CORS (FIXED FOR NETLIFY + VERCEL)
+# CORS (FIXED – NETLIFY + VERCEL SAFE)
 # --------------------------------------------------
 app.add_middleware(
     CORSMiddleware,
@@ -38,9 +39,16 @@ app.add_middleware(
         "https://rad-faloodeh-e1f909.netlify.app"
     ],
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# --------------------------------------------------
+# EXPLICIT OPTIONS HANDLER (CRITICAL FOR SERVERLESS)
+# --------------------------------------------------
+@app.options("/{path:path}")
+def options_handler(path: str, request: Request):
+    return Response(status_code=200)
 
 # --------------------------------------------------
 # HEALTH CHECK (CRITICAL FOR VERCEL)
