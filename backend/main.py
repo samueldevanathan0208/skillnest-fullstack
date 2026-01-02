@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException, Body
+from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 
@@ -7,15 +7,28 @@ from py_models.signin_models import User
 from py_models.course_models import Course
 from py_models.quiz_models import Quiz
 from py_models.progress_models import CourseVideoProgress, QuizPartialProgress
-from py_schemas.signin_schemas import CreateUser, LoginRequest, UpdateUser, DeleteUserRequest
+
+from py_schemas.signin_schemas import (
+    CreateUser,
+    LoginRequest,
+    UpdateUser,
+    DeleteUserRequest
+)
 from py_schemas.course_schemas import Create_course
 from py_schemas.quizz_schemas import CreateQuiz
-from py_schemas.progress_schemas import VideoProgressCreate, QuizPartialProgressCreate, QuizResultCreate
+from py_schemas.progress_schemas import (
+    VideoProgressCreate,
+    QuizPartialProgressCreate,
+    QuizResultCreate
+)
 
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
+# -----------------------------
+# CORS (Production Safe)
+# -----------------------------
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -24,11 +37,24 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-
-Base.metadata.create_all(bind=engine)
-
+# -----------------------------
+# HEALTH CHECK (FIXES 404)
+# -----------------------------
 @app.get("/")
+def root():
+    return {"status": "SkillNest API is running"}
+
+# -----------------------------
+# SERVERLESS SAFE DB INIT
+# -----------------------------
+@app.on_event("startup")
+def on_startup():
+    Base.metadata.create_all(bind=engine)
+
+# -----------------------------
+# USER APIs
+# -----------------------------
+@app.get("/users")
 def get_all_user(db: Session = Depends(get_db)):
     return db.query(User).all()
 
@@ -52,7 +78,7 @@ def add_user(user: CreateUser, db: Session = Depends(get_db)):
     import datetime
     now = datetime.datetime.now()
     created_at = now.strftime("%B %Y")
-    
+
     new_user = User(
         user_name=user.user_name,
         user_email=user.user_email,
@@ -69,41 +95,33 @@ def add_user(user: CreateUser, db: Session = Depends(get_db)):
 
 @app.post("/login")
 def login(user: LoginRequest, db: Session = Depends(get_db)):
-    try:
-        # Using CreateUser schema for simplicity as it has email and password
-        db_user = db.query(User).filter(
-            User.user_email == user.user_email,
-            User.user_password == user.user_password
-        ).first()
-        if db_user:
-            return {
-                "status": "success", 
-                "message": "Login successful", 
-                "user": {
-                    "user_id": db_user.user_id, 
-                    "user_name": db_user.user_name,
-                    "user_email": db_user.user_email,
-                    "user_phone": db_user.user_phone,
-                    "user_gender": db_user.user_gender,
-                    "user_dateofbirth": db_user.user_dateofbirth,
-                    "user_created_at": getattr(db_user, 'user_created_at', "January 2024")
-                }
+    db_user = db.query(User).filter(
+        User.user_email == user.user_email,
+        User.user_password == user.user_password
+    ).first()
+
+    if db_user:
+        return {
+            "status": "success",
+            "message": "Login successful",
+            "user": {
+                "user_id": db_user.user_id,
+                "user_name": db_user.user_name,
+                "user_email": db_user.user_email,
+                "user_phone": db_user.user_phone,
+                "user_gender": db_user.user_gender,
+                "user_dateofbirth": db_user.user_dateofbirth,
+                "user_created_at": getattr(db_user, 'user_created_at', "January 2024")
             }
-        return {"status": "error", "message": "Invalid email or password"}
-    except Exception as e:
-        print(f"LOGIN ERROR: {e}")
-        import traceback
-        traceback.print_exc()
-        return {"status": "error", "message": f"Server error: {str(e)}"}
+        }
+    return {"status": "error", "message": "Invalid email or password"}
 
 @app.put("/user/{user_id}")
 def update_user(user_id: int, user_data: UpdateUser, db: Session = Depends(get_db)):
-    print(f"DEBUG UPDATE: User {user_id} Data: {user_data}")
     db_user = db.query(User).filter(User.user_id == user_id).first()
     if not db_user:
         return {"status": "error", "message": "User not found"}
-    
-    # Check explicitly for None to allow valid updates
+
     if user_data.user_name is not None:
         db_user.user_name = user_data.user_name
     if user_data.user_email is not None:
@@ -114,21 +132,15 @@ def update_user(user_id: int, user_data: UpdateUser, db: Session = Depends(get_d
         db_user.user_phone = user_data.user_phone
     if user_data.user_gender is not None:
         db_user.user_gender = user_data.user_gender
-        
-    try:
-        db.commit()
-        db.refresh(db_user)
-        print(f"DEBUG UPDATE SUCCESS: {db_user.user_name}")
-    except Exception as e:
-        print(f"DEBUG UPDATE ERROR: {e}")
-        db.rollback()
-        return {"status": "error", "message": "Database error"}
+
+    db.commit()
+    db.refresh(db_user)
 
     return {
-        "status": "success", 
-        "message": "User updated successfully", 
+        "status": "success",
+        "message": "User updated successfully",
         "user": {
-            "user_id": db_user.user_id, 
+            "user_id": db_user.user_id,
             "user_name": db_user.user_name,
             "user_email": db_user.user_email
         }
@@ -139,25 +151,20 @@ def delete_user(user_id: int, request: DeleteUserRequest, db: Session = Depends(
     db_user = db.query(User).filter(User.user_id == user_id).first()
     if not db_user:
         return {"status": "error", "message": "User not found"}
-    
+
     if db_user.user_password != request.password:
         return {"status": "error", "message": "Incorrect password"}
-        
+
     db.delete(db_user)
     db.commit()
     return {"status": "success", "message": "User deleted successfully"}
 
+# -----------------------------
+# COURSE APIs
+# -----------------------------
 @app.post("/create_course")
 def create_course(course: Create_course, db: Session = Depends(get_db)):
-    new_course = Course(
-        course_id=course.course_id,
-        title=course.title,
-        description=course.description,
-        category=course.category,
-        level=course.level,
-        created_by=course.created_by,  
-        created_at=course.created_at
-    )
+    new_course = Course(**course.dict())
     db.add(new_course)
     db.commit()
     db.refresh(new_course)
@@ -167,79 +174,75 @@ def create_course(course: Create_course, db: Session = Depends(get_db)):
 def get_all_course(db: Session = Depends(get_db)):
     return db.query(Course).all()
 
+# -----------------------------
+# QUIZ APIs
+# -----------------------------
 @app.post("/create_quiz")
 def create_quiz(data: QuizResultCreate, db: Session = Depends(get_db)):
-    try:
-        new_quiz = Quiz(
-            quiz_id=data.quiz_id,
-            user_id=data.user_id,
-            score=data.score,
-            attempt_date=data.attempt_date
-        )
-        db.add(new_quiz)
-        db.commit()
-        db.refresh(new_quiz)
-        return {"status": "success", "message": "Quiz result saved successfully"}
-    except Exception as e:
-        print(f"ERROR CREATING QUIZ: {e}")
-        import traceback
-        traceback.print_exc()
-        raise e
+    new_quiz = Quiz(**data.dict())
+    db.add(new_quiz)
+    db.commit()
+    db.refresh(new_quiz)
+    return {"status": "success", "message": "Quiz result saved successfully"}
 
-# Course Progress Endpoints
+# -----------------------------
+# COURSE PROGRESS APIs
+# -----------------------------
 @app.get("/progress/course/{user_id}")
 def get_course_progress(user_id: int, db: Session = Depends(get_db)):
-    progress = db.query(CourseVideoProgress).filter(CourseVideoProgress.user_id == user_id).all()
-    # Format as {course_id: [video_indices]}
+    progress = db.query(CourseVideoProgress).filter(
+        CourseVideoProgress.user_id == user_id
+    ).all()
+
     result = {}
     for p in progress:
-        if p.course_id not in result:
-            result[p.course_id] = []
-        result[p.course_id].append(p.video_index)
+        result.setdefault(p.course_id, []).append(p.video_index)
     return result
 
 @app.post("/progress/course/video")
 def mark_video_complete(data: VideoProgressCreate, db: Session = Depends(get_db)):
-    # Check if already exists
     existing = db.query(CourseVideoProgress).filter(
         CourseVideoProgress.user_id == data.user_id,
         CourseVideoProgress.course_id == data.course_id,
         CourseVideoProgress.video_index == data.video_index
     ).first()
-    
+
     if existing:
         return {"status": "success", "message": "Video already marked complete"}
-    
-    new_progress = CourseVideoProgress(
-        user_id=data.user_id,
-        course_id=data.course_id,
-        video_index=data.video_index
-    )
-    db.add(new_progress)
+
+    db.add(CourseVideoProgress(**data.dict()))
     db.commit()
     return {"status": "success", "message": "Video marked complete"}
 
-# Quiz Progress Endpoints
+# -----------------------------
+# QUIZ PROGRESS APIs
+# -----------------------------
 @app.get("/progress/quiz/{user_id}")
 def get_quiz_results(user_id: int, db: Session = Depends(get_db)):
     results = db.query(Quiz).filter(Quiz.user_id == user_id).all()
-    # Format as {quiz_id: {attempts, bestScore, lastScore}}
     result_map = {}
+
     for r in results:
-        if r.quiz_id not in result_map:
-            result_map[r.quiz_id] = {"attempts": 0, "bestScore": 0, "lastScore": 0}
-        
+        result_map.setdefault(
+            r.quiz_id, {"attempts": 0, "bestScore": 0, "lastScore": 0}
+        )
         result_map[r.quiz_id]["attempts"] += 1
         result_map[r.quiz_id]["lastScore"] = r.score
-        if r.score > result_map[r.quiz_id]["bestScore"]:
-            result_map[r.quiz_id]["bestScore"] = r.score
-            
+        result_map[r.quiz_id]["bestScore"] = max(
+            result_map[r.quiz_id]["bestScore"], r.score
+        )
+
     return result_map
 
 @app.get("/progress/quiz/partial/{user_id}")
 def get_all_partial_progress(user_id: int, db: Session = Depends(get_db)):
-    partials = db.query(QuizPartialProgress).filter(QuizPartialProgress.user_id == user_id).all()
-    return {p.quiz_id: {"currentIndex": p.current_index, "score": p.score} for p in partials}
+    partials = db.query(QuizPartialProgress).filter(
+        QuizPartialProgress.user_id == user_id
+    ).all()
+    return {
+        p.quiz_id: {"currentIndex": p.current_index, "score": p.score}
+        for p in partials
+    }
 
 @app.post("/progress/quiz/partial")
 def save_partial_progress(data: QuizPartialProgressCreate, db: Session = Depends(get_db)):
@@ -247,19 +250,13 @@ def save_partial_progress(data: QuizPartialProgressCreate, db: Session = Depends
         QuizPartialProgress.user_id == data.user_id,
         QuizPartialProgress.quiz_id == data.quiz_id
     ).first()
-    
+
     if existing:
         existing.current_index = data.current_index
         existing.score = data.score
     else:
-        new_partial = QuizPartialProgress(
-            user_id=data.user_id,
-            quiz_id=data.quiz_id,
-            current_index=data.current_index,
-            score=data.score
-        )
-        db.add(new_partial)
-    
+        db.add(QuizPartialProgress(**data.dict()))
+
     db.commit()
     return {"status": "success", "message": "Partial progress saved"}
 
@@ -274,6 +271,9 @@ def delete_partial_progress(user_id: int, quiz_id: str, db: Session = Depends(ge
         db.commit()
     return {"status": "success", "message": "Partial progress cleared"}
 
+# -----------------------------
+# DEBUG (KEEP AS IS)
+# -----------------------------
 @app.get("/debug/schema")
 def debug_schema():
     from sqlalchemy import inspect
@@ -283,15 +283,8 @@ def debug_schema():
 
 @app.get("/debug/reset_quiz")
 def reset_quiz_table():
-    from database import engine, Base
-    from py_models.quiz_models import Quiz
-    from sqlalchemy import text
-    
     with engine.connect() as conn:
         conn.execute(text("DROP TABLE IF EXISTS quizz"))
         conn.commit()
-    
     Base.metadata.create_all(bind=engine)
     return {"status": "reset complete"}
-
-

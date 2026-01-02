@@ -1,11 +1,25 @@
+import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
+from dotenv import load_dotenv
 
-DB_URL = "postgresql://postgres:AcademyRootPassword@localhost:5432/skillnest"
+# Load variables from .env if it exists
+load_dotenv()
 
-engine = create_engine(DB_URL)
+# Read DATABASE_URL from environment
+# Fallback to local postgres if not set (for local development)
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:AcademyRootPassword@localhost:5432/skillnest")
 
-SessionLocal = sessionmaker(autoflush=False, autocommit=False, bind=engine)
+engine = create_engine(
+    DATABASE_URL,
+    pool_pre_ping=True
+)
+
+SessionLocal = sessionmaker(
+    autoflush=False,
+    autocommit=False,
+    bind=engine
+)
 
 Base = declarative_base()
 
@@ -15,4 +29,3 @@ def get_db():
         yield db
     finally:
         db.close()
-    
