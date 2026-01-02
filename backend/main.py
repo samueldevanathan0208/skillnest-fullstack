@@ -1,8 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException, Request
-from fastapi.responses import Response
+from fastapi.responses import Response, JSONResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import text
-from fastapi.middleware.cors import CORSMiddleware
 import datetime
 
 from database import engine, get_db, Base
@@ -39,10 +38,11 @@ async def global_options_handler(request: Request, path: str):
     response = Response(status_code=200)
     origin = request.headers.get("origin")
     
+    # Set default first to guarantee header existence
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    
     if origin:
         response.headers["Access-Control-Allow-Origin"] = origin
-    else:
-        response.headers["Access-Control-Allow-Origin"] = "*"
         
     response.headers["Access-Control-Allow-Credentials"] = "true"
     response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
@@ -50,36 +50,6 @@ async def global_options_handler(request: Request, path: str):
     response.headers["Access-Control-Max-Age"] = "3600"
     
     return response
-
-# --------------------------------------------------
-# ULTRA-PERMISSIVE CORS (DYNAMIC ORIGIN ECHO) - Middleware
-# --------------------------------------------------
-@app.middleware("http")
-async def add_cors_headers(request: Request, call_next):
-    # Allow everything: echo back whatever origin is sent
-    origin = request.headers.get("origin")
-    
-    if request.method == "OPTIONS":
-        # Handled by global_options_handler, but as a backup
-        response = Response(status_code=200)
-    else:
-        response = await call_next(request)
-        
-    if origin:
-        response.headers["Access-Control-Allow-Origin"] = origin
-    else:
-        response.headers["Access-Control-Allow-Origin"] = "*"
-        
-    response.headers["Access-Control-Allow-Credentials"] = "true"
-    response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
-    response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, X-Requested-With, Cache-Control, Pragma, Expires"
-    response.headers["Access-Control-Max-Age"] = "3600"
-    
-    return response
-
-# Standard CORSMiddleware removed in favor of the more aggressive dynamic middleware above.
-
-# CORSMiddleware handles OPTIONS preflight automatically.
 
 # --------------------------------------------------
 # HEALTH CHECK (CRITICAL FOR VERCEL)
@@ -90,6 +60,7 @@ def root():
 
 @app.get("/health")
 def health():
+    return {"status": "healthy"}
     return {"status": "ok", "service": "SkillNest API"}
 
 # --------------------------------------------------
@@ -142,7 +113,14 @@ def create_user(user: CreateUser, db: Session = Depends(get_db)):
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
-    return {"status": "success", "message": "User added successfully"}
+    response_data = {"status": "success", "message": "User added successfully"}
+    response = JSONResponse(content=response_data)
+    
+    # Explicit CORS headers for Vercel
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Credentials"] = "true"
+    
+    return response
 
 @app.post("/login")
 def login(user: LoginRequest, db: Session = Depends(get_db)):
@@ -154,7 +132,7 @@ def login(user: LoginRequest, db: Session = Depends(get_db)):
     if not db_user:
         raise HTTPException(status_code=401, detail="Invalid email or password")
 
-    return {
+    response_data = {
         "status": "success",
         "message": "Login successful",
         "user": {
@@ -167,6 +145,13 @@ def login(user: LoginRequest, db: Session = Depends(get_db)):
             "user_created_at": getattr(db_user, "user_created_at", "January 2024"),
         },
     }
+    response = JSONResponse(content=response_data)
+    
+    # Explicit CORS headers for Vercel
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Credentials"] = "true"
+    
+    return response
 
 @app.put("/user/{user_id}")
 def update_user(user_id: int, data: UpdateUser, db: Session = Depends(get_db)):
