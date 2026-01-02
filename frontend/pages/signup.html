@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link rel="stylesheet" href="../css/signup.css">
-    <script src="../js/api-config.js"></script>
 </head>
 
 <body>
@@ -96,7 +95,7 @@
             };
 
             try {
-                const response = await fetch(`${API_CONFIG.BASE_URL}/create_user`, {
+                const response = await fetch('http://127.0.0.1:8000/create_user', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

@@ -86,3 +86,24 @@
     background: #FF4D4D;
     color: white;
 }
+
+/* --- Responsive Design Injection --- */
+
+@media (max-width: 480px) {
+    .modal-container {
+        padding: 1.5rem;
+        width: 95%;
+    }
+
+    .modal-container h2 {
+        font-size: 1.25rem;
+    }
+
+    .modal-actions {
+        flex-direction: column-reverse;
+    }
+
+    .modal-btn {
+        width: 100%;
+    }
+}

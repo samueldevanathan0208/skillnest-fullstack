@@ -4,7 +4,15 @@
  */
 
 (function () {
-    const API_BASE_URL = 'http://127.0.0.1:8000';
+    // Ensure API_CONFIG is loaded for interception
+    if (typeof API_CONFIG === 'undefined') {
+        const script = document.createElement('script');
+        script.src = '../js/api-config.js';
+        script.async = false; // Must be synchronous to intercept subsequent calls
+        document.head.appendChild(script);
+    }
+
+    const API_BASE_URL = 'http://127.0.0.1:8000'; // Will be intercepted by api-config.js
 
     // 1. Modal HTML Template
     const modalHTML = `

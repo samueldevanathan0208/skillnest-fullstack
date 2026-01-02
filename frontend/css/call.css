@@ -140,3 +140,50 @@
         transform: translateY(-2px);
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     }
+
+    /* --- Responsive Design Injection --- */
+
+    @media (max-width: 1024px) {
+        .navbar {
+            gap: 40px;
+            padding-right: 50px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .navbar {
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            padding: 10px;
+        }
+
+        .logo {
+            margin-left: 0;
+            margin-right: 0;
+            width: 80px;
+        }
+
+        .scheduling-card {
+            padding: 2rem 1.5rem;
+        }
+
+        .scheduling-card h1 {
+            font-size: 1.6rem;
+        }
+    }
+
+    @media (max-width: 425px) {
+        .navbar a {
+            font-size: 14px;
+        }
+
+        .scheduling-card p {
+            font-size: 1rem;
+        }
+
+        .submit-button {
+            font-size: 1rem;
+            padding: 12px;
+        }
+    }
