@@ -3,6 +3,7 @@ from fastapi.responses import Response
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from fastapi.middleware.cors import CORSMiddleware
+import datetime
 
 from database import engine, get_db, Base
 
@@ -31,19 +32,31 @@ from py_schemas.progress_schemas import (
 app = FastAPI(title="SkillNest API")
 
 # --------------------------------------------------
-# CORS (FIXED – NETLIFY + VERCEL SAFE)
+# ULTRA-PERMISSIVE CORS (DYNAMIC ORIGIN ECHO)
 # --------------------------------------------------
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[
-        "https://rad-faloodeh-e1f909.netlify.app"
-    ],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-    expose_headers=["*"],
-    max_age=600,
-)
+@app.middleware("http")
+async def add_cors_headers(request: Request, call_next):
+    # Allow everything: echo back whatever origin is sent
+    origin = request.headers.get("origin")
+    
+    if request.method == "OPTIONS":
+        response = Response(status_code=200)
+    else:
+        response = await call_next(request)
+        
+    if origin:
+        response.headers["Access-Control-Allow-Origin"] = origin
+    else:
+        response.headers["Access-Control-Allow-Origin"] = "*"
+        
+    response.headers["Access-Control-Allow-Credentials"] = "true"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, X-Requested-With, Cache-Control, Pragma, Expires"
+    response.headers["Access-Control-Max-Age"] = "3600"
+    
+    return response
+
+# Standard CORSMiddleware removed in favor of the more aggressive dynamic middleware above.
 
 # CORSMiddleware handles OPTIONS preflight automatically.
 
@@ -94,7 +107,6 @@ def get_user_by_id(id: int, db: Session = Depends(get_db)):
 
 @app.post("/create_user")
 def create_user(user: CreateUser, db: Session = Depends(get_db)):
-    import datetime
     created_at = datetime.datetime.now().strftime("%B %Y")
 
     new_user = User(
