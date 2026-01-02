@@ -32,7 +32,27 @@ from py_schemas.progress_schemas import (
 app = FastAPI(title="SkillNest API")
 
 # --------------------------------------------------
-# ULTRA-PERMISSIVE CORS (DYNAMIC ORIGIN ECHO)
+# HIGH-PRIORITY GLOBAL OPTIONS HANDLER
+# --------------------------------------------------
+@app.options("/{path:path}")
+async def global_options_handler(request: Request, path: str):
+    response = Response(status_code=200)
+    origin = request.headers.get("origin")
+    
+    if origin:
+        response.headers["Access-Control-Allow-Origin"] = origin
+    else:
+        response.headers["Access-Control-Allow-Origin"] = "*"
+        
+    response.headers["Access-Control-Allow-Credentials"] = "true"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, X-Requested-With, Cache-Control, Pragma, Expires"
+    response.headers["Access-Control-Max-Age"] = "3600"
+    
+    return response
+
+# --------------------------------------------------
+# ULTRA-PERMISSIVE CORS (DYNAMIC ORIGIN ECHO) - Middleware
 # --------------------------------------------------
 @app.middleware("http")
 async def add_cors_headers(request: Request, call_next):
@@ -40,6 +60,7 @@ async def add_cors_headers(request: Request, call_next):
     origin = request.headers.get("origin")
     
     if request.method == "OPTIONS":
+        # Handled by global_options_handler, but as a backup
         response = Response(status_code=200)
     else:
         response = await call_next(request)
