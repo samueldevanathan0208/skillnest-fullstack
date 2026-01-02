@@ -36,26 +36,16 @@ app = FastAPI(title="SkillNest API")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://rad-faloodeh-e1f909.netlify.app",
-        "https://rad-faloodeh-e1f909.netlify.app/"
+        "https://rad-faloodeh-e1f909.netlify.app"
     ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-    expose_headers=["*"]
+    expose_headers=["*"],
+    max_age=600,
 )
 
-# --------------------------------------------------
-# EXPLICIT OPTIONS HANDLER (CRITICAL FOR SERVERLESS)
-# --------------------------------------------------
-@app.options("/{path:path}")
-def options_handler(path: str, request: Request):
-    response = Response(status_code=200)
-    response.headers["Access-Control-Allow-Origin"] = "https://rad-faloodeh-e1f909.netlify.app"
-    response.headers["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS, PUT, DELETE"
-    response.headers["Access-Control-Allow-Headers"] = "*"
-    response.headers["Access-Control-Allow-Credentials"] = "true"
-    return response
+# CORSMiddleware handles OPTIONS preflight automatically.
 
 # --------------------------------------------------
 # HEALTH CHECK (CRITICAL FOR VERCEL)
