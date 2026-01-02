@@ -30,13 +30,15 @@ from py_schemas.progress_schemas import (
 app = FastAPI(title="SkillNest API")
 
 # --------------------------------------------------
-# CORS
+# CORS (FIXED FOR NETLIFY + VERCEL)
 # --------------------------------------------------
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "https://rad-faloodeh-e1f909.netlify.app"
+    ],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
@@ -60,7 +62,6 @@ def on_startup():
         Base.metadata.create_all(bind=engine)
         print("✅ Database connected and tables verified")
     except Exception as e:
-        # Never crash serverless startup
         print("❌ Database startup failed:", str(e))
 
 # --------------------------------------------------
@@ -113,7 +114,7 @@ def login(user: LoginRequest, db: Session = Depends(get_db)):
     ).first()
 
     if not db_user:
-        return {"status": "error", "message": "Invalid email or password"}
+        raise HTTPException(status_code=401, detail="Invalid email or password")
 
     return {
         "status": "success",
@@ -140,7 +141,6 @@ def update_user(user_id: int, data: UpdateUser, db: Session = Depends(get_db)):
 
     db.commit()
     db.refresh(user)
-
     return {"status": "success", "message": "User updated successfully"}
 
 @app.post("/delete_user/{user_id}")
