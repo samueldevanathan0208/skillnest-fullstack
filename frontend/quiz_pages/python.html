@@ -429,7 +429,13 @@
             try {
                 await fetch(`${API_BASE_URL}/progress/quiz/partial`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Cache-Control': 'no-cache, no-store, must-revalidate',
+                        'Pragma': 'no-cache',
+                        'Expires': '0'
+                    },
+                    cache: 'no-store',
                     body: JSON.stringify({
                         user_id: user.user_id,
                         quiz_id: quizId,
@@ -544,11 +550,17 @@
                     // Save result
                     await fetch(`${API_BASE_URL}/create_quiz`, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Cache-Control': 'no-cache, no-store, must-revalidate',
+                            'Pragma': 'no-cache',
+                            'Expires': '0'
+                        },
+                        cache: 'no-store',
                         body: JSON.stringify({
                             user_id: user.user_id,
                             quiz_id: quizId,
-                            score: percentage, // Saving percentage as score
+                            score: percentage, // Saving percentage as score based on typical grading
                             attempt_date: new Date().toISOString()
                         })
                     });

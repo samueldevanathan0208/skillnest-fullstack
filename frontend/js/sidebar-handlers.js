@@ -117,7 +117,13 @@
             try {
                 const response = await fetch(`${API_BASE_URL}/delete_user/${user.user_id}`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Cache-Control': 'no-cache, no-store, must-revalidate',
+                        'Pragma': 'no-cache',
+                        'Expires': '0'
+                    },
+                    cache: 'no-store',
                     body: JSON.stringify({ password: password })
                 });
 
