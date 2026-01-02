@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="../css/signup.css">
+</head>
+
+<body>
+
+    <div class="class">
+        <div class="navbar">
+            <img class="logo" src="../assests/Gemini_Generated_Image_awja8lawja8lawja-removebg-preview.png"
+                alt="logo image">
+            <a class="firsta" href="../index.html">Home</a>
+            <a href="../index.html#course-a">Courses</a>
+            <a href="about.html">About</a>
+            <a class="fcall" href="call.html">Schedule Your Free Call</a>
+            <a class="Signin" href="login.html">Login</a>
+        </div>
+        <div class="flex">
+            <img src="../assests/A_Man_In_A_Suit_And_Tie_With_His_Arms_Crossed-removebg-preview.png" alt="">
+            <div class="container">
+                <form id="signup-form">
+                    <div class="signup">
+                        <label for="fullName" class="first">Full Name</label>
+                        <input type="text" id="fullName" placeholder=" Full name" required>
+                    </div>
+
+                    <div class="signup">
+                        <label for="userName">Username</label>
+                        <input type="text" id="userName" placeholder=" Username" required>
+                    </div>
+
+                    <div class="signup">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" placeholder="Enter your Email" required>
+                    </div>
+
+                    <div class="signup">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" placeholder="Create a Password" required>
+                    </div>
+
+                    <div class="signup">
+                        <label for="confirmPassword">Confirm Password</label>
+                        <input type="password" id="confirmPassword" placeholder="Confirm your Password" required>
+                    </div>
+
+                    <div class="signup">
+                        <label for="dob">Date of birth</label>
+                        <input type="date" id="dob" required>
+                    </div>
+
+                    <div class="signup">
+                        <label for="phone">Phone</label>
+                        <input type="tel" id="phone" placeholder="Number" required>
+                    </div>
+
+
+                    <label for="gen">Gender:</label>
+                    <select name="gen" id="gen" required>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <button type="submit">Submit</button>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('signup-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (password !== confirmPassword) {
+                alert("Passwords do not match!");
+                return;
+            }
+
+            const userData = {
+                user_name: document.getElementById('fullName').value, // Use Full Name for display
+                user_email: document.getElementById('email').value,
+                user_password: password,
+                user_dateofbirth: document.getElementById('dob').value,
+                user_phone: document.getElementById('phone').value,
+                user_gender: document.getElementById('gen').value
+            };
+
+            try {
+                const response = await fetch('http://127.0.0.1:8000/create_user', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(userData)
+                });
+
+                const result = await response.json();
+                if (result.status === 'success') {
+                    alert("Signup successful! Please login.");
+                    window.location.href = 'login.html';
+                } else {
+                    alert("Signup failed: " + (result.message || "Unknown error"));
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("An error occurred during signup.");
+            }
+        });
+    </script>
+</body>
+
+</html>

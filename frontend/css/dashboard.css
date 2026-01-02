@@ -1,0 +1,379 @@
+   * {
+       margin: 0;
+       padding: 0;
+       box-sizing: border-box;
+   }
+
+   body {
+       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+       background-color: #f3f4f6;
+       color: #1f2937;
+   }
+
+   /* Sidebar */
+   .sidebar {
+       position: fixed;
+       top: 0;
+       left: 0;
+       width: 200px;
+       height: 100vh;
+       background-color: white;
+       padding: 1.5rem;
+       box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+       overflow-y: auto;
+       z-index: 1000;
+   }
+
+   .logo {
+    margin-left: 25px;
+       height: 80px;
+       width: 80px;
+       margin-bottom: 1.5rem;
+       display: block;
+   }
+
+   .nav-section {
+       margin-bottom: 2rem;
+   }
+
+   .nav-section-title {
+       font-size: 0.875rem;
+       font-weight: bold;
+       color: #6b7280;
+       margin-bottom: 1rem;
+       text-transform: uppercase;
+   }
+
+   .nav-item {
+       display: flex;
+       align-items: center;
+       gap: 0.75rem;
+       padding: 0.75rem 1rem;
+       border-radius: 0.5rem;
+       cursor: pointer;
+       transition: background-color 0.3s;
+       margin-bottom: 0.5rem;
+       text-decoration: none;
+       color: inherit;
+   }
+
+   .nav-item:hover {
+       background-color: #f3f4f6;
+   }
+
+   .nav-item.active {
+       background-color: #e5e7eb;
+   }
+
+   /* Main Content */
+   .main-content {
+       margin-left: 250px;
+       padding: 2rem;
+       min-height: 100vh;
+   }
+
+   .page-title {
+       font-size: 2rem;
+       font-weight: bold;
+       margin-bottom: 2rem;
+   }
+
+   .dashboard-grid {
+       display: grid;
+       grid-template-columns: 1fr 2fr;
+       gap: 1.5rem;
+       margin-bottom: 2rem;
+   }
+
+   .profile-card {
+       background-color: white;
+       border-radius: 1rem;
+       padding: 1.5rem;
+       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+   }
+
+   .profile-header {
+       display: flex;
+       justify-content: space-between;
+       margin-bottom: 1rem;
+   }
+
+   .profile-avatar {
+       width: 96px;
+       height: 96px;
+       border-radius: 50%;
+       background-color: #1d4ed8;
+       display: flex;
+       align-items: center;
+       justify-content: center;
+       color: white;
+       font-size: 2rem;
+       font-weight: bold;
+   }
+
+
+   .editbutton {
+       background-color: #f3f4f6;
+       border: none;
+       width: 40px;
+       height: 40px;
+       border-radius: 50%;
+       cursor: pointer;
+       transition: background-color 0.3s;
+   }
+
+
+
+   .profile-info h2 {
+       font-size: 1.5rem;
+       margin-bottom: 0.25rem;
+   }
+
+   .profile-id {
+       color: #6b7280;
+       font-size: 0.875rem;
+       margin-bottom: 1rem;
+   }
+
+   .current-course {
+       margin-bottom: 1rem;
+   }
+
+   .current-course p:first-child {
+       color: #6b7280;
+       font-size: 0.875rem;
+   }
+
+   .current-course p:last-child {
+       font-weight: 600;
+   }
+
+   .progress-section {
+       margin-bottom: 1rem;
+   }
+
+   .progress-label {
+       display: flex;
+       justify-content: space-between;
+       margin-bottom: 0.5rem;
+       font-size: 0.875rem;
+       font-weight: 600;
+       color: #059669;
+   }
+
+   .progress-bar {
+       width: 100%;
+       height: 8px;
+       background-color: #e5e7eb;
+       border-radius: 1rem;
+       overflow: hidden;
+   }
+
+   .progress-fill {
+       height: 100%;
+       background-color: #059669;
+       width: 30%;
+       transition: width 0.3s;
+   }
+
+   .projects-card {
+       background-color: white;
+       border-radius: 1rem;
+       padding: 2rem;
+       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+       display: flex;
+       justify-content: space-between;
+       align-items: center;
+   }
+
+   .projects-content h2 {
+       font-size: 2rem;
+       margin-bottom: 1rem;
+   }
+
+   .projects-content p {
+       color: #6b7280;
+       margin-bottom: 1.5rem;
+       max-width: 400px;
+       line-height: 1.6;
+   }
+
+   .start-btn {
+       background-color: #1f2937;
+       color: white;
+       border: none;
+       padding: 0.75rem 1.5rem;
+       border-radius: 0.5rem;
+       font-weight: 600;
+       cursor: pointer;
+
+   }
+
+   .start-btn:hover {
+       background-color: #111827;
+   }
+
+
+
+
+   .courses-header {
+       display: flex;
+       justify-content: space-between;
+       align-items: center;
+       margin-bottom: 1.5rem;
+   }
+
+   .courses-title {
+       display: flex;
+       align-items: center;
+       gap: 0.5rem;
+       font-size: 1.5rem;
+       font-weight: bold;
+   }
+
+   .view-all-btn {
+       background-color: #2563eb;
+       color: white;
+       border: none;
+       padding: 0.5rem 1.5rem;
+       border-radius: 0.5rem;
+       font-weight: 600;
+       cursor: pointer;
+
+   }
+
+   .view-all-btn:hover {
+       background-color: #1d4ed8;
+   }
+
+   .courses-grid {
+       display: grid;
+       grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+       gap: 1.5rem;
+   }
+
+   .course-card {
+       background-color: white;
+       border-radius: 1rem;
+       overflow: hidden;
+       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+       transition: transform 0.3s;
+       cursor: pointer;
+   }
+
+   .course-card:hover {
+       transform: translateY(-5px);
+   }
+
+   .course-header {
+       height: 160px;
+       display: flex;
+       align-items: center;
+       justify-content: center;
+       color: white;
+       font-size: 2.5rem;
+       font-weight: bold;
+   }
+
+   .course-header.html  {
+       background: linear-gradient(135deg, #f97316, #ea580c);
+   }
+
+   .course-header.css {
+       background: linear-gradient(135deg, #3b82f6, #2563eb);
+   }
+
+   .course-header.js {
+       background: linear-gradient(135deg, #fbbf24, #f59e0b);
+   }
+
+   .course-header.python {
+       background: linear-gradient(135deg, #1e40af, #1e3a8a);
+   }
+
+   .course-header.java {
+       background: linear-gradient(135deg, #EF4444, #B91C1C);
+   }
+
+   .course-header.react {
+       background: linear-gradient(135deg, #60A5FA, #2563EB);
+   }
+
+   .course-header.fastapi {
+       background: linear-gradient(135deg, #10B981, #047857);
+   }
+
+   .course-header.db {
+       background: linear-gradient(135deg, #A855F7, #7E22CE);
+   }
+
+   .course-body {
+       padding: 1.5rem;
+   }
+
+   .course-title {
+       font-size: 1.125rem;
+       font-weight: 600;
+       color: #1f2937;
+   }
+
+   .course-body {
+       display: flex;
+   }
+
+   .course-body a {
+       display: inline-block;
+       padding: 0.5rem 1.5rem;
+       border-radius: 0.5rem;
+       text-decoration: none;
+       transition: all 0.3s ease;
+       margin-left: auto;
+   }
+
+
+
+   .course-body a h2 {
+       font-size: 1rem;
+       font-weight: 600;
+       margin: 0;
+   }
+
+.start-btn-html {
+    background-color: #f97316;
+    color: white;
+}   
+
+.start-btn-css {
+    background-color: #3b82f6;
+    color: white;
+}   
+
+.start-btn-js {
+    background-color: #fbbf24;
+    color: white;
+}   
+
+.start-btn-python {
+    background-color: #1e40af;
+    color: white;
+}   
+
+.start-btn-java {
+    background-color: #EF4444;
+    color: white;
+}   
+
+.start-btn-react {
+    background-color: #60A5FA;
+    color: white;
+}   
+
+.start-btn-fastapi {
+    background-color: #10B981;
+    color: white;
+}   
+
+.start-btn-db {
+    background-color: #A855F7;
+    color: white;
+}   

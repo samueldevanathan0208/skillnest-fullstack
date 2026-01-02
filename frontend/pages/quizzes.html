@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quizzes</title>
+    <link rel="stylesheet" href="../css/quizzes.css">
+    <link rel="stylesheet" href="../css/modals.css">
+    <script src="../js/sidebar-handlers.js" defer></script>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <nav>
+            <div class="nav-section">
+                <img class="logo" src="../assests/Gemini_Generated_Image_awja8lawja8lawja-removebg-preview.png"
+                    alt="Logo">
+                <a href="dashboard.html" class="nav-item">
+                    <span>Dashboard</span>
+                </a>
+                <a href="mylearn.html" class="nav-item">
+                    <span>My Learning</span>
+                </a>
+                <a href="mycertificate.html" class="nav-item">
+                    <span>Certificate</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <h3 class="nav-section-title">Learn</h3>
+
+                <a href="learingpath.html" class="nav-item">
+                    <span>Learning Path</span>
+                </a>
+                <a href="quizzes.html" class="nav-item active">
+                    <span>Quizzes</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <h3 class="nav-section-title">Account Setting</h3>
+                <a href="edit.html" class="nav-item">
+                    <span>Edit Profile</span>
+                </a>
+                <a href="#" id="delete-profile-link" class="nav-item">
+                    <span>Delete Profile</span>
+                </a>
+                <a href="#" id="sign-out-link" class="nav-item">
+                    <span>Sign Out</span>
+                </a>
+            </div>
+        </nav>
+    </aside>
+
+
+    <div class="main-wrapper">
+        <div class="header">
+            <h1>Quizzes</h1>
+            <p>Test your knowledge and track your progress</p>
+        </div>
+
+        <div class="container">
+
+            <div class="stats-banner">
+                <div class="stat-item">
+                    <div class="stat-number" id="totalCompleted">0</div>
+                    <div class="stat-label">Quizzes Completed</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="avgScore">0%</div>
+                    <div class="stat-label">Average Score</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="perfectScores">0</div>
+                    <div class="stat-label">Perfect Scores</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="totalAttempts">0</div>
+                    <div class="stat-label">Total Attempts</div>
+                </div>
+            </div>
+
+
+            <h2 class="section-title">Available Quizzes</h2>
+            <div class="quizzes-grid" id="quizzesGrid">
+                <!-- Quizzes will be rendered dynamically here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://127.0.0.1:8000';
+        const quizData = [
+            { id: 'html', title: 'HTML5', subtitle: 'Test Your HTML Knowledge', difficulty: 'Easy', qCount: 20, time: '30 min', class: 'html', link: '../quiz_pages/html.html' },
+            { id: 'css', title: 'CSS3', subtitle: 'Master CSS Styling', difficulty: 'Medium', qCount: 20, time: '30 min', class: 'css', link: '../quiz_pages/css.html' },
+            { id: 'js', title: 'JavaScript', subtitle: 'JavaScript Fundamentals', difficulty: 'Hard', qCount: 20, time: '30 min', class: 'js', link: '../quiz_pages/js.html' },
+            { id: 'python', title: 'Python', subtitle: 'Python Programming Basics', difficulty: 'Medium', qCount: 20, time: '30 min', class: 'python', link: '../quiz_pages/python.html' },
+            { id: 'java', title: 'Java', subtitle: 'Java Programming', difficulty: 'Hard', qCount: 20, time: '30 min', class: 'java', link: '../quiz_pages/java.html' },
+            { id: 'react', title: 'React', subtitle: 'Modern Web with React', difficulty: 'Hard', qCount: 20, time: '30 min', class: 'react', link: '../quiz_pages/react.html' },
+            { id: 'fastapi', title: 'FastAPI', subtitle: 'High Performance APIs', difficulty: 'Medium', qCount: 20, time: '30 min', class: 'fastapi', link: '../quiz_pages/fastapi.html' },
+            { id: 'db', title: 'Database', subtitle: 'SQL & PostgreSQL', difficulty: 'Medium', qCount: 20, time: '30 min', class: 'db', link: '../quiz_pages/db.html' }
+        ];
+
+        async function loadQuizStats() {
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (!user) {
+                // If no user, show default/empty stats
+                renderQuizzes({}, {});
+                return;
+            }
+
+            try {
+                // Fetch Results and Partials in parallel
+                const [resultsRes, partialsRes] = await Promise.all([
+                    fetch(`${API_BASE_URL}/progress/quiz/${user.user_id}`),
+                    fetch(`${API_BASE_URL}/progress/quiz/partial/${user.user_id}`)
+                ]);
+
+                const results = resultsRes.ok ? await resultsRes.json() : {};
+                const partials = partialsRes.ok ? await partialsRes.json() : {};
+
+                renderQuizzes(results, partials);
+
+            } catch (error) {
+                console.error("Error loading quiz stats:", error);
+                renderQuizzes({}, {});
+            }
+        }
+
+        function renderQuizzes(results, partials) {
+            const grid = document.getElementById('quizzesGrid');
+            grid.innerHTML = '';
+
+            let completedCount = 0;
+            let totalScore = 0;
+            let perfectCount = 0;
+            let totalAttempts = 0;
+            let quizzesWithAttempts = 0;
+
+            quizData.forEach(quiz => {
+                const result = results[quiz.id] || { attempts: 0, bestScore: 0, lastScore: 0 };
+                const partial = partials[quiz.id] || { currentIndex: 0, score: 0 };
+
+                if (result.attempts > 0) {
+                    completedCount++;
+                    totalScore += result.bestScore;
+                    totalAttempts += result.attempts;
+                    quizzesWithAttempts++;
+                    if (result.bestScore === 100) perfectCount++;
+                }
+
+                // Calculate progress
+                let progressPercent = 0;
+                let progressText = `0/${quiz.qCount}`;
+
+                if (result.attempts > 0) {
+                    progressPercent = 100; // Completed
+                    progressText = `${quiz.qCount}/${quiz.qCount}`;
+                } else if (partial.currentIndex > 0) {
+                    progressPercent = Math.round((partial.currentIndex / quiz.qCount) * 100);
+                    // Ensure it doesn't exceed 100 visual
+                    if (progressPercent > 100) progressPercent = 100;
+                    progressText = `${partial.currentIndex}/${quiz.qCount}`;
+                }
+
+                const card = document.createElement('div');
+                card.className = 'quiz-card';
+                card.innerHTML = `
+                    <div class="quiz-header ${quiz.class}">
+                        <h3 class="quiz-title">${quiz.title}</h3>
+                        <p class="quiz-subtitle">${quiz.subtitle}</p>
+                    </div>
+                    <div class="quiz-body">
+                        <span class="difficulty-badge difficulty-${quiz.difficulty.toLowerCase()}">${quiz.difficulty}</span>
+                        <div class="quiz-info">
+                            <div class="info-item"><span>${quiz.qCount} Questions</span></div>
+                            <div class="info-item"><span>${quiz.time}</span></div>
+                        </div>
+                        <div class="quiz-stats">
+                            <div class="quiz-stat">
+                                <div class="quiz-stat-value">${result.attempts > 0 ? '100%' : progressPercent + '%'}</div>
+                                <div class="quiz-stat-label">Progress</div>
+                            </div>
+                            <div class="quiz-stat">
+                                <div class="quiz-stat-value">${result.bestScore}%</div>
+                                <div class="quiz-stat-label">Best Score</div>
+                            </div>
+                            <div class="quiz-stat">
+                                <div class="quiz-stat-value">${result.attempts}</div>
+                                <div class="quiz-stat-label">Attempts</div>
+                            </div>
+                        </div>
+                        <div class="quiz-progress">
+                            <div class="progress-label">
+                                <span>Your Progress Tracker</span>
+                                <span>${progressText}</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill ${quiz.class}" style="width: ${progressPercent}%"></div>
+                            </div>
+                        </div>
+                        <button class="start-btn" onclick="location.href='${quiz.link}'">
+                            <span>${result.attempts > 0 ? 'Retake Quiz' : (partial.currentIndex > 0 ? 'Resume Quiz' : 'Start Quiz')}</span>
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+
+            // Update stats banner
+            document.getElementById('totalCompleted').textContent = completedCount;
+            // Avoid division by zero
+            document.getElementById('avgScore').textContent = quizzesWithAttempts > 0 ? Math.round(totalScore / quizzesWithAttempts) + '%' : '0%';
+            document.getElementById('perfectScores').textContent = perfectCount;
+            document.getElementById('totalAttempts').textContent = totalAttempts;
+        }
+
+        window.onload = loadQuizStats;
+    </script>
+</body>
+
+</html>

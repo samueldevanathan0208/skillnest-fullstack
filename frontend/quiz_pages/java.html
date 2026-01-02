@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java Quiz Master</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f89820 0%, #ed1c24 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #f89820 0%, #ed1c24 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .quiz-container {
+            padding: 40px;
+        }
+
+        .start-screen,
+        .quiz-screen,
+        .result-screen {
+            display: none;
+        }
+
+        .start-screen.active,
+        .quiz-screen.active,
+        .result-screen.active {
+            display: block;
+        }
+
+        .start-screen {
+            text-align: center;
+        }
+
+        .start-screen h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .start-screen p {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
+        .progress-bar {
+            background: #e0e0e0;
+            height: 10px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #f89820 0%, #ed1c24 100%);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .question-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .question {
+            font-size: 1.4em;
+            color: #333;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .option {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1em;
+        }
+
+        .option:hover {
+            background: #fff3e0;
+            border-color: #f89820;
+            transform: translateX(5px);
+        }
+
+        .option.selected {
+            background: #fff3e0;
+            border-color: #f89820;
+        }
+
+        .option.correct {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+
+        .option.wrong {
+            background: #f8d7da;
+            border-color: #dc3545;
+        }
+
+        .option.disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #f89820 0%, #ed1c24 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1em;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(248, 152, 32, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .result-screen {
+            text-align: center;
+        }
+
+        .score-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f89820 0%, #ed1c24 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 30px;
+            color: white;
+        }
+
+        .score-circle .score {
+            font-size: 3em;
+            font-weight: bold;
+        }
+
+        .score-circle .total {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .result-message {
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .result-details {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .result-details div {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .result-details div:last-child {
+            border-bottom: none;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .question {
+                font-size: 1.2em;
+            }
+
+            .option {
+                padding: 15px;
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header" style="position: relative;">
+            <a href="../pages/quizzes.html"
+                style="position: absolute; left: 20px; top: 20px; color: white; text-decoration: none; display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.2); padding: 8px 15px; border-radius: 5px; font-size: 0.9em;">
+                ← Back to Quizzes
+            </a>
+            <h1>☕ Java Quiz Master</h1>
+            <p>Test Your Java Knowledge</p>
+        </div>
+
+        <div class="quiz-container">
+            <div class="start-screen active">
+                <h2>Welcome to the Java Quiz!</h2>
+                <p>This quiz contains 20 questions covering various aspects of Java including syntax, OOP concepts,
+                    collections, exception handling, and best practices. You'll have unlimited time to complete the
+                    quiz. Good luck!</p>
+                <button class="btn" onclick="startQuiz()">Start Quiz</button>
+            </div>
+
+            <div class="quiz-screen">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="question-info">
+                    <span id="questionNumber">Question 1 of 20</span>
+                    <span id="score">Score: 0</span>
+                </div>
+                <div class="question" id="question"></div>
+                <div class="options" id="options"></div>
+                <div class="btn-container">
+                    <button class="btn" id="nextBtn" onclick="nextQuestion()" disabled>Next Question</button>
+                </div>
+            </div>
+
+            <div class="result-screen">
+                <h2>Quiz Complete! 🎉</h2>
+                <div class="score-circle">
+                    <div class="score" id="finalScore">0</div>
+                    <div class="total">out of 20</div>
+                </div>
+                <div class="result-message" id="resultMessage"></div>
+                <div class="result-details">
+                    <div>
+                        <span>Correct Answers:</span>
+                        <span id="correctCount">0</span>
+                    </div>
+                    <div>
+                        <span>Wrong Answers:</span>
+                        <span id="wrongCount">0</span>
+                    </div>
+                    <div>
+                        <span>Percentage:</span>
+                        <span id="percentage">0%</span>
+                    </div>
+                </div>
+                <button class="btn" onclick="restartQuiz()">Restart Quiz</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            {
+                question: "What is the size of int data type in Java?",
+                options: ["8 bits", "16 bits", "32 bits", "64 bits"],
+                correct: 2
+            },
+            {
+                question: "Which keyword is used to inherit a class in Java?",
+                options: ["implements", "extends", "inherits", "inherit"],
+                correct: 1
+            },
+            {
+                question: "What is the default value of a boolean variable in Java?",
+                options: ["true", "false", "null", "0"],
+                correct: 1
+            },
+            {
+                question: "Which of these is NOT a Java access modifier?",
+                options: ["public", "private", "protected", "package"],
+                correct: 3
+            },
+            {
+                question: "What is the correct way to create an object in Java?",
+                options: ["Object obj = Object();", "Object obj = new Object();", "Object obj = create Object();", "Object obj = Object.new();"],
+                correct: 1
+            },
+            {
+                question: "Which method is the entry point of a Java application?",
+                options: ["start()", "main()", "run()", "init()"],
+                correct: 1
+            },
+            {
+                question: "What does JVM stand for?",
+                options: ["Java Virtual Machine", "Java Variable Method", "Java Visual Manager", "Java Version Manager"],
+                correct: 0
+            },
+            {
+                question: "Which of these is used to handle exceptions in Java?",
+                options: ["try-catch", "handle-error", "catch-throw", "error-handler"],
+                correct: 0
+            },
+            {
+                question: "What is the parent class of all classes in Java?",
+                options: ["System", "Main", "Object", "Class"],
+                correct: 2
+            },
+            {
+                question: "Which keyword is used to prevent method overriding?",
+                options: ["static", "final", "const", "private"],
+                correct: 1
+            },
+            {
+                question: "What is the correct syntax to create a new thread?",
+                options: ["Thread t = new Thread();", "new Thread.start();", "Thread.create();", "start Thread();"],
+                correct: 0
+            },
+            {
+                question: "Which interface is used to implement collections in Java?",
+                options: ["List", "Collection", "Set", "Map"],
+                correct: 1
+            },
+            {
+                question: "What is method overloading?",
+                options: ["Same method name with different parameters", "Different method names with same parameters", "Same method in different classes", "Calling a method multiple times"],
+                correct: 0
+            },
+            {
+                question: "Which keyword is used to define constants in Java?",
+                options: ["const", "final", "static", "constant"],
+                correct: 1
+            },
+            {
+                question: "What is the output of 5 / 2 in Java?",
+                options: ["2.5", "2", "3", "2.0"],
+                correct: 1
+            },
+            {
+                question: "Which collection allows duplicate elements?",
+                options: ["Set", "Map", "List", "HashSet"],
+                correct: 2
+            },
+            {
+                question: "What is encapsulation in Java?",
+                options: ["Wrapping data and methods together", "Creating multiple classes", "Using inheritance", "Exception handling"],
+                correct: 0
+            },
+            {
+                question: "Which operator is used for string concatenation?",
+                options: ["&", "+", ".", ","],
+                correct: 1
+            },
+            {
+                question: "What is a constructor in Java?",
+                options: ["A method that returns void", "A special method to initialize objects", "A variable declaration", "A class modifier"],
+                correct: 1
+            },
+            {
+                question: "Which keyword is used to refer to the current object?",
+                options: ["self", "current", "this", "me"],
+                correct: 2
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let selectedAnswer = null;
+
+        const API_BASE_URL = 'http://127.0.0.1:8000';
+
+        async function savePartialProgress() {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            if (!user.user_id) return;
+
+            const quizId = 'java';
+            try {
+                await fetch(`${API_BASE_URL}/progress/quiz/partial`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: user.user_id,
+                        quiz_id: quizId,
+                        current_index: currentQuestion + 1,
+                        score: score
+                    })
+                });
+            } catch (error) {
+                console.error('Error saving partial progress:', error);
+            }
+        }
+
+        async function startQuiz() {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const quizId = 'java';
+
+            if (user.user_id) {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/progress/quiz/partial/${user.user_id}`);
+                    if (response.ok) {
+                        const partials = await response.json();
+                        const myPartial = partials[quizId];
+
+                        if (myPartial && myPartial.currentIndex > 0) {
+                            if (confirm('You have a quiz in progress. Would you like to resume?')) {
+                                currentQuestion = myPartial.currentIndex;
+                                score = myPartial.score;
+                            } else {
+                                // Clear partial if not resuming
+                                await fetch(`${API_BASE_URL}/progress/quiz/partial/${user.user_id}/${quizId}`, {
+                                    method: 'DELETE'
+                                });
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error checking progress:', error);
+                }
+            }
+
+            document.querySelector('.start-screen').classList.remove('active');
+            document.querySelector('.quiz-screen').classList.add('active');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const question = quizData[currentQuestion];
+            document.getElementById('question').textContent = question.question;
+            document.getElementById('questionNumber').textContent = `Question ${currentQuestion + 1} of ${quizData.length}`;
+            document.getElementById('score').textContent = `Score: ${score}`;
+
+            const progressPercent = ((currentQuestion) / quizData.length) * 100;
+            document.getElementById('progressFill').style.width = progressPercent + '%';
+
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+
+            question.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option';
+                optionDiv.textContent = option;
+                optionDiv.onclick = () => selectOption(index);
+                optionsContainer.appendChild(optionDiv);
+            });
+
+            selectedAnswer = null;
+            document.getElementById('nextBtn').disabled = true;
+
+            // Save partial progress
+            savePartialProgress();
+        }
+
+        function selectOption(index) {
+            if (selectedAnswer !== null) return;
+
+            selectedAnswer = index;
+            const options = document.querySelectorAll('.option');
+            const question = quizData[currentQuestion];
+
+            options[index].classList.add('selected');
+
+            setTimeout(() => {
+                options.forEach(opt => opt.classList.add('disabled'));
+                options[question.correct].classList.add('correct');
+
+                if (index === question.correct) {
+                    score++;
+                } else {
+                    options[index].classList.add('wrong');
+                }
+
+                document.getElementById('nextBtn').disabled = false;
+            }, 300);
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+
+            if (currentQuestion < quizData.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        async function saveQuizResult(score, total, percentage) {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const quizId = 'java';
+
+            if (user.user_id) {
+                try {
+                    // Save result
+                    await fetch(`${API_BASE_URL}/create_quiz`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            user_id: user.user_id,
+                            quiz_id: quizId,
+                            score: percentage, // Saving percentage as score
+                            attempt_date: new Date().toISOString()
+                        })
+                    });
+
+                    // Clear partial progress
+                    await fetch(`${API_BASE_URL}/progress/quiz/partial/${user.user_id}/${quizId}`, {
+                        method: 'DELETE'
+                    });
+
+                } catch (error) {
+                    console.error('Error saving quiz result:', error);
+                }
+            }
+        }
+
+        function showResults() {
+            document.querySelector('.quiz-screen').classList.remove('active');
+            document.querySelector('.result-screen').classList.add('active');
+
+            const percentage = Math.round((score / quizData.length) * 100);
+
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('correctCount').textContent = score;
+            document.getElementById('wrongCount').textContent = quizData.length - score;
+            document.getElementById('percentage').textContent = percentage + '%';
+
+            // Save result
+            saveQuizResult(score, quizData.length, percentage);
+
+            let message = '';
+            if (percentage >= 90) {
+                message = '🏆 Outstanding! You\'re a Java expert!';
+            } else if (percentage >= 70) {
+                message = '🎉 Great job! You have a solid understanding of Java!';
+            } else if (percentage >= 50) {
+                message = '👍 Good effort! Keep practicing to improve!';
+            } else {
+                message = '📚 Keep learning! Review the basics and try again!';
+            }
+
+            document.getElementById('resultMessage').textContent = message;
+        }
+
+        async function restartQuiz() {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const quizId = 'java';
+
+            if (user.user_id) {
+                try {
+                    await fetch(`${API_BASE_URL}/progress/quiz/partial/${user.user_id}/${quizId}`, {
+                        method: 'DELETE'
+                    });
+                } catch (error) {
+                    console.error('Error clearing progress:', error);
+                }
+            }
+
+            currentQuestion = 0;
+            score = 0;
+            selectedAnswer = null;
+            document.querySelector('.result-screen').classList.remove('active');
+            document.querySelector('.start-screen').classList.add('active');
+        }
+    </script>
+</body>
+
+</html>

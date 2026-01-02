@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Quiz Master</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .quiz-container {
+            padding: 40px;
+        }
+
+        .start-screen,
+        .quiz-screen,
+        .result-screen {
+            display: none;
+        }
+
+        .start-screen.active,
+        .quiz-screen.active,
+        .result-screen.active {
+            display: block;
+        }
+
+        .start-screen {
+            text-align: center;
+        }
+
+        .start-screen h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .start-screen p {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
+        .progress-bar {
+            background: #e0e0e0;
+            height: 10px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #f093fb 0%, #f5576c 100%);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .question-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .question {
+            font-size: 1.4em;
+            color: #333;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .option {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1em;
+        }
+
+        .option:hover {
+            background: #ffe8f5;
+            border-color: #f093fb;
+            transform: translateX(5px);
+        }
+
+        .option.selected {
+            background: #ffe8f5;
+            border-color: #f093fb;
+        }
+
+        .option.correct {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+
+        .option.wrong {
+            background: #f8d7da;
+            border-color: #dc3545;
+        }
+
+        .option.disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1em;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(240, 147, 251, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .result-screen {
+            text-align: center;
+        }
+
+        .score-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 30px;
+            color: white;
+        }
+
+        .score-circle .score {
+            font-size: 3em;
+            font-weight: bold;
+        }
+
+        .score-circle .total {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .result-message {
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .result-details {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .result-details div {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .result-details div:last-child {
+            border-bottom: none;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .question {
+                font-size: 1.2em;
+            }
+
+            .option {
+                padding: 15px;
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header" style="position: relative;">
+            <a href="../pages/quizzes.html"
+                style="position: absolute; left: 20px; top: 20px; color: white; text-decoration: none; display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.2); padding: 8px 15px; border-radius: 5px; font-size: 0.9em;">
+                ← Back to Quizzes
+            </a>
+            <h1>🎨 CSS Quiz Master</h1>
+            <p>Test Your CSS Knowledge</p>
+        </div>
+
+        <div class="quiz-container">
+            <div class="start-screen active">
+                <h2>Welcome to the CSS Quiz!</h2>
+                <p>This quiz contains 20 questions covering various aspects of CSS including selectors, properties,
+                    layout, animations, and best practices. You'll have unlimited time to complete the quiz. Good luck!
+                </p>
+                <button class="btn" onclick="startQuiz()">Start Quiz</button>
+            </div>
+
+            <div class="quiz-screen">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="question-info">
+                    <span id="questionNumber">Question 1 of 20</span>
+                    <span id="score">Score: 0</span>
+                </div>
+                <div class="question" id="question"></div>
+                <div class="options" id="options"></div>
+                <div class="btn-container">
+                    <button class="btn" id="nextBtn" onclick="nextQuestion()" disabled>Next Question</button>
+                </div>
+            </div>
+
+            <div class="result-screen">
+                <h2>Quiz Complete! 🎉</h2>
+                <div class="score-circle">
+                    <div class="score" id="finalScore">0</div>
+                    <div class="total">out of 20</div>
+                </div>
+                <div class="result-message" id="resultMessage"></div>
+                <div class="result-details">
+                    <div>
+                        <span>Correct Answers:</span>
+                        <span id="correctCount">0</span>
+                    </div>
+                    <div>
+                        <span>Wrong Answers:</span>
+                        <span id="wrongCount">0</span>
+                    </div>
+                    <div>
+                        <span>Percentage:</span>
+                        <span id="percentage">0%</span>
+                    </div>
+                </div>
+                <button class="btn" onclick="restartQuiz()">Restart Quiz</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            {
+                question: "What does CSS stand for?",
+                options: ["Cascading Style Sheets", "Computer Style Sheets", "Creative Style Sheets", "Colorful Style Sheets"],
+                correct: 0
+            },
+            {
+                question: "Which property is used to change the background color?",
+                options: ["color", "bg-color", "background-color", "bgcolor"],
+                correct: 2
+            },
+            {
+                question: "How do you select an element with id 'header'?",
+                options: [".header", "#header", "*header", "header"],
+                correct: 1
+            },
+            {
+                question: "Which property is used to change the font size?",
+                options: ["text-size", "font-size", "text-style", "font-weight"],
+                correct: 1
+            },
+            {
+                question: "How do you make text bold in CSS?",
+                options: ["font-weight: bold", "text-style: bold", "font: bold", "text-weight: bold"],
+                correct: 0
+            },
+            {
+                question: "Which property is used for text color?",
+                options: ["text-color", "font-color", "color", "text"],
+                correct: 2
+            },
+            {
+                question: "What is the default value of the position property?",
+                options: ["relative", "fixed", "absolute", "static"],
+                correct: 3
+            },
+            {
+                question: "Which property is used to create space between elements?",
+                options: ["padding", "margin", "spacing", "border"],
+                correct: 1
+            },
+            {
+                question: "How do you make a list not display bullet points?",
+                options: ["list-style-type: none", "list-type: none", "list: none", "bullet: none"],
+                correct: 0
+            },
+            {
+                question: "Which property is used to change the text alignment?",
+                options: ["text-style", "text-align", "align-text", "text-position"],
+                correct: 1
+            },
+            {
+                question: "What is the correct syntax for a CSS comment?",
+                options: ["// comment", "<!-- comment -->", "/* comment */", "' comment"],
+                correct: 2
+            },
+            {
+                question: "Which property controls the space inside an element?",
+                options: ["margin", "padding", "border", "spacing"],
+                correct: 1
+            },
+            {
+                question: "How do you select all <p> elements?",
+                options: [".p", "#p", "p", "*p"],
+                correct: 2
+            },
+            {
+                question: "Which value makes an element invisible?",
+                options: ["display: none", "visibility: hidden", "opacity: 0", "All of the above"],
+                correct: 3
+            },
+            {
+                question: "What is Flexbox used for?",
+                options: ["Creating animations", "Layout design", "Coloring elements", "Adding borders"],
+                correct: 1
+            },
+            {
+                question: "Which property is used for rounded corners?",
+                options: ["corner-radius", "border-radius", "corner-style", "border-corner"],
+                correct: 1
+            },
+            {
+                question: "What does the z-index property control?",
+                options: ["Element size", "Element color", "Stack order", "Element position"],
+                correct: 2
+            },
+            {
+                question: "Which unit is relative to the viewport width?",
+                options: ["em", "rem", "vw", "px"],
+                correct: 2
+            },
+            {
+                question: "How do you apply CSS to multiple selectors?",
+                options: ["Separate with comma", "Separate with semicolon", "Separate with space", "Use multiple style tags"],
+                correct: 0
+            },
+            {
+                question: "Which property is used for CSS Grid?",
+                options: ["display: flex", "display: grid", "display: block", "display: table"],
+                correct: 1
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let selectedAnswer = null;
+
+        const API_BASE_URL = 'http://127.0.0.1:8000';
+
+        async function savePartialProgress() {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            if (!user.user_id) return;
+
+            const quizId = 'css';
+            try {
+                await fetch(`${API_BASE_URL}/progress/quiz/partial`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: user.user_id,
+                        quiz_id: quizId,
+                        current_index: currentQuestion + 1,
+                        score: score
+                    })
+                });
+            } catch (error) {
+                console.error('Error saving partial progress:', error);
+            }
+        }
+
+        async function startQuiz() {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const quizId = 'css';
+
+            if (user.user_id) {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/progress/quiz/partial/${user.user_id}`);
+                    if (response.ok) {
+                        const partials = await response.json();
+                        const myPartial = partials[quizId];
+
+                        if (myPartial && myPartial.currentIndex > 0) {
+                            if (confirm('You have a quiz in progress. Would you like to resume?')) {
+                                currentQuestion = myPartial.currentIndex;
+                                score = myPartial.score;
+                            } else {
+                                // Clear partial if not resuming
+                                await fetch(`${API_BASE_URL}/progress/quiz/partial/${user.user_id}/${quizId}`, {
+                                    method: 'DELETE'
+                                });
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error checking progress:', error);
+                }
+            }
+
+            document.querySelector('.start-screen').classList.remove('active');
+            document.querySelector('.quiz-screen').classList.add('active');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const question = quizData[currentQuestion];
+            document.getElementById('question').textContent = question.question;
+            document.getElementById('questionNumber').textContent = `Question ${currentQuestion + 1} of ${quizData.length}`;
+            document.getElementById('score').textContent = `Score: ${score}`;
+
+            const progressPercent = ((currentQuestion) / quizData.length) * 100;
+            document.getElementById('progressFill').style.width = progressPercent + '%';
+
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+
+            question.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option';
+                optionDiv.textContent = option;
+                optionDiv.onclick = () => selectOption(index);
+                optionsContainer.appendChild(optionDiv);
+            });
+
+            selectedAnswer = null;
+            document.getElementById('nextBtn').disabled = true;
+
+            // Save partial progress
+            savePartialProgress();
+        }
+
+        function selectOption(index) {
+            if (selectedAnswer !== null) return;
+
+            selectedAnswer = index;
+            const options = document.querySelectorAll('.option');
+            const question = quizData[currentQuestion];
+
+            options[index].classList.add('selected');
+
+            setTimeout(() => {
+                options.forEach(opt => opt.classList.add('disabled'));
+                options[question.correct].classList.add('correct');
+
+                if (index === question.correct) {
+                    score++;
+                } else {
+                    options[index].classList.add('wrong');
+                }
+
+                document.getElementById('nextBtn').disabled = false;
+            }, 300);
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+
+            if (currentQuestion < quizData.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        async function saveQuizResult(score, total, percentage) {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const quizId = 'css';
+
+            if (user.user_id) {
+                try {
+                    // Save result
+                    await fetch(`${API_BASE_URL}/create_quiz`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            user_id: user.user_id,
+                            quiz_id: quizId,
+                            score: percentage, // Saving percentage as score
+                            attempt_date: new Date().toISOString()
+                        })
+                    });
+
+                    // Clear partial progress
+                    await fetch(`${API_BASE_URL}/progress/quiz/partial/${user.user_id}/${quizId}`, {
+                        method: 'DELETE'
+                    });
+
+                } catch (error) {
+                    console.error('Error saving quiz result:', error);
+                }
+            }
+        }
+
+        function showResults() {
+            document.querySelector('.quiz-screen').classList.remove('active');
+            document.querySelector('.result-screen').classList.add('active');
+
+            const percentage = Math.round((score / quizData.length) * 100);
+
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('correctCount').textContent = score;
+            document.getElementById('wrongCount').textContent = quizData.length - score;
+            document.getElementById('percentage').textContent = percentage + '%';
+
+            // Save result
+            saveQuizResult(score, quizData.length, percentage);
+
+            let message = '';
+            if (percentage >= 90) {
+                message = '🏆 Outstanding! You\'re a CSS expert!';
+            } else if (percentage >= 70) {
+                message = '🎉 Great job! You have a solid understanding of CSS!';
+            } else if (percentage >= 50) {
+                message = '👍 Good effort! Keep practicing to improve!';
+            } else {
+                message = '📚 Keep learning! Review the basics and try again!';
+            }
+
+            document.getElementById('resultMessage').textContent = message;
+        }
+
+        async function restartQuiz() {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const quizId = 'css';
+
+            if (user.user_id) {
+                try {
+                    await fetch(`${API_BASE_URL}/progress/quiz/partial/${user.user_id}/${quizId}`, {
+                        method: 'DELETE'
+                    });
+                } catch (error) {
+                    console.error('Error clearing progress:', error);
+                }
+            }
+
+            currentQuestion = 0;
+            score = 0;
+            selectedAnswer = null;
+            document.querySelector('.result-screen').classList.remove('active');
+            document.querySelector('.start-screen').classList.add('active');
+        }
+    </script>
+</body>
+
+</html>

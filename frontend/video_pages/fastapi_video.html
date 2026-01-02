@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FastAPI Course</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #d8d8d8;
+        }
+
+        .container {
+            display: flex;
+            max-width: 1400px;
+            margin: 20px auto;
+            gap: 20px;
+            padding: 0 20px;
+        }
+
+        .video-section {
+            flex: 1;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .video-player {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #000;
+            border-radius: 5px;
+        }
+
+        .video-title {
+            font-size: 22px;
+            margin: 15px 0 5px 0;
+        }
+
+        .video-info {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .btn-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .nav-btn {
+            padding: 12px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 30%;
+            font-size: 16px;
+        }
+
+        .nav-btn:disabled {
+            background: #b5b5b5;
+            cursor: not-allowed;
+        }
+
+        .playlist-section {
+            width: 350px;
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .playlist-header {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #007bff;
+        }
+
+        .video-list {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .video-item {
+            display: flex;
+            gap: 10px;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: 2px solid transparent;
+            opacity: 0.6;
+            cursor: pointer;
+            pointer-events: none;
+        }
+
+        .video-item.active {
+            background: #e3f2fd;
+            border-color: #007bff;
+            opacity: 1;
+        }
+
+        .video-thumb {
+            width: 120px;
+            height: 68px;
+            background: #ddd;
+            border-radius: 4px;
+            object-fit: cover;
+        }
+
+        .item-title {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .item-duration {
+            color: #888;
+            font-size: 12px;
+        }
+
+        .back-home {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 10px 20px;
+            background-color: #1f2937;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .back-home:hover {
+            background-color: #374151;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="video-section">
+            <a href="../pages/dashboard.html" class="back-home">
+                ← Back to Dashboard
+            </a>
+            <div class="video-player">
+                <iframe id="ytVideo" width="100%" height="100%" style="display:block;" allowfullscreen></iframe>
+            </div>
+
+            <h2 class="video-title" id="videoTitle">Loading...</h2>
+            <p class="video-info" id="videoInfo">Duration: --:--</p>
+
+            <div class="btn-container">
+                <button class="nav-btn" id="prevBtn" onclick="goPrev()">Previous</button>
+                <button class="nav-btn" id="completeBtn" onclick="markComplete()" style="background: #28a745;">Mark
+                    Complete</button>
+                <button class="nav-btn" id="nextBtn" onclick="goNext()" disabled>Next</button>
+            </div>
+        </div>
+
+        <div class="playlist-section">
+            <div class="playlist-header">Course Videos</div>
+            <div class="video-list" id="videoList"></div>
+        </div>
+    </div>
+
+    <script>
+        const videos = [
+            { title: "1. FastAPI Introduction in Tamil", duration: "11:30", thumbnail: "https://img.youtube.com/vi/7t2alSnE2-I/hqdefault.jpg", src: "https://www.youtube.com/embed/7t2alSnE2-I" },
+            { title: "2. Setting up FastAPI & Uvicorn", duration: "13:20", thumbnail: "https://img.youtube.com/vi/7t2alSnE2-I/hqdefault.jpg", src: "https://www.youtube.com/embed/7t2alSnE2-I" },
+            { title: "3. Path and Query Parameters", duration: "15:45", thumbnail: "https://img.youtube.com/vi/7t2alSnE2-I/hqdefault.jpg", src: "https://www.youtube.com/embed/7t2alSnE2-I" },
+            { title: "4. Request Body with Pydantic", duration: "18:10", thumbnail: "https://img.youtube.com/vi/7t2alSnE2-I/hqdefault.jpg", src: "https://www.youtube.com/embed/7t2alSnE2-I" },
+            { title: "5. CRUD Operations in FastAPI", duration: "25:00", thumbnail: "https://img.youtube.com/vi/7t2alSnE2-I/hqdefault.jpg", src: "https://www.youtube.com/embed/7t2alSnE2-I" },
+            { title: "6. Handling Errors & Status Codes", duration: "12:40", thumbnail: "https://img.youtube.com/vi/7t2alSnE2-I/hqdefault.jpg", src: "https://www.youtube.com/embed/7t2alSnE2-I" },
+            { title: "7. Dependency Injection Intro", duration: "16:15", thumbnail: "https://img.youtube.com/vi/7t2alSnE2-I/hqdefault.jpg", src: "https://www.youtube.com/embed/7t2alSnE2-I" },
+            { title: "8. Databases with SQLAlchemy", duration: "28:30", thumbnail: "https://img.youtube.com/vi/7t2alSnE2-I/hqdefault.jpg", src: "https://www.youtube.com/embed/7t2alSnE2-I" },
+            { title: "9. Authentication in FastAPI", duration: "22:50", thumbnail: "https://img.youtube.com/vi/7t2alSnE2-I/hqdefault.jpg", src: "https://www.youtube.com/embed/7t2alSnE2-I" },
+            { title: "10. Deploying FastAPI App", duration: "19:40", thumbnail: "https://img.youtube.com/vi/7t2alSnE2-I/hqdefault.jpg", src: "https://www.youtube.com/embed/7t2alSnE2-I" }
+        ];
+
+        let currentIndex = 0;
+        const courseId = 'fastapi';
+        const API_BASE_URL = 'http://127.0.0.1:8000';
+        let courseProgressData = [];
+
+        async function fetchProgress() {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            if (!user.user_id) return [];
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/progress/course/${user.user_id}`);
+                const data = await response.json();
+                return data[courseId] || [];
+            } catch (error) {
+                console.error('Error fetching progress:', error);
+                return [];
+            }
+        }
+
+        async function loadVideos() {
+            const list = document.getElementById('videoList');
+            list.innerHTML = '';
+            courseProgressData = await fetchProgress();
+
+            videos.forEach((video, index) => {
+                const isCompleted = courseProgressData.includes(index);
+                const item = document.createElement('div');
+                item.className = `video-item ${index === currentIndex ? 'active' : ''}`;
+
+                if (isCompleted || index === 0 || courseProgressData.includes(index - 1)) {
+                    item.style.pointerEvents = 'auto';
+                    item.style.opacity = '1';
+                }
+
+                item.onclick = () => { currentIndex = index; playVideo(index); };
+                item.innerHTML = `
+                    <img src="${video.thumbnail}" class="video-thumb">
+                    <div>
+                        <div class="item-title">${video.title} ${isCompleted ? '✅' : ''}</div>
+                        <div class="item-duration">${video.duration}</div>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function playVideo(index) {
+            const video = videos[index];
+            const yt = document.getElementById("ytVideo");
+            const nextBtn = document.getElementById("nextBtn");
+            const completeBtn = document.getElementById("completeBtn");
+
+            const isCompleted = courseProgressData.includes(index);
+
+            completeBtn.disabled = isCompleted;
+            completeBtn.textContent = isCompleted ? 'Completed' : 'Mark Complete';
+            completeBtn.style.opacity = isCompleted ? '0.7' : '1';
+
+            document.querySelectorAll(".video-item").forEach((item, i) => {
+                item.classList.toggle("active", i === index);
+            });
+
+            document.getElementById("videoTitle").textContent = video.title;
+            document.getElementById("videoInfo").textContent = "Duration: " + video.duration;
+
+            yt.src = video.src + "?enablejsapi=1";
+
+            nextBtn.disabled = !isCompleted;
+        }
+
+        async function markComplete() {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            if (!user.user_id) {
+                alert('Please log in to save progress');
+                return;
+            }
+
+            if (!courseProgressData.includes(currentIndex)) {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/progress/course/video`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            user_id: user.user_id,
+                            course_id: courseId,
+                            video_index: currentIndex
+                        })
+                    });
+
+                    if (response.ok) {
+                        await loadVideos();
+                        playVideo(currentIndex);
+                    }
+                } catch (error) {
+                    console.error('Error saving progress:', error);
+                }
+            }
+        }
+
+        function goNext() {
+            if (currentIndex < videos.length - 1) {
+                currentIndex++;
+                playVideo(currentIndex);
+            }
+        }
+
+        function goPrev() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                playVideo(currentIndex);
+            }
+        }
+
+        window.onload = () => {
+            loadVideos();
+            playVideo(0);
+        };
+    </script>
+</body>
+
+</html>

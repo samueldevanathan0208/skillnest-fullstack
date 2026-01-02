@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="../css/modals.css">
+    <script src="../js/sidebar-handlers.js" defer></script>
+    <script>
+        // Check if user is logged in
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (!user) {
+            window.location.href = 'login.html';
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (user && user.user_id) {
+                try {
+                    // Fetch fresh user data to ensure name is up to date
+                    const response = await fetch(`${API_BASE_URL}/user/${user.user_id}`);
+                    if (response.ok) {
+                        const freshUser = await response.json();
+                        // Update UI with fresh name
+                        document.getElementById('user-greeting').textContent = `Hey, ${freshUser.user_name || user.user_name}`;
+                        document.getElementById('user-id').textContent = `ID: ${freshUser.user_id}`;
+
+                        // Update localStorage to keep it in sync
+                        // Preserve session token or other fields if any, merging fresh data
+                        const updatedUser = { ...user, ...freshUser };
+                        localStorage.setItem('user', JSON.stringify(updatedUser));
+                    } else {
+                        // Fallback to local storage if fetch fails
+                        document.getElementById('user-greeting').textContent = `Hey, ${user.user_name}`;
+                        document.getElementById('user-id').textContent = `ID: ${user.user_id}`;
+                    }
+                } catch (e) {
+                    console.error("Error fetching fresh user data:", e);
+                    document.getElementById('user-greeting').textContent = `Hey, ${user.user_name}`;
+                    document.getElementById('user-id').textContent = `ID: ${user.user_id}`;
+                }
+            }
+
+            updateCourseProgress();
+        });
+
+        const API_BASE_URL = 'http://127.0.0.1:8000';
+
+        async function updateCourseProgress() {
+            if (!user || !user.user_id) return;
+
+            const courseIds = ['html', 'css', 'js', 'python', 'java', 'react', 'fastapi', 'postgresql'];
+            const totalVideosPerCourse = 10;
+            const totalPossibleVideos = courseIds.length * totalVideosPerCourse;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/progress/course/${user.user_id}`);
+                if (!response.ok) throw new Error('Failed to fetch progress');
+
+                const progressData = await response.json();
+
+                let totalCompletedVideos = 0;
+                let completedCoursesCount = 0;
+
+                courseIds.forEach(id => {
+                    if (progressData[id]) {
+                        const completedInCourse = progressData[id].length;
+                        totalCompletedVideos += completedInCourse;
+                        if (completedInCourse === totalVideosPerCourse) {
+                            completedCoursesCount++;
+                        }
+                    }
+                });
+
+                const overallPercent = Math.round((totalCompletedVideos / totalPossibleVideos) * 100);
+
+                // Update UI
+                const label = document.querySelector('.progress-label span');
+                const fill = document.querySelector('.progress-fill');
+
+                if (label && fill) {
+                    label.innerHTML = `Learning Progress: ${overallPercent}% Complete<br><small>${completedCoursesCount} of 8 Courses Completed</small>`;
+                    fill.style.width = `${overallPercent}%`;
+                }
+
+            } catch (error) {
+                console.error('Error fetching course progress:', error);
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <nav>
+            <div class="nav-section">
+                <img class="logo" src="../assests/Gemini_Generated_Image_awja8lawja8lawja-removebg-preview.png"
+                    alt="Logo">
+                <a href="#" class="nav-item active">
+                    <span>Dashboard</span>
+                </a>
+                <a href="mylearn.html" class="nav-item">
+                    <span>My Learning</span>
+                </a>
+                <a href="mycertificate.html" class="nav-item">
+                    <span>Certificate</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <h3 class="nav-section-title">Learn</h3>
+
+                </a>
+                <a href="learingpath.html" class="nav-item">
+                    <span>Learning Path</span>
+                </a>
+                <a href="quizzes.html" class="nav-item">
+                    <span>Quizzes</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <h3 class="nav-section-title">Account Setting</h3>
+                <a href="edit.html" class="nav-item">
+                    <span>Edit Profile</span>
+                </a>
+                <a href="#" id="delete-profile-link" class="nav-item">
+                    <span>Delete Profile</span>
+                </a>
+                <a href="#" id="sign-out-link" class="nav-item">
+                    <span>Sign Out</span>
+                </a>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <h1 class="page-title">My Dashboard</h1>
+
+        <div class="dashboard-grid">
+            <div class="profile-card">
+                <div class="profile-header">
+
+                </div>
+                <div class="profile-info">
+                    <h2 id="user-greeting">Hey, Sam</h2>
+                    <p id="user-id" class="profile-id">ID: 987654</p>
+                    <div class="current-course">
+                        <p>Current Course:</p>
+                        <p>Full Stack Development</p>
+                    </div>
+                    <div class="progress-section">
+                        <div class="progress-label">
+                            <span>Profile 30% Complete</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="projects-card">
+                <div class="projects-content">
+                    <h2>Real World Projects</h2>
+                    <p>Engage with real-world challenges using our projects directory. Apply your knowledge to real
+                        scenarios in a practical environment.</p>
+                    <button class="start-btn">Start Project</button>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="courses-header">
+            <h2 class="courses-title">Learn</h2>
+            <button class="view-all-btn">View All</button>
+        </div>
+
+        <div class="courses-grid">
+            <div class="course-card">
+                <div class="course-header html">HTML5</div>
+                <div class="course-body">
+                    <h3 class="course-title">HTML Course</h3>
+                    <a class="start-btn-html" href="../video_pages/html_video.html">
+                        <h2>Start</h2>
+                    </a>
+                </div>
+            </div>
+
+            <div class="course-card">
+                <div class="course-header css">CSS3</div>
+                <div class="course-body">
+                    <h3 class="course-title">CSS Course</h3>
+                    <a class="start-btn-css" href="../video_pages/css_video.html">
+                        <h2>Start</h2>
+                    </a>
+                </div>
+            </div>
+
+            <div class="course-card">
+                <div class="course-header js">JS</div>
+                <div class="course-body">
+                    <h3 class="course-title">JavaScript Course</h3>
+                    <a class="start-btn-js" href="../video_pages/js_video.html">
+                        <h2>Start</h2>
+                    </a>
+                </div>
+            </div>
+
+            <div class="course-card">
+                <div class="course-header python">PY</div>
+                <div class="course-body">
+                    <h3 class="course-title">Learn Python</h3>
+                    <a class="start-btn-python" href="../video_pages/python_video.html">
+                        <h2>Start</h2>
+                    </a>
+                </div>
+            </div>
+
+            <div class="course-card">
+                <div class="course-header java">Java</div>
+                <div class="course-body">
+                    <h3 class="course-title">Java Course</h3>
+                    <a class="start-btn-java" href="../video_pages/java_video.html">
+                        <h2>Start</h2>
+                    </a>
+                </div>
+            </div>
+
+            <div class="course-card">
+                <div class="course-header react">React</div>
+                <div class="course-body">
+                    <h3 class="course-title">React Course</h3>
+                    <a class="start-btn-react" href="../video_pages/react_video.html">
+                        <h2>Start</h2>
+                    </a>
+                </div>
+            </div>
+
+            <div class="course-card">
+                <div class="course-header fastapi">FastAPI</div>
+                <div class="course-body">
+                    <h3 class="course-title">FastAPI Course</h3>
+                    <a class="start-btn-fastapi" href="../video_pages/fastapi_video.html">
+                        <h2>Start</h2>
+                    </a>
+                </div>
+            </div>
+
+            <div class="course-card">
+                <div class="course-header db">PG</div>
+                <div class="course-body">
+                    <h3 class="course-title">PostgreSQL </h3>
+                    <a class="start-btn-db" href="../video_pages/postgresql_video.html">
+                        <h2>Start</h2>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>

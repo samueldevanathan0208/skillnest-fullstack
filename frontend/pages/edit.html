@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile</title>
+    <link rel="stylesheet" href="../css/edit.css">
+    <link rel="stylesheet" href="../css/modals.css">
+    <script src="../js/sidebar-handlers.js" defer></script>
+
+</head>
+
+<body>
+
+    <aside class="sidebar">
+        <nav>
+            <div class="nav-section">
+                <img class="logo" src="../assests/Gemini_Generated_Image_awja8lawja8lawja-removebg-preview.png"
+                    alt="Logo">
+                <a href="dashboard.html" class="nav-item">
+                    <span>Dashboard</span>
+                </a>
+                <a href="mylearn.html" class="nav-item">
+                    <span>My Learning</span>
+                </a>
+                <a href="mycertificate.html" class="nav-item">
+                    <span>Certificate</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <h3 class="nav-section-title">Learn</h3>
+
+                <a href="learingpath.html" class="nav-item">
+                    <span>Learning Path</span>
+                </a>
+                <a href="quizzes.html" class="nav-item">
+                    <span>Quizzes</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <h3 class="nav-section-title">Account Setting</h3>
+                <a href="#" class="nav-item active">
+                    <span>Edit Profile</span>
+                </a>
+                <a href="#" id="delete-profile-link" class="nav-item">
+                    <span>Delete Profile</span>
+                </a>
+                <a href="#" id="sign-out-link" class="nav-item">
+                    <span>Sign Out</span>
+                </a>
+            </div>
+        </nav>
+    </aside>
+
+
+    <div class="main-wrapper">
+        <div class="header">
+            <h1> Edit Profile</h1>
+            <p>Update your personal information and preferences</p>
+        </div>
+
+        <div class="container">
+
+            <div class="profile-card">
+                <div class="avatar-section">
+                    <div class="avatar-section">
+                        <div class="avatar-info">
+                            <h2></h2> <!-- Dynamically filled -->
+                            <p>Member since January 2024</p>
+                        </div>
+                        <div class="avatar-actions">
+                            <button class="btn-secondary">Upload New Photo</button>
+                            <button class="btn-secondary">Remove</button>
+                        </div>
+
+                    </div>
+                </div>
+
+
+                <h3 class="section-title">
+
+                    <span>Personal Information</span>
+                </h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">First Name</label>
+                        <input type="text" class="form-input" id="firstName" placeholder="Enter first name">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Last Name</label>
+                        <input type="text" class="form-input" id="lastName" placeholder="Enter last name">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" class="form-input" id="email" placeholder="Enter email">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Phone Number</label>
+                        <input type="tel" class="form-input" id="phone" placeholder="Enter phone number">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Date of Birth</label>
+                        <input type="date" class="form-input" id="dob">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Gender</label>
+                        <select class="form-select" id="gender">
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                            <option value="Prefer not to say">Prefer not to say</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-actions" style="margin-top: 2rem; display: flex; gap: 1rem;">
+                    <button class="btn-primary" onclick="saveChanges()"
+                        style="background-color: #6C5DD3; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 8px; cursor: pointer; font-weight: 500;">Save
+                        Changes</button>
+                    <button class="btn-secondary" onclick="window.location.reload()"
+                        style="background-color: transparent; border: 1px solid #ddd; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer;">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Global Modals injected by sidebar-handlers.js -->
+
+    <script>
+        const API_BASE_URL = 'http://127.0.0.1:8000';
+        let currentUser = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            const storedUser = JSON.parse(localStorage.getItem('user'));
+            if (!storedUser || !storedUser.user_id) {
+                window.location.href = '../pages/login.html';
+                return;
+            }
+
+            try {
+                // Fetch fresh user data
+                const response = await fetch(`${API_BASE_URL}/user/${storedUser.user_id}`);
+                if (response.ok) {
+                    currentUser = await response.json();
+                    populateForm(currentUser);
+                }
+            } catch (error) {
+                console.error('Error fetching user:', error);
+            }
+
+            // setupNavHandlers(); // Handled globally by sidebar-handlers.js
+        });
+
+        function populateForm(user) {
+            // Update Header Info
+            document.querySelector('.avatar-info h2').textContent = user.user_name || 'User';
+
+            // Populate Inputs
+            // Handle name splitting safely
+            const fullName = user.user_name || '';
+            const firstSpaceIndex = fullName.indexOf(' ');
+            let firstName = fullName;
+            let lastName = '';
+
+            if (firstSpaceIndex !== -1) {
+                firstName = fullName.substring(0, firstSpaceIndex);
+                lastName = fullName.substring(firstSpaceIndex + 1);
+            }
+
+            document.getElementById('firstName').value = firstName;
+            document.getElementById('lastName').value = lastName;
+            document.getElementById('email').value = user.user_email || '';
+            document.getElementById('phone').value = user.user_phone || '';
+            document.getElementById('dob').value = user.user_dateofbirth || '';
+
+            // Normalize gender for dropdown
+            let gender = user.user_gender || 'Prefer not to say';
+            const lowerGender = gender.toLowerCase();
+            if (lowerGender === 'male') gender = 'Male';
+            else if (lowerGender === 'female') gender = 'Female';
+            else if (lowerGender === 'other' || lowerGender === 'other gender') gender = 'Other';
+
+            document.getElementById('gender').value = gender;
+        }
+
+        async function saveChanges() {
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const fullName = `${firstName} ${lastName}`.trim();
+
+            const updateData = {
+                user_name: fullName,
+                user_email: document.getElementById('email').value,
+                user_phone: document.getElementById('phone').value,
+                user_dateofbirth: document.getElementById('dob').value,
+                user_gender: document.getElementById('gender').value
+            };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/user/${currentUser.user_id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updateData)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    localStorage.setItem('user', JSON.stringify(result.user));
+                    alert('Profile updated successfully!');
+                    window.location.reload();
+                } else {
+                    alert('Failed to update profile');
+                }
+            } catch (error) {
+                console.error('Error updating:', error);
+                alert('An error occurred');
+            }
+        }
+
+        // Modal Handlers and functions moved to sidebar-handlers.js
+    </script>
+</body>
+
+</html>

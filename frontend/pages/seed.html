@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+    <h1>Seeding Data...</h1>
+    <div id="status">Starting...</div>
+    <script>
+        async function seed() {
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (!user) {
+                document.getElementById('status').textContent = 'No user logged in!';
+                return;
+            }
+            const API_BASE_URL = 'http://127.0.0.1:8000';
+
+            try {
+                // 1. Mark Videos
+                for (let i = 0; i < 10; i++) {
+                    await fetch(`${API_BASE_URL}/progress/course/video`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ user_id: user.user_id, course_id: 'html', video_index: i })
+                    });
+                }
+
+                // 2. Mark Quiz
+                await fetch(`${API_BASE_URL}/create_quiz`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: user.user_id,
+                        quiz_id: 'html',
+                        score: 95,
+                        attempt_date: new Date().toISOString()
+                    })
+                });
+
+                document.getElementById('status').textContent = 'DONE';
+            } catch (e) {
+                document.getElementById('status').textContent = 'ERROR: ' + e.message;
+            }
+        }
+        seed();
+    </script>
+</body>
+
+</html>

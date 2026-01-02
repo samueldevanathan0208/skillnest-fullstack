@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LMS Video Player</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+        }
+
+        .container {
+            display: flex;
+            max-width: 1400px;
+            margin: 20px auto;
+            gap: 20px;
+            padding: 0 20px;
+        }
+
+        .video-section {
+            flex: 1;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .video-player {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #000;
+            border-radius: 5px;
+        }
+
+        .video-title {
+            font-size: 22px;
+            margin: 15px 0 5px 0;
+        }
+
+        .video-info {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .playlist-section {
+            width: 350px;
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .playlist-header {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #007bff;
+        }
+
+        .video-list {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .video-item {
+            display: flex;
+            gap: 10px;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .video-item:hover {
+            background: #f0f0f0;
+        }
+
+        .video-item.active {
+            background: #e3f2fd;
+            border-color: #007bff;
+        }
+
+        .video-thumb {
+            width: 120px;
+            height: 68px;
+            background: #ddd;
+            border-radius: 4px;
+            object-fit: cover;
+        }
+
+        .video-details {
+            flex: 1;
+        }
+
+        .item-title {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 5px;
+            line-height: 1.3;
+        }
+
+        .item-duration {
+            color: #888;
+            font-size: 12px;
+        }
+        iframe{
+            width: 950px;
+            height: 565px;
+            margin-left: 5px;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            .playlist-section {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="video-section">
+            <div id="mainVideoContainer" class="video-player"></div>
+            <h2 class="video-title" id="videoTitle">Select a video to play</h2>
+            <p class="video-info" id="videoInfo">Duration: --:--</p>
+        </div>
+
+        <div class="playlist-section">
+            <div class="playlist-header">Course Videos</div>
+            <div class="video-list" id="videoList"></div>
+        </div>
+    </div>
+
+    <script>
+        const videos = [
+            {
+                title: "Introduction to JavaScript",
+                duration: "11:47",
+                thumbnail: "https://via.placeholder.com/120x68/4CAF50/fff?text=Video+1",
+                iframe: '<iframe width="560" height="315" src="https://www.youtube.com/embed/-RC5_IVfkkU?si=ya7dZEyjjVJ7Shl8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>'
+            },
+            {
+                title: "Variables and Data Types",
+                duration: "13:51",
+                thumbnail: "https://via.placeholder.com/120x68/2196F3/fff?text=Video+2",
+                iframe: "<iframe width='560' height='315' srcdoc=\"<video src='https://www.w3schools.com/html/movie.mp4' controls width='560' height='315'></video>\" frameborder='0'></iframe>"
+            },
+            {
+                title: "Functions in JavaScript",
+                duration: "15:59",
+                thumbnail: "https://via.placeholder.com/120x68/FF9800/fff?text=Video+3",
+                iframe: "<iframe width='560' height='315' srcdoc=\"<video src='https://www.w3schools.com/html/mov_bbb.mp4' controls width='560' height='315'></video>\" frameborder='0'></iframe>"
+            },
+            {
+                title: "Arrays and Objects",
+                duration: "14:35",
+                thumbnail: "https://via.placeholder.com/120x68/9C27B0/fff?text=Video+4",
+                iframe: "<iframe width='560' height='315' srcdoc=\"<video src='https://www.w3schools.com/html/movie.mp4' controls width='560' height='315'></video>\" frameborder='0'></iframe>"
+            },
+            {
+                title: "Loops and Conditions",
+                duration: "10:23",
+                thumbnail: "https://via.placeholder.com/120x68/F44336/fff?text=Video+5",
+                iframe: "<iframe width='560' height='315' srcdoc=\"<video src='https://www.w3schools.com/html/mov_bbb.mp4' controls width='560' height='315'></video>\" frameborder='0'></iframe>"
+            },
+            {
+                title: "DOM Manipulation",
+                duration: "12:43",
+                thumbnail: "https://via.placeholder.com/120x68/00BCD4/fff?text=Video+6",
+                iframe: "<iframe width='1000px' height='315' srcdoc=\"<video src='https://www.w3schools.com/html/movie.mp4' controls width='560' height='315'></video>\" frameborder='0'></iframe>"
+            }
+        ];
+
+        let currentIndex = -1;
+
+        function loadVideos() {
+            const list = document.getElementById('videoList');
+            videos.forEach((video, index) => {
+                const item = document.createElement('div');
+                item.className = 'video-item';
+                item.onclick = () => playVideo(index);
+                item.innerHTML = `
+                    <img src="${video.thumbnail}" class="video-thumb" alt="${video.title} thumbnail">
+                    <div class="video-details">
+                        <div class="item-title">${video.title}</div>
+                        <div class="item-duration">${video.duration}</div>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function playVideo(index) {
+            const video = videos[index];
+            const container = document.getElementById('mainVideoContainer');
+            if (!container) {
+                console.error("Container not found. Ensure <div id='mainVideoContainer'> exists.");
+                return;
+            }
+            container.innerHTML = video.iframe;
+            document.getElementById('videoTitle').textContent = video.title;
+            document.getElementById('videoInfo').textContent = `Duration: ${video.duration}`;
+            
+            const items = document.querySelectorAll('.video-item');
+            items.forEach((item, i) => {
+                item.classList.toggle('active', i === index);
+            });
+            
+            currentIndex = index;
+            // Note: Autoplay may be blocked by browsers. For YouTube, add ?autoplay=1 to the iframe src if needed.
+        }
+
+        loadVideos();
+    </script>
+</body>
+</html>

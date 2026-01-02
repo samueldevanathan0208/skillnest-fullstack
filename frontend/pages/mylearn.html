@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Learning</title>
+    <link rel="stylesheet" href="../css/mylearn.css">
+    <link rel="stylesheet" href="../css/modals.css">
+    <script src="../js/sidebar-handlers.js" defer></script>
+    <style>
+        .empty-state {
+            text-align: center;
+            padding: 50px;
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            grid-column: 1 / -1;
+        }
+    </style>
+</head>
+
+<body>
+    <aside class="sidebar">
+        <nav>
+            <div class="nav-section">
+                <img class="logo" src="../assests/Gemini_Generated_Image_awja8lawja8lawja-removebg-preview.png" alt="">
+                <a href="dashboard.html" class="nav-item">
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item active">
+                    <span>My Learning</span>
+                </a>
+                <a href="mycertificate.html" class="nav-item">
+                    <span>Certificate</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <a href="learingpath.html" class="nav-item">
+                    <span>Learning Path</span>
+                </a>
+                <a href="quizzes.html" class="nav-item">
+                    <span>Quizzes</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <h3 class="nav-section-title">Account Setting</h3>
+                <a href="#" class="nav-item">
+                    <span>Edit Profile</span>
+                </a>
+                <a href="#" id="delete-profile-link" class="nav-item">
+                    <span>Delete Profile</span>
+                </a>
+                <a href="#" id="sign-out-link" class="nav-item">
+                    <span>Sign Out</span>
+                </a>
+            </div>
+        </nav>
+    </aside>
+
+    <div class="main-wrapper">
+        <div class="header">
+            <h1>My Learning</h1>
+            <p>Track your progress and continue learning</p>
+        </div>
+
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <h3>Total Courses</h3>
+                        <p id="stat-total">0</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <h3>In Progress</h3>
+                        <p id="stat-progress">0</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <h3>Completed</h3>
+                        <p id="stat-completed">0</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <h3>Enrolled</h3>
+                        <p id="stat-enrolled">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="courses-grid" id="courses-container">
+                <!-- Courses will be loaded here -->
+            </div>
+        </div>
+        </main>
+
+        <script>
+            const courseData = {
+                'html': { title: 'HTML Course', headerText: 'HTML5', total: 10, link: '../video_pages/html_video.html' },
+                'css': { title: 'CSS Course', headerText: 'CSS3', total: 10, link: '../video_pages/css_video.html' },
+                'js': { title: 'JavaScript Course', headerText: 'JS', total: 10, link: '../video_pages/js_video.html' },
+                'python': { title: 'Learn Python', headerText: 'PY', total: 10, link: '../video_pages/python_video.html' },
+                'java': { title: 'Java Course', headerText: 'JAVA', total: 10, link: '../video_pages/java_video.html' },
+                'react': { title: 'React JS', headerText: 'REACT', total: 10, link: '../video_pages/react_video.html' },
+                'fastapi': { title: 'FastAPI', headerText: 'FASTAPI', total: 10, link: '../video_pages/fastapi_video.html' },
+                'db': { title: 'PostgreSQL', headerText: 'SQL', total: 10, link: '../video_pages/postgresql_video.html' }
+            };
+
+            const API_BASE_URL = 'http://127.0.0.1:8000';
+
+            async function updateUI() {
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                const container = document.getElementById('courses-container');
+
+                if (!user.user_id) {
+                    container.innerHTML = `<div class="empty-state"><h3>Please log in to view your learning progress.</h3></div>`;
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`${API_BASE_URL}/progress/course/${user.user_id}`);
+                    const progressData = await response.json();
+
+                    let totalStarted = 0;
+                    let totalInProgress = 0;
+                    let totalCompleted = 0;
+
+                    container.innerHTML = '';
+
+                    // We iterate over the fetched progress keys
+                    const startedCourses = Object.keys(progressData);
+
+                    if (startedCourses.length === 0) {
+                        container.innerHTML = `<div class="empty-state"><h3>No courses started yet.</h3><p>Go to the dashboard to start learning!</p></div>`;
+                    } else {
+                        startedCourses.forEach(id => {
+                            const course = courseData[id];
+                            if (!course) return;
+
+                            const completedCount = progressData[id].length;
+                            const percent = Math.round((completedCount / course.total) * 100);
+                            const isCompleted = percent === 100;
+
+                            totalStarted++;
+                            if (isCompleted) totalCompleted++;
+                            else totalInProgress++;
+
+                            const card = document.createElement('div');
+                            card.className = 'course-card';
+                            card.innerHTML = `
+                            <div class="course-header ${id}">${course.headerText}</div>
+                            <div class="course-content">
+                                <span class="course-status ${isCompleted ? 'status-completed' : 'status-progress'}">
+                                    ${isCompleted ? 'Completed' : 'In Progress'}
+                                </span>
+                                <h3 class="course-title">${course.title}</h3>
+                                
+                                <div class="progress-section">
+                                    <div class="progress-info">
+                                        <span>${isCompleted ? '100% Complete' : percent + '% in progress'}</span>
+                                        <span>${completedCount}/${course.total} videos</span>
+                                    </div>
+                                    <div class="progress-bar-bg">
+                                        <div class="progress-bar-fill" style="width: ${percent}%"></div>
+                                    </div>
+                                </div>
+
+                                <a href="${course.link}" class="continue-btn">
+                                    ${isCompleted ? 'Review Course' : 'Continue Learning'}
+                                </a>
+                            </div>
+                        `;
+                            container.appendChild(card);
+                        });
+                    }
+
+                    document.getElementById('stat-total').textContent = startedCourses.length;
+                    document.getElementById('stat-progress').textContent = totalInProgress;
+                    document.getElementById('stat-completed').textContent = totalCompleted;
+                    document.getElementById('stat-enrolled').textContent = startedCourses.length > 0 ? startedCourses.length : 0;
+                } catch (error) {
+                    console.error('Error fetching progress:', error);
+                    container.innerHTML = `<div class="empty-state"><h3>Error loading progress.</h3></div>`;
+                }
+            }
+
+            window.onload = updateUI;
+        </script>
+</body>
+
+</html>
