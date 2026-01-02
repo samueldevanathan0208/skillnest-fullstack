@@ -1,18 +1,20 @@
 # Python
 __pycache__/
 *.pyc
-.env
-venv/
-.venv/
+*.pyo
+*.pyd
+
+# Virtual environment
 myenv/
+venv/
+env/
+backend/Lib/
+backend/Scripts/
+backend/Include/
 
-# Node
-node_modules/
-
-# OS
+# OS files
 .DS_Store
+Thumbs.db
 
-# Logs & DB
-*.log
-*.sqlite3
-*.db
+# Environment variables
+.env

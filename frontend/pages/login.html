@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link rel="stylesheet" href="../css/login.css">
+    <script src="../js/api-config.js"></script>
 </head>
 
 <body>
@@ -46,7 +47,7 @@
                         const password = document.getElementById('password').value;
 
                         try {
-                            const response = await fetch('http://127.0.0.1:8000/login', {
+                            const response = await fetch(`${API_CONFIG.BASE_URL}/login`, {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json'
