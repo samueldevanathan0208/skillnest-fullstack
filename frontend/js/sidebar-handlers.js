@@ -12,7 +12,7 @@
         document.head.appendChild(script);
     }
 
-    const API_BASE_URL = 'http://127.0.0.1:8000'; // Will be intercepted by api-config.js
+    const API_BASE_URL = 'https://skillnest-fullstack-5hws.vercel.app'; // Will be intercepted by api-config.js
 
     // 1. Modal HTML Template
     const modalHTML = `

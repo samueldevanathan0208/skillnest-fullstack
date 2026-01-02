@@ -94,8 +94,10 @@
                 user_gender: document.getElementById('gen').value
             };
 
+            const API_BASE_URL = "https://skillnest-fullstack-5hws.vercel.app";
+
             try {
-                const response = await fetch('http://127.0.0.1:8000/create_user', {
+                const response = await fetch(`${API_BASE_URL}/create_user`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
