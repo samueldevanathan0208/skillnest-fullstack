@@ -110,17 +110,7 @@ def create_user(user: CreateUser, db: Session = Depends(get_db)):
         user_gender=user.user_gender,
         user_created_at=created_at,
     )
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-    response_data = {"status": "success", "message": "User added successfully"}
-    response = JSONResponse(content=response_data)
-    
-    # Explicit CORS headers for Vercel
-    response.headers["Access-Control-Allow-Origin"] = "*"
-    response.headers["Access-Control-Allow-Credentials"] = "true"
-    
-    return response
+    return {"status": "success", "message": "User added successfully"}
 
 @app.post("/login")
 def login(user: LoginRequest, db: Session = Depends(get_db)):
@@ -132,7 +122,7 @@ def login(user: LoginRequest, db: Session = Depends(get_db)):
     if not db_user:
         raise HTTPException(status_code=401, detail="Invalid email or password")
 
-    response_data = {
+    return {
         "status": "success",
         "message": "Login successful",
         "user": {
@@ -145,13 +135,6 @@ def login(user: LoginRequest, db: Session = Depends(get_db)):
             "user_created_at": getattr(db_user, "user_created_at", "January 2024"),
         },
     }
-    response = JSONResponse(content=response_data)
-    
-    # Explicit CORS headers for Vercel
-    response.headers["Access-Control-Allow-Origin"] = "*"
-    response.headers["Access-Control-Allow-Credentials"] = "true"
-    
-    return response
 
 @app.put("/user/{user_id}")
 def update_user(user_id: int, data: UpdateUser, db: Session = Depends(get_db)):
