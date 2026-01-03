@@ -45,6 +45,22 @@ app.add_middleware(
 )
 
 # --------------------------------------------------
+# GLOBAL ERROR HANDLER (DEBUG)
+# --------------------------------------------------
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    error_msg = str(exc)
+    response_data = {
+        "status": "error",
+        "message": error_msg,
+        "type": type(exc).__name__
+    }
+    # Manually add CORS headers to ensure the browser sees the actual error
+    response = JSONResponse(status_code=500, content=response_data)
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    return response
+
+# --------------------------------------------------
 # HEALTH CHECK (CRITICAL FOR VERCEL)
 # --------------------------------------------------
 @app.get("/")
