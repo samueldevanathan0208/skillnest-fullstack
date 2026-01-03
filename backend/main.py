@@ -31,25 +31,18 @@ from py_schemas.progress_schemas import (
 app = FastAPI(title="SkillNest API")
 
 # --------------------------------------------------
-# HIGH-PRIORITY GLOBAL OPTIONS HANDLER
+# CORS CONFIGURATION (ROOT PERMISSIVE - NO CREDENTIALS)
 # --------------------------------------------------
-@app.options("/{path:path}")
-async def global_options_handler(request: Request, path: str):
-    response = Response(status_code=200)
-    origin = request.headers.get("origin")
-    
-    # Set default first to guarantee header existence
-    response.headers["Access-Control-Allow-Origin"] = "*"
-    
-    if origin:
-        response.headers["Access-Control-Allow-Origin"] = origin
-        
-    response.headers["Access-Control-Allow-Credentials"] = "true"
-    response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
-    response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, X-Requested-With, Cache-Control, Pragma, Expires"
-    response.headers["Access-Control-Max-Age"] = "3600"
-    
-    return response
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+    max_age=3600,
+)
 
 # --------------------------------------------------
 # HEALTH CHECK (CRITICAL FOR VERCEL)
