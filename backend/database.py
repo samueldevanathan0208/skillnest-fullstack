@@ -3,10 +3,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 from dotenv import load_dotenv
 
-# Load variables from .env if it exists
+# Load .env for LOCAL development only (Vercel ignores this)
 load_dotenv()
 
-# Read DATABASE_URL from environment
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 if not DATABASE_URL:
@@ -14,13 +13,15 @@ if not DATABASE_URL:
 
 engine = create_engine(
     DATABASE_URL,
-    pool_pre_ping=True
+    pool_pre_ping=True,
+    pool_size=1,        # CRITICAL for serverless
+    max_overflow=0,     # CRITICAL for serverless
 )
 
 SessionLocal = sessionmaker(
-    autoflush=False,
     autocommit=False,
-    bind=engine
+    autoflush=False,
+    bind=engine,
 )
 
 Base = declarative_base()
