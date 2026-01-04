@@ -61,22 +61,36 @@
                                 })
                             });
 
-                            const result = await response.json();
+                            const contentType = response.headers.get("content-type");
+                            let result;
+                            
+                            if (contentType && contentType.indexOf("application/json") !== -1) {
+                                result = await response.json();
+                            } else {
+                                const text = await response.text();
+                                result = { detail: text || "Server returned non-JSON response" };
+                            }
 
-                            // ❌ LOGIN FAILED (401, 400, etc.)
                             if (!response.ok) {
-                                alert(result.detail || result.message || "Invalid email or password");
+                                // Extract error message from detail (FastAPI standard) or message
+                                const errorMsg = result.detail || result.message || "Invalid email or password";
+                                console.error("Login failed:", result);
+                                alert("Login failed: " + errorMsg);
                                 return;
                             }
 
-                            // ✅ LOGIN SUCCESS
-                            localStorage.setItem('user', JSON.stringify(result.user));
-                            alert("Login successful!");
-                            window.location.href = 'dashboard.html';
+                            // SUCCESS CASE
+                            if (result.user) {
+                                localStorage.setItem('user', JSON.stringify(result.user));
+                                alert("Login successful!");
+                                window.location.href = 'dashboard.html';
+                            } else {
+                                throw new Error("User data missing from successful response");
+                            }
 
                         } catch (error) {
-                            console.error("Network error:", error);
-                            alert("Unable to connect to server. Please try again.");
+                            console.error("Critical Login Error:", error);
+                            alert("Login Error: " + error.message);
                         }
                     });
                 </script>

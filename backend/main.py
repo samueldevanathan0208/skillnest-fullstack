@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException, Request
-from fastapi.responses import Response, JSONResponse
+from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 import datetime
@@ -18,7 +19,6 @@ from py_schemas.signin_schemas import (
     DeleteUserRequest
 )
 from py_schemas.course_schemas import Create_course
-from py_schemas.quizz_schemas import CreateQuiz
 from py_schemas.progress_schemas import (
     VideoProgressCreate,
     QuizPartialProgressCreate,
@@ -31,34 +31,30 @@ from py_schemas.progress_schemas import (
 app = FastAPI(title="SkillNest API")
 
 # --------------------------------------------------
-# CORS CONFIGURATION (ROOT PERMISSIVE - NO CREDENTIALS)
+# CORS (SERVERLESS SAFE)
 # --------------------------------------------------
-from fastapi.middleware.cors import CORSMiddleware
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
-    max_age=3600,
 )
 
 # --------------------------------------------------
-# GLOBAL ERROR HANDLER (DEBUG)
+# GLOBAL ERROR HANDLER
 # --------------------------------------------------
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
-    error_msg = str(exc)
-    response_data = {
-        "status": "error",
-        "message": error_msg,
-        "type": type(exc).__name__
-    }
-    # Manually add CORS headers to ensure the browser sees the actual error
-    response = JSONResponse(status_code=500, content=response_data)
-    response.headers["Access-Control-Allow-Origin"] = "*"
-    return response
+    return JSONResponse(
+        status_code=500,
+        content={
+            "status": "error",
+            "message": str(exc),
+            "type": type(exc).__name__
+        },
+        headers={"Access-Control-Allow-Origin": "*"}
+    )
 
 # --------------------------------------------------
 # HEALTH CHECK (CRITICAL FOR VERCEL)
@@ -69,7 +65,6 @@ def root():
 
 @app.get("/health")
 def health():
-    return {"status": "healthy"}
     return {"status": "ok", "service": "SkillNest API"}
 
 # --------------------------------------------------
@@ -79,37 +74,26 @@ def health():
 def on_startup():
     try:
         Base.metadata.create_all(bind=engine)
-        print("✅ Database connected and tables verified")
+        print("✅ Database connected")
     except Exception as e:
-        print("❌ Database startup failed:", str(e))
+        print("❌ Database init failed:", e)
 
 # --------------------------------------------------
 # USER APIs
 # --------------------------------------------------
 @app.get("/users")
-def get_all_users(db: Session = Depends(get_db)):
+def get_users(db: Session = Depends(get_db)):
     return db.query(User).all()
 
-@app.get("/user/{id}")
-def get_user_by_id(id: int, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.user_id == id).first()
+@app.get("/user/{user_id}")
+def get_user(user_id: int, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.user_id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-
-    return {
-        "user_id": user.user_id,
-        "user_name": user.user_name,
-        "user_email": user.user_email,
-        "user_phone": user.user_phone,
-        "user_gender": user.user_gender,
-        "user_dateofbirth": user.user_dateofbirth,
-        "user_created_at": getattr(user, "user_created_at", "January 2024"),
-    }
+    return user
 
 @app.post("/create_user")
 def create_user(user: CreateUser, db: Session = Depends(get_db)):
-    created_at = datetime.datetime.now().strftime("%B %Y")
-
     new_user = User(
         user_name=user.user_name,
         user_email=user.user_email,
@@ -117,9 +101,12 @@ def create_user(user: CreateUser, db: Session = Depends(get_db)):
         user_dateofbirth=user.user_dateofbirth,
         user_phone=user.user_phone,
         user_gender=user.user_gender,
-        user_created_at=created_at,
+        user_created_at=datetime.datetime.now().strftime("%B %Y")
     )
-    return {"status": "success", "message": "User added successfully"}
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    return {"status": "success", "message": "User created"}
 
 @app.post("/login")
 def login(user: LoginRequest, db: Session = Depends(get_db)):
@@ -129,21 +116,9 @@ def login(user: LoginRequest, db: Session = Depends(get_db)):
     ).first()
 
     if not db_user:
-        raise HTTPException(status_code=401, detail="Invalid email or password")
+        raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    return {
-        "status": "success",
-        "message": "Login successful",
-        "user": {
-            "user_id": db_user.user_id,
-            "user_name": db_user.user_name,
-            "user_email": db_user.user_email,
-            "user_phone": db_user.user_phone,
-            "user_gender": db_user.user_gender,
-            "user_dateofbirth": db_user.user_dateofbirth,
-            "user_created_at": getattr(db_user, "user_created_at", "January 2024"),
-        },
-    }
+    return {"status": "success", "user": db_user}
 
 @app.put("/user/{user_id}")
 def update_user(user_id: int, data: UpdateUser, db: Session = Depends(get_db)):
@@ -151,36 +126,31 @@ def update_user(user_id: int, data: UpdateUser, db: Session = Depends(get_db)):
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    for field, value in data.dict(exclude_unset=True).items():
-        setattr(user, field, value)
+    for k, v in data.dict(exclude_unset=True).items():
+        setattr(user, k, v)
 
     db.commit()
-    db.refresh(user)
-    return {"status": "success", "message": "User updated successfully"}
+    return {"status": "success"}
 
 @app.post("/delete_user/{user_id}")
 def delete_user(user_id: int, req: DeleteUserRequest, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.user_id == user_id).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    if user.user_password != req.password:
-        raise HTTPException(status_code=401, detail="Incorrect password")
+    if not user or user.user_password != req.password:
+        raise HTTPException(status_code=401, detail="Unauthorized")
 
     db.delete(user)
     db.commit()
-    return {"status": "success", "message": "User deleted successfully"}
+    return {"status": "deleted"}
 
 # --------------------------------------------------
 # COURSE APIs
 # --------------------------------------------------
 @app.post("/create_course")
 def create_course(course: Create_course, db: Session = Depends(get_db)):
-    new_course = Course(**course.dict())
-    db.add(new_course)
+    db_course = Course(**course.dict())
+    db.add(db_course)
     db.commit()
-    db.refresh(new_course)
-    return {"status": "success", "message": "Course created"}
+    return {"status": "course created"}
 
 @app.get("/course")
 def get_courses(db: Session = Depends(get_db)):
@@ -194,105 +164,27 @@ def create_quiz(data: QuizResultCreate, db: Session = Depends(get_db)):
     quiz = Quiz(**data.dict())
     db.add(quiz)
     db.commit()
-    return {"status": "success", "message": "Quiz saved"}
+    return {"status": "quiz saved"}
 
 # --------------------------------------------------
-# COURSE PROGRESS
+# PROGRESS APIs
 # --------------------------------------------------
-@app.get("/progress/course/{user_id}")
-def get_course_progress(user_id: int, db: Session = Depends(get_db)):
-    progress = db.query(CourseVideoProgress).filter(
-        CourseVideoProgress.user_id == user_id
-    ).all()
-
-    result = {}
-    for p in progress:
-        result.setdefault(p.course_id, []).append(p.video_index)
-    return result
-
 @app.post("/progress/course/video")
-def mark_video_complete(data: VideoProgressCreate, db: Session = Depends(get_db)):
-    exists = db.query(CourseVideoProgress).filter(
-        CourseVideoProgress.user_id == data.user_id,
-        CourseVideoProgress.course_id == data.course_id,
-        CourseVideoProgress.video_index == data.video_index,
-    ).first()
-
-    if exists:
-        return {"status": "success", "message": "Already completed"}
-
+def mark_video(data: VideoProgressCreate, db: Session = Depends(get_db)):
     db.add(CourseVideoProgress(**data.dict()))
     db.commit()
-    return {"status": "success", "message": "Video marked complete"}
-
-# --------------------------------------------------
-# QUIZ PROGRESS
-# --------------------------------------------------
-@app.get("/progress/quiz/{user_id}")
-def get_quiz_results(user_id: int, db: Session = Depends(get_db)):
-    results = db.query(Quiz).filter(Quiz.user_id == user_id).all()
-    summary = {}
-
-    for r in results:
-        summary.setdefault(r.quiz_id, {"attempts": 0, "bestScore": 0, "lastScore": 0})
-        summary[r.quiz_id]["attempts"] += 1
-        summary[r.quiz_id]["lastScore"] = r.score
-        summary[r.quiz_id]["bestScore"] = max(summary[r.quiz_id]["bestScore"], r.score)
-
-    return summary
-
-@app.get("/progress/quiz/partial/{user_id}")
-def get_partial_progress(user_id: int, db: Session = Depends(get_db)):
-    partials = db.query(QuizPartialProgress).filter(
-        QuizPartialProgress.user_id == user_id
-    ).all()
-    return {
-        p.quiz_id: {"currentIndex": p.current_index, "score": p.score}
-        for p in partials
-    }
+    return {"status": "saved"}
 
 @app.post("/progress/quiz/partial")
-def save_partial_progress(data: QuizPartialProgressCreate, db: Session = Depends(get_db)):
-    existing = db.query(QuizPartialProgress).filter(
-        QuizPartialProgress.user_id == data.user_id,
-        QuizPartialProgress.quiz_id == data.quiz_id,
-    ).first()
-
-    if existing:
-        existing.current_index = data.current_index
-        existing.score = data.score
-    else:
-        db.add(QuizPartialProgress(**data.dict()))
-
+def save_partial(data: QuizPartialProgressCreate, db: Session = Depends(get_db)):
+    db.add(QuizPartialProgress(**data.dict()))
     db.commit()
-    return {"status": "success", "message": "Partial progress saved"}
-
-@app.delete("/progress/quiz/partial/{user_id}/{quiz_id}")
-def delete_partial(user_id: int, quiz_id: str, db: Session = Depends(get_db)):
-    partial = db.query(QuizPartialProgress).filter(
-        QuizPartialProgress.user_id == user_id,
-        QuizPartialProgress.quiz_id == quiz_id,
-    ).first()
-
-    if partial:
-        db.delete(partial)
-        db.commit()
-
-    return {"status": "success", "message": "Partial progress cleared"}
+    return {"status": "saved"}
 
 # --------------------------------------------------
-# DEBUG (KEEP)
+# DEBUG
 # --------------------------------------------------
 @app.get("/debug/schema")
 def debug_schema():
     from sqlalchemy import inspect
-    inspector = inspect(engine)
-    return inspector.get_table_names()
-
-@app.get("/debug/reset_quiz")
-def reset_quiz():
-    with engine.connect() as conn:
-        conn.execute(text("DROP TABLE IF EXISTS quizz"))
-        conn.commit()
-    Base.metadata.create_all(bind=engine)
-    return {"status": "reset complete"}
+    return inspect(engine).get_table_names()
