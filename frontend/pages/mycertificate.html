@@ -4,328 +4,207 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Certificates</title>
+    <title>My Certificates | SkillNest</title>
+
     <link rel="stylesheet" href="../css/mycertificate.css">
+    <link rel="stylesheet" href="../css/mylearn.css">
     <link rel="stylesheet" href="../css/modals.css">
+
+    <!-- Sidebar auto-handlers -->
     <script src="../js/sidebar-handlers.js" defer></script>
-    <link rel="stylesheet" href="../css/mylearn.css"> <!-- Reusing sidebar/gradient styles if needed -->
-    <style>
-        /* Specific overrides for certificate page if needed */
-        .empty-state {
-            grid-column: 1 / -1;
-            text-align: center;
-            padding: 50px;
-            background: white;
-            border-radius: 1rem;
-            display: none;
-            /* Hidden by default */
-        }
-
-        .empty-state h2 {
-            margin-bottom: 10px;
-            color: #333;
-        }
-
-        .empty-state p {
-            color: #666;
-        }
-
-        /* Ensure gradients match the new mylearn/dashboard style */
-        .certificate-preview.html {
-            background: linear-gradient(135deg, #f97316, #ea580c);
-        }
-
-        .certificate-preview.css {
-            background: linear-gradient(135deg, #3b82f6, #2563eb);
-        }
-
-        .certificate-preview.js {
-            background: linear-gradient(135deg, #fbbf24, #f59e0b);
-        }
-
-        .certificate-preview.python {
-            background: linear-gradient(135deg, #1e40af, #1e3a8a);
-        }
-
-        .certificate-preview.java {
-            background: linear-gradient(135deg, #EF4444, #B91C1C);
-        }
-
-        .certificate-preview.react {
-            background: linear-gradient(135deg, #60A5FA, #2563EB);
-        }
-
-        .certificate-preview.fastapi {
-            background: linear-gradient(135deg, #10B981, #047857);
-        }
-
-        .certificate-preview.db {
-            background: linear-gradient(135deg, #A855F7, #7E22CE);
-        }
-    </style>
 </head>
 
 <body>
+
     <!-- Sidebar -->
     <aside class="sidebar">
         <nav>
             <div class="nav-section">
-                <img class="logo" src="../assests/Gemini_Generated_Image_awja8lawja8lawja-removebg-preview.png"
-                    alt="Logo">
-                <a href="dashboard.html" class="nav-item">
-                    <span>Dashboard</span>
-                </a>
-                <a href="mylearn.html" class="nav-item">
-                    <span>My Learning</span>
-                </a>
-                <a href="#" class="nav-item active">
-                    <span>Certificate</span>
-                </a>
+                <img class="logo"
+                    src="../assests/Gemini_Generated_Image_awja8lawja8lawja-removebg-preview.png" alt="Logo">
+                <a href="dashboard.html" class="nav-item">Dashboard</a>
+                <a href="mylearn.html" class="nav-item">My Learning</a>
+                <a href="mycertificate.html" class="nav-item active">Certificate</a>
             </div>
 
             <div class="nav-section">
                 <h3 class="nav-section-title">Learn</h3>
-
-                <a href="learingpath.html" class="nav-item">
-                    <span>Learning Path</span>
-                </a>
-                <a href="quizzes.html" class="nav-item">
-                    <span>Quizzes</span>
-                </a>
+                <a href="learingpath.html" class="nav-item">Learning Path</a>
+                <a href="quizzes.html" class="nav-item">Quizzes</a>
             </div>
 
             <div class="nav-section">
                 <h3 class="nav-section-title">Account Setting</h3>
-                <a href="edit.html" class="nav-item">
-                    <span>Edit Profile</span>
-                </a>
-                <a href="#" id="delete-profile-link" class="nav-item">
-                    <span>Delete Profile</span>
-                </a>
-                <a href="#" id="sign-out-link" class="nav-item">
-                    <span>Sign Out</span>
-                </a>
+                <a href="edit.html" class="nav-item">Edit Profile</a>
+                <a href="#" id="delete-profile-link" class="nav-item">Delete Profile</a>
+                <a href="#" id="sign-out-link" class="nav-item">Sign Out</a>
             </div>
         </nav>
     </aside>
 
-    <!-- Main Content -->
+    <!-- Main -->
     <div class="main-wrapper">
         <div class="header">
             <h1>My Certificates</h1>
-            <p>Your achievements and earned credentials</p>
+            <p>Download your earned certificates</p>
         </div>
 
         <div class="container">
-            <!-- Achievement Banner -->
-            <div class="achievement-banner" id="achievement-banner" style="display: none;">
-                <div class="achievement-content">
-                    <h2>Keep Learning!</h2>
-                    <p id="achievement-text">You've earned 0 certificates. Complete more courses to unlock achievements.
-                    </p>
-                </div>
-                <div class="achievement-icon">&#127891;</div>
+            <div id="loading" style="text-align:center;padding:2rem;">
+                Loading certificates...
             </div>
 
-            <!-- Stats Grid -->
-            <div class="stats-grid" id="stats-grid" style="display: none;">
-                <div class="stat-card">
-                    <div class="stat-icon">&#128220;</div>
-                    <div class="stat-number" id="total-certs">0</div>
-                    <div class="stat-label">Total Certificates</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">&#9989;</div>
-                    <div class="stat-number" id="verified-certs">0</div>
-                    <div class="stat-label">Verified</div>
-                </div>
-                <!-- Hidden for now as they are static logic
-                <div class="stat-card">
-                    <div class="stat-icon">&#128229;</div>
-                    <div class="stat-number">12</div>
-                    <div class="stat-label">Downloads</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">&#128279;</div>
-                    <div class="stat-number">8</div>
-                    <div class="stat-label">Shared</div>
-                </div>
-                -->
+            <div id="empty" style="display:none;text-align:center;padding:2rem;">
+                <h2>No Certificates Yet</h2>
+                <p>Complete all videos and quizzes to unlock certificates.</p>
+                <a href="mylearn.html">Go to My Learning</a>
             </div>
 
-            <div id="loading-state" style="text-align: center; padding: 2rem;">Loading certificates...</div>
-
-            <div class="empty-state" id="empty-state">
-                <img src="https://cdni.iconscout.com/illustration/premium/thumb/empty-state-2130362-1800926.png"
-                    alt="No Certificates" style="height: 200px; opacity: 0.7;">
-                <h2>No Certificates Earned Yet</h2>
-                <p>Complete a course (100% video progress) AND verify your knowledge with a quiz to earn your
-                    certificate.</p>
-                <a href="mylearn.html" class="btn-primary"
-                    style="display: inline-block; margin-top: 1rem; padding: 10px 20px; background: #6C5DD3; color: white; text-decoration: none; border-radius: 8px;">Go
-                    to My Learning</a>
-            </div>
-
-            <!-- Certificates Grid -->
-            <div class="certificates-grid" id="certificates-grid">
-                <!-- Certificates injected here -->
-            </div>
+            <div class="certificates-grid" id="certificates"></div>
         </div>
     </div>
 
-    <!-- Global Modals injected by sidebar-handlers.js -->
-
-
     <script>
-        const API_BASE_URL = 'https://skillnest-fullstack-5hws.vercel.app';
+        /* ===============================
+           CONFIG
+        =============================== */
+
+        const API_BASE_URL = "https://skillnest-fullstack-5hws.vercel.app";
 
         const certMetadata = {
-            'html': { title: 'HTML5', instructor: 'John Smith', type: 'Course Completion' },
-            'css': { title: 'CSS3', instructor: 'Mike Wilson', type: 'Professional Certificate' },
-            'js': { title: 'JavaScript', instructor: 'Emily Brown', type: 'Course Completion' },
-            'python': { title: 'Python', instructor: 'Sarah Johnson', type: 'Course Completion' },
-            'java': { title: 'Java', instructor: 'David Chen', type: 'Course Completion' },
-            'react': { title: 'React JS', instructor: 'Alex Turner', type: 'Course Completion' },
-            'fastapi': { title: 'FastAPI', instructor: 'Maria Garcia', type: 'Backend Specialization' },
-            'db': { title: 'PostgreSQL', instructor: 'Robert Taylor', type: 'Database Expert' }
+            html: {
+                title: 'HTML5',
+                instructor: 'John Smith',
+                type: 'Course Completion',
+                totalVideos: 10
+            },
+            css: {
+                title: 'CSS3',
+                instructor: 'Mike Wilson',
+                type: 'Professional Certificate',
+                totalVideos: 10
+            },
+            js: {
+                title: 'JavaScript',
+                instructor: 'Emily Brown',
+                type: 'Course Completion',
+                totalVideos: 10
+            },
+            python: {
+                title: 'Python',
+                instructor: 'Sarah Johnson',
+                type: 'Course Completion',
+                totalVideos: 10
+            },
+            java: {
+                title: 'Java',
+                instructor: 'David Chen',
+                type: 'Course Completion',
+                totalVideos: 10
+            },
+            react: {
+                title: 'React JS',
+                instructor: 'Alex Turner',
+                type: 'Course Completion',
+                totalVideos: 10
+            },
+            fastapi: {
+                title: 'FastAPI',
+                instructor: 'Maria Garcia',
+                type: 'Backend Specialization',
+                totalVideos: 10
+            },
+            db: {
+                title: 'PostgreSQL',
+                instructor: 'Robert Taylor',
+                type: 'Database Expert',
+                totalVideos: 10
+            }
         };
 
-        document.addEventListener('DOMContentLoaded', init);
+        /* ===============================
+           INIT
+        =============================== */
+
+        document.addEventListener("DOMContentLoaded", init);
 
         async function init() {
-            const user = JSON.parse(localStorage.getItem('user'));
+            const user = JSON.parse(localStorage.getItem("user"));
             if (!user || !user.user_id) {
-                window.location.href = 'login.html';
+                window.location.href = "login.html";
                 return;
             }
-
-            console.log("Certificate page initialized. Loading certificates...");
-            await loadCertificates(user.user_id);
+            loadCertificates(user);
         }
 
-        async function loadCertificates(userId) {
-            const grid = document.getElementById('certificates-grid');
-            const loading = document.getElementById('loading-state');
-            const emptyState = document.getElementById('empty-state');
-            const banner = document.getElementById('achievement-banner');
-            const stats = document.getElementById('stats-grid');
+        /* ===============================
+           LOAD CERTIFICATES
+        =============================== */
+
+        async function loadCertificates(user) {
+            const loading = document.getElementById("loading");
+            const empty = document.getElementById("empty");
+            const container = document.getElementById("certificates");
 
             try {
-                // 1. Fetch data in parallel
                 const [courseRes, quizRes] = await Promise.all([
-                    fetch(`${API_BASE_URL}/progress/course/${userId}`),
-                    fetch(`${API_BASE_URL}/progress/quiz/${userId}`)
+                    fetch(`${API_BASE_URL}/progress/course/${user.user_id}`),
+                    fetch(`${API_BASE_URL}/progress/quiz/${user.user_id}`)
                 ]);
 
-                if (!courseRes.ok || !quizRes.ok) throw new Error("Failed to fetch progress data");
+                if (!courseRes.ok || !quizRes.ok) {
+                    throw new Error("Progress API failed");
+                }
 
                 const courseProgress = await courseRes.json();
                 const quizProgress = await quizRes.json();
 
-                // 2. Determine eligible certificates
-                // Requirement: 10 videos completed AND Quiz Attempted (> 0)
-                const eligibleCerts = [];
-                const TOTAL_VIDEOS_PER_COURSE = 10; // Hardcoded requirement
+                const unlocked = [];
 
-                for (const [courseId, meta] of Object.entries(certMetadata)) {
-                    // Check video progress
-                    const videos = courseProgress[courseId] || [];
-                    const videosCompleted = new Set(videos).size; // Ensure uniqueness
-                    const isVideoComplete = videosCompleted >= TOTAL_VIDEOS_PER_COURSE;
+                for (const key in certMetadata) {
+                    const videosDone = (courseProgress[key] || []).length;
+                    const quiz = quizProgress[key];
 
-                    // Check quiz progress
-                    const quiz = quizProgress[courseId];
-                    const isQuizComplete = quiz && quiz.attempts > 0;
-
-                    // For debugging/demo purposes, we might want to log this
-                    console.log(`Checking ${courseId}: Videos=${videosCompleted}/${TOTAL_VIDEOS_PER_COURSE}, Quiz=${isQuizComplete}, QuizData:`, quiz);
-
-                    if (isVideoComplete && isQuizComplete) {
-                        eligibleCerts.push({
-                            id: courseId,
-                            ...meta,
-                            grade: quiz.bestScore || 0,
-                            date: new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+                    if (
+                        videosDone >= certMetadata[key].totalVideos &&
+                        quiz &&
+                        quiz.attempts > 0
+                    ) {
+                        unlocked.push({
+                            id: key,
+                            ...certMetadata[key],
+                            score: quiz.bestScore || 0
                         });
                     }
                 }
 
-                // 3. Render
-                loading.style.display = 'none';
+                loading.style.display = "none";
 
-                if (eligibleCerts.length === 0) {
-                    emptyState.style.display = 'block';
-                    banner.style.display = 'none';
-                    stats.style.display = 'none';
-                } else {
-                    emptyState.style.display = 'none';
-                    banner.style.display = 'flex';
-                    stats.style.display = 'grid';
-
-                    // Update stats
-                    document.getElementById('total-certs').textContent = eligibleCerts.length;
-                    document.getElementById('verified-certs').textContent = eligibleCerts.length;
-                    document.getElementById('achievement-text').textContent = `You've earned ${eligibleCerts.length} certificates. Keep it up!`;
-
-                    // Get user name
-                    const user = JSON.parse(localStorage.getItem('user') || '{}');
-                    const studentName = user.user_name || "Student";
-
-                    // Generate Cards
-                    grid.innerHTML = eligibleCerts.map(cert => {
-                        const certId = `CERT-${cert.id.toUpperCase()}-${Math.floor(Math.random() * 10000)}`;
-                        // Encode parameters
-                        const params = new URLSearchParams({
-                            name: studentName,
-                            course: cert.title,
-                            percentage: cert.grade,
-                            date: cert.date, // '2025' or actual date
-                            id: certId,
-                            instructor: cert.instructor
-                        });
-
-                        const viewLink = `certificate_template.html?${params.toString()}&action=view`;
-                        const downloadLink = `certificate_template.html?${params.toString()}&action=download`;
-
-                        return `
-                        <div class="certificate-card">
-                            <div class="certificate-preview ${cert.id}">
-                                <div class="certificate-badge"></div>
-                                <h3 class="certificate-title">${cert.title}</h3>
-                                <span class="certificate-type">${cert.type}</span>
-                            </div>
-                            <div class="certificate-body">
-                                <div class="certificate-info">
-                                    <div class="info-row">
-                                        <span class="info-label">Instructor</span>
-                                        <span class="info-value">${cert.instructor}</span>
-                                    </div>
-                                    <div class="info-row">
-                                        <span class="info-label">Grade</span>
-                                        <span class="info-value">${cert.grade}/100</span>
-                                    </div>
-                                </div>
-                                <div class="certificate-id">
-                                    <div class="certificate-id-label">Certificate ID</div>
-                                    <div class="certificate-id-value">${certId}</div>
-                                </div>
-                                <div class="certificate-actions">
-                                    <a href="${downloadLink}" class="action-btn btn-download" target="_blank"><span>Download</span></a>
-                                    <a href="${viewLink}" class="action-btn btn-view" target="_blank"><span>View</span></a>
-                                </div>
-                            </div>
-                        </div>
-                    `}).join('');
+                if (unlocked.length === 0) {
+                    empty.style.display = "block";
+                    return;
                 }
 
-            } catch (error) {
-                console.error("Error loading certificates:", error);
-                loading.textContent = "Error loading certificates. Please try again.";
+                container.innerHTML = unlocked.map(cert => `
+                    <div class="certificate-card">
+                        <h3>${cert.title}</h3>
+                        <p><strong>Instructor:</strong> ${cert.instructor}</p>
+                        <p><strong>Type:</strong> ${cert.type}</p>
+                        <p><strong>Score:</strong> ${cert.score}</p>
+                        <a class="btn"
+                           href="certificate_template.html?name=${encodeURIComponent(user.user_name)}&course=${encodeURIComponent(cert.title)}">
+                           View Certificate
+                        </a>
+                    </div>
+                `).join("");
+
+            } catch (err) {
+                console.error(err);
+                loading.textContent = "Failed to load certificates.";
             }
         }
-
-        // Global signout and delete handled by sidebar-handlers.js
     </script>
+
 </body>
 
 </html>
