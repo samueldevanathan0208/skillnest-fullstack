@@ -25,14 +25,8 @@ from py_schemas.progress_schemas import (
     QuizResultCreate
 )
 
-# --------------------------------------------------
-# APP INIT
-# --------------------------------------------------
 app = FastAPI(title="SkillNest API")
 
-# --------------------------------------------------
-# CORS (SERVERLESS SAFE)
-# --------------------------------------------------
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -41,9 +35,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --------------------------------------------------
-# GLOBAL ERROR HANDLER
-# --------------------------------------------------
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     return JSONResponse(
@@ -53,6 +44,19 @@ async def global_exception_handler(request: Request, exc: Exception):
             "message": str(exc),
             "type": type(exc).__name__
         },
+        headers={"Access-Control-Allow-Origin": "*"}
+    )
+
+# --------------------------------------------------
+# HTTP EXCEPTION HANDLER (ENSURES CORS ON ERRORS)
+# --------------------------------------------------
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    """Ensure HTTPException responses include CORS headers"""
+    print(f"🔴 HTTPException: {exc.status_code} - {exc.detail}")
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.detail},
         headers={"Access-Control-Allow-Origin": "*"}
     )
 
@@ -130,7 +134,8 @@ def update_user(user_id: int, data: UpdateUser, db: Session = Depends(get_db)):
         setattr(user, k, v)
 
     db.commit()
-    return {"status": "success"}
+    db.refresh(user)
+    return {"status": "success", "user": user}
 
 @app.post("/delete_user/{user_id}")
 def delete_user(user_id: int, req: DeleteUserRequest, db: Session = Depends(get_db)):
@@ -140,7 +145,7 @@ def delete_user(user_id: int, req: DeleteUserRequest, db: Session = Depends(get_
 
     db.delete(user)
     db.commit()
-    return {"status": "deleted"}
+    return {"status": "success"}
 
 # --------------------------------------------------
 # COURSE APIs
@@ -177,9 +182,77 @@ def mark_video(data: VideoProgressCreate, db: Session = Depends(get_db)):
 
 @app.post("/progress/quiz/partial")
 def save_partial(data: QuizPartialProgressCreate, db: Session = Depends(get_db)):
-    db.add(QuizPartialProgress(**data.dict()))
+    # Check if exists, update or create
+    existing = db.query(QuizPartialProgress).filter(
+        QuizPartialProgress.user_id == data.user_id,
+        QuizPartialProgress.quiz_id == data.quiz_id
+    ).first()
+
+    if existing:
+        existing.current_index = data.current_index
+        existing.score = data.score
+    else:
+        db.add(QuizPartialProgress(**data.dict()))
+    
     db.commit()
     return {"status": "saved"}
+
+@app.get("/progress/course/{user_id}")
+def get_course_progress(user_id: int, db: Session = Depends(get_db)):
+    # Fetch all video progress for user
+    records = db.query(CourseVideoProgress).filter(CourseVideoProgress.user_id == user_id).all()
+    
+    # Aggregate by course_id -> [video_index, ...]
+    result = {}
+    for r in records:
+        if r.course_id not in result:
+            result[r.course_id] = []
+        if r.video_index not in result[r.course_id]:
+            result[r.course_id].append(r.video_index)
+            
+    return result
+
+@app.get("/progress/quiz/{user_id}")
+def get_quiz_progress(user_id: int, db: Session = Depends(get_db)):
+    # Fetch all quiz attempts
+    records = db.query(Quiz).filter(Quiz.user_id == user_id).all()
+    
+    # Aggregate: { "python": { "attempts": 2, "bestScore": 90 } }
+    temp = {}
+    for r in records:
+        if r.quiz_id not in temp:
+            temp[r.quiz_id] = []
+        temp[r.quiz_id].append(r.score)
+        
+    result = {}
+    for q_id, scores in temp.items():
+        result[q_id] = {
+            "attempts": len(scores),
+            "bestScore": max(scores) if scores else 0
+        }
+    return result
+
+@app.get("/progress/quiz/partial/{user_id}")
+def get_partial_quiz_progress(user_id: int, db: Session = Depends(get_db)):
+    records = db.query(QuizPartialProgress).filter(QuizPartialProgress.user_id == user_id).all()
+    
+    # Format: { "python": { "currentIndex": 5, "score": 4 } }
+    result = {}
+    for r in records:
+        result[r.quiz_id] = {
+            "currentIndex": r.current_index,
+            "score": r.score
+        }
+    return result
+
+@app.delete("/progress/quiz/partial/{user_id}/{quiz_id}")
+def delete_partial_quiz_progress(user_id: int, quiz_id: str, db: Session = Depends(get_db)):
+    db.query(QuizPartialProgress).filter(
+        QuizPartialProgress.user_id == user_id,
+        QuizPartialProgress.quiz_id == quiz_id
+    ).delete()
+    db.commit()
+    return {"status": "deleted"}
 
 # --------------------------------------------------
 # DEBUG
