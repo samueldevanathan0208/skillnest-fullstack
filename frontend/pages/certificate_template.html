@@ -293,10 +293,12 @@
             document.getElementById("date").textContent = date;
 
             if (action === "download") {
-                setTimeout(() => window.print(), 800);
+                // Increased timeout to ensure styles and fonts are fully loaded before print dialog
+                setTimeout(() => window.print(), 1000);
             }
         };
     </script>
 
 </body>
+
 </html>
