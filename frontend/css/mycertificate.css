@@ -159,6 +159,7 @@
      font-size: 0.9rem;
  }
 
+ /* Certificate Grid & Card Styles */
  .certificates-grid {
      display: grid;
      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
@@ -182,7 +183,6 @@
 
  .certificate-preview {
      position: relative;
-
      padding: 2rem;
      min-height: 220px;
      display: flex;
@@ -215,10 +215,24 @@
 
  .certificate-preview.java {
      background: linear-gradient(135deg, #EF4444, #B91C1C);
-     ;
      border-bottom-color: #4338ca;
  }
 
+ /* Added missing styles for consistency/fallback */
+ .certificate-preview.React {
+     background: linear-gradient(135deg, #60A5FA, #2563EB);
+     border-bottom-color: #4338ca;
+ }
+
+ .certificate-preview.FastAPI {
+     background: linear-gradient(135deg, #10B981, #047857);
+     border-bottom-color: #4338ca;
+ }
+
+ .certificate-preview.PostgreSQL {
+     background: linear-gradient(135deg, #A855F7, #7E22CE);
+     border-bottom-color: #4338ca;
+ }
 
  .certificate-badge {
      font-size: 3rem;
@@ -258,8 +272,6 @@
      padding-bottom: 0.75rem;
      border-bottom: 1px solid #e5e7eb;
  }
-
-
 
  .info-label {
      color: #666;
@@ -314,7 +326,6 @@
      align-items: center;
      justify-content: center;
      gap: 0.5rem;
-
      cursor: pointer;
  }
 

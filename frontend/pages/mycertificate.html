@@ -7,6 +7,7 @@
     <title>My Certificates | SkillNest</title>
 
     <link rel="stylesheet" href="../css/mycertificate.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
     <link rel="stylesheet" href="../css/mylearn.css">
     <link rel="stylesheet" href="../css/modals.css">
 
@@ -20,8 +21,8 @@
     <aside class="sidebar">
         <nav>
             <div class="nav-section">
-                <img class="logo"
-                    src="../assests/Gemini_Generated_Image_awja8lawja8lawja-removebg-preview.png" alt="Logo">
+                <img class="logo" src="../assests/Gemini_Generated_Image_awja8lawja8lawja-removebg-preview.png"
+                    alt="Logo">
                 <a href="dashboard.html" class="nav-item">Dashboard</a>
                 <a href="mylearn.html" class="nav-item">My Learning</a>
                 <a href="mycertificate.html" class="nav-item active">Certificate</a>
@@ -71,52 +72,53 @@
 
         const API_BASE_URL = "https://skillnest-fullstack-5hws.vercel.app";
 
+        // Metadata matching the new CSS classes
         const certMetadata = {
             html: {
+                styleClass: 'HTML',
                 title: 'HTML5',
-                instructor: 'John Smith',
                 type: 'Course Completion',
                 totalVideos: 10
             },
             css: {
+                styleClass: 'CSS',
                 title: 'CSS3',
-                instructor: 'Mike Wilson',
                 type: 'Professional Certificate',
                 totalVideos: 10
             },
             js: {
+                styleClass: 'JavaScript',
                 title: 'JavaScript',
-                instructor: 'Emily Brown',
                 type: 'Course Completion',
                 totalVideos: 10
             },
             python: {
+                styleClass: 'Python',
                 title: 'Python',
-                instructor: 'Sarah Johnson',
                 type: 'Course Completion',
                 totalVideos: 10
             },
             java: {
+                styleClass: 'java', // Lowercase 'j' as per CSS
                 title: 'Java',
-                instructor: 'David Chen',
                 type: 'Course Completion',
                 totalVideos: 10
             },
             react: {
+                styleClass: 'React',
                 title: 'React JS',
-                instructor: 'Alex Turner',
                 type: 'Course Completion',
                 totalVideos: 10
             },
             fastapi: {
+                styleClass: 'FastAPI',
                 title: 'FastAPI',
-                instructor: 'Maria Garcia',
                 type: 'Backend Specialization',
                 totalVideos: 10
             },
             db: {
+                styleClass: 'PostgreSQL',
                 title: 'PostgreSQL',
-                instructor: 'Robert Taylor',
                 type: 'Database Expert',
                 totalVideos: 10
             }
@@ -146,6 +148,9 @@
             const empty = document.getElementById("empty");
             const container = document.getElementById("certificates");
 
+            // Reset container class to the one in new CSS
+            container.className = "certificates-grid";
+
             try {
                 const [courseRes, quizRes] = await Promise.all([
                     fetch(`${API_BASE_URL}/progress/course/${user.user_id}`),
@@ -171,7 +176,7 @@
                         quiz.attempts > 0
                     ) {
                         unlocked.push({
-                            id: key,
+                            key: key,
                             ...certMetadata[key],
                             score: quiz.bestScore || 0
                         });
@@ -185,18 +190,38 @@
                     return;
                 }
 
-                container.innerHTML = unlocked.map(cert => `
+                // Render using the New CSS structure
+                // structure: .certificate-card -> .certificate-preview (with badge/title/type) -> .certificate-body (info/actions)
+                container.innerHTML = unlocked.map(cert => {
+                    const downloadUrl = `certificate_template.html?name=${encodeURIComponent(user.user_name)}&course=${encodeURIComponent(cert.title)}`;
+
+                    return `
                     <div class="certificate-card">
-                        <h3>${cert.title}</h3>
-                        <p><strong>Instructor:</strong> ${cert.instructor}</p>
-                        <p><strong>Type:</strong> ${cert.type}</p>
-                        <p><strong>Score:</strong> ${cert.score}</p>
-                        <a class="btn"
-                           href="certificate_template.html?name=${encodeURIComponent(user.user_name)}&course=${encodeURIComponent(cert.title)}">
-                           View Certificate
-                        </a>
+                        <div class="certificate-preview ${cert.styleClass}">
+                            <div class="certificate-badge">🏆</div>
+                            <div class="certificate-title">${cert.title}</div>
+                            <div class="certificate-type">${cert.type}</div>
+                        </div>
+                        <div class="certificate-body">
+                            <div class="certificate-id">
+                                <div class="certificate-id-label">Certificate ID</div>
+                                <div class="certificate-id-value">SK-${user.user_id}-${cert.key.toUpperCase()}</div>
+                            </div>
+                            
+                            <div class="info-row">
+                                <div class="info-label">Score</div>
+                                <div class="info-value">${cert.score}%</div>
+                            </div>
+
+                            <div class="certificate-actions">
+                                <a href="${downloadUrl}" class="action-btn btn-view" style="grid-column: 1 / -1;">
+                                    View Certificate
+                                </a>
+                            </div>
+                        </div>
                     </div>
-                `).join("");
+                    `;
+                }).join("");
 
             } catch (err) {
                 console.error(err);
