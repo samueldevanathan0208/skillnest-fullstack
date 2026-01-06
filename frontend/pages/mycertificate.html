@@ -199,34 +199,38 @@
                     const downloadUrl = viewUrl;
 
                     return `
-                    <div class="certificate-card">
-                        <div class="certificate-preview ${cert.styleClass}">
-                            <div class="certificate-badge">🏆</div>
-                            <div class="certificate-title">${cert.title}</div>
-                            <div class="certificate-type">${cert.type}</div>
-                        </div>
-                        <div class="certificate-body">
-                            <div class="certificate-id">
-                                <div class="certificate-id-label">Certificate ID</div>
-                                <div class="certificate-id-value">SK-${user.user_id}-${cert.key.toUpperCase()}</div>
-                            </div>
-                            
-                            <div class="info-row">
-                                <div class="info-label">Score</div>
-                                <div class="info-value">${cert.score}%</div>
-                            </div>
-
-                            <div class="certificate-actions">
-                                <a href="${downloadUrl}" class="action-btn btn-download">
-                                    Download
-                                </a>
-                                <a href="${viewUrl}" class="action-btn btn-view">
-                                    View
-                                </a>
-                            </div>
+                <div class="certificate-card">
+                    <div class="certificate-preview ${cert.styleClass}">
+                        <div class="certificate-badge">🏆</div>
+                        <div class="certificate-title">${cert.title}</div>
+                        <div class="certificate-type">${cert.type}</div>
+                        <div class="verified-badge">
+                            ✔ Verified
                         </div>
                     </div>
-                    `;
+
+                    <div class="certificate-body">
+                        <div class="certificate-id">
+                            <div class="certificate-id-label">Certificate ID</div>
+                            <div class="certificate-id-value">SK-${user.user_id}-${cert.key.toUpperCase()}</div>
+                        </div>
+
+                        <div class="info-row">
+                            <div class="info-label">Score</div>
+                            <div class="info-value">${cert.score}%</div>
+                        </div>
+
+                        <div class="certificate-actions">
+                            <a href="${downloadUrl}" class="action-btn btn-download">
+                                Download
+                            </a>
+                            <a href="${viewUrl}" class="action-btn btn-view">
+                                View
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                `;
                 }).join("");
 
             } catch (err) {
