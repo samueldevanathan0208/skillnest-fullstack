@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Certificates | SkillNest</title>
 
-   <link rel="stylesheet" href="../css/mycertificate.css?v=2">
+    <link rel="stylesheet" href="../css/mycertificate.css?v=2">
 
     <link rel="stylesheet" href="../css/dashboard.css">
     <link rel="stylesheet" href="../css/mylearn.css">
@@ -21,8 +21,8 @@
     <aside class="sidebar">
         <nav>
             <div class="nav-section">
-                <img class="logo"
-                    src="../assests/Gemini_Generated_Image_awja8lawja8lawja-removebg-preview.png" alt="Logo">
+                <img class="logo" src="../assests/Gemini_Generated_Image_awja8lawja8lawja-removebg-preview.png"
+                    alt="Logo">
                 <a href="dashboard.html" class="nav-item">Dashboard</a>
                 <a href="mylearn.html" class="nav-item">My Learning</a>
                 <a href="mycertificate.html" class="nav-item active">Certificate</a>
@@ -127,7 +127,11 @@
                 }
 
                 container.innerHTML = unlocked.map(cert => {
-                    const viewUrl = `certificate_template.html?name=${encodeURIComponent(user.user_name)}&course=${encodeURIComponent(cert.title)}`;
+                    const baseUrl = `certificate_template.html?name=${encodeURIComponent(user.user_name)}&course=${encodeURIComponent(cert.title)}&id=SK-${user.user_id}-${cert.key.toUpperCase()}&percentage=${cert.score}`;
+
+                    const viewUrl = baseUrl;
+                    const downloadUrl = `${baseUrl}&action=download`;
+
                     return `
                     <div class="certificate-card">
                         <div class="certificate-preview ${cert.styleClass}">
@@ -151,8 +155,8 @@
                             </div>
 
                             <div class="certificate-actions">
-                                <a href="${viewUrl}" class="action-btn btn-download">Download</a>
-                                <a href="${viewUrl}" class="action-btn btn-view">View</a>
+                                <a href="${downloadUrl}" class="action-btn btn-download" target="_blank">Download</a>
+                                <a href="${viewUrl}" class="action-btn btn-view" target="_blank">View</a>
                             </div>
                         </div>
                     </div>
@@ -167,4 +171,5 @@
     </script>
 
 </body>
+
 </html>

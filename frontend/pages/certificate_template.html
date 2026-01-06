@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SkillNest Certificate</title>
+
     <style>
         * {
             margin: 0;
@@ -25,11 +26,10 @@
         .certificate-container {
             width: 100%;
             max-width: 1200px;
-            aspect-ratio: 4/3;
+            aspect-ratio: 4 / 3;
             background: white;
             position: relative;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-            padding: 0;
         }
 
         /* Purple corners */
@@ -60,6 +60,18 @@
             pointer-events: none;
         }
 
+        .logo {
+            position: absolute;
+            top: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+        }
+
+        .logo img {
+            width: 100%;
+        }
+
         .content {
             position: absolute;
             top: 45%;
@@ -67,24 +79,19 @@
             transform: translate(-50%, -50%);
             width: calc(100% - 100px);
             text-align: center;
-            z-index: 1;
         }
 
         .certificate-title {
             font-size: 64px;
-            font-weight: normal;
             color: #d4af37;
             letter-spacing: 12px;
-            margin-bottom: 5px;
             text-transform: uppercase;
         }
 
         .certificate-subtitle {
             font-size: 22px;
-            color: #333;
-            text-transform: uppercase;
             letter-spacing: 3px;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
         .divider {
@@ -92,41 +99,22 @@
             height: 3px;
             background: linear-gradient(90deg, transparent, #d4af37, transparent);
             margin: 20px auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             position: relative;
         }
 
         .divider::before {
-            content: '◆';
-            color: #d4af37;
-            font-size: 12px;
+            content: "◆";
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
             background: white;
-            padding: 0 15px;
-            position: absolute;
-        }
-
-        .divider::after {
-            content: '◆';
+            padding: 0 12px;
             color: #d4af37;
-            font-size: 8px;
-            position: absolute;
-            left: 80px;
-        }
-
-        .divider-end {
-            content: '◆';
-            color: #d4af37;
-            font-size: 8px;
-            position: absolute;
-            right: 80px;
         }
 
         .presentation-text {
             font-size: 18px;
-            color: #333;
-            margin: 20px 0 15px;
+            margin: 20px 0;
         }
 
         .recipient-name {
@@ -134,69 +122,41 @@
             font-family: 'Brush Script MT', cursive;
             color: #4900c1;
             margin: 20px 0;
-            font-style: italic;
         }
 
         .name-underline {
             width: 500px;
             height: 2px;
             background: #d4af37;
-            margin: 10px auto 20px;
+            margin: 0 auto 20px;
         }
 
         .description-text {
             font-size: 15px;
-            color: #555;
-            line-height: 1.6;
             max-width: 700px;
             margin: 0 auto 15px;
-        }
-
-        .course-info {
-            margin: 15px 0;
+            line-height: 1.6;
         }
 
         .course-label {
             font-size: 16px;
-            color: #666;
-            margin-bottom: 10px;
+            margin-top: 10px;
         }
 
         .course-name {
             font-size: 28px;
             font-weight: bold;
             color: #4900c1;
-            margin: 10px 0;
-        }
-
-        /* Logo placement */
-        .logo {
-            position: absolute;
-            top: 50px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80px;
-            height: 80px;
-            z-index: 2;
-        }
-
-        .logo img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
         }
 
         .certificate-details {
             position: absolute;
             bottom: 50px;
             left: 100px;
-            text-align: left;
-            z-index: 2;
         }
 
         .detail-line {
             font-size: 13px;
-            color: #666;
             margin: 5px 0;
         }
 
@@ -205,12 +165,12 @@
             font-weight: bold;
         }
 
+        /* Score badge */
         .score-badge {
             position: absolute;
             bottom: 50px;
             left: 50%;
             transform: translateX(-50%);
-            z-index: 2;
             width: 110px;
             height: 110px;
         }
@@ -218,38 +178,24 @@
         .badge-circle {
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, #d4af37 0%, #f4d56a 50%, #d4af37 100%);
             border-radius: 50%;
+            background: linear-gradient(135deg, #d4af37, #f4d56a, #d4af37);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 5px 20px rgba(212, 175, 55, 0.4);
-            position: relative;
-        }
-
-        .badge-circle::before {
-            content: '★ ★ ★';
-            position: absolute;
-            top: 12px;
-            font-size: 11px;
             color: white;
-            letter-spacing: 3px;
+            font-weight: bold;
+            box-shadow: 0 5px 20px rgba(212, 175, 55, 0.4);
         }
 
         .badge-text {
-            font-size: 15px;
-            color: white;
-            font-weight: bold;
+            font-size: 14px;
             text-transform: uppercase;
-            letter-spacing: 1px;
         }
 
         .badge-score {
             font-size: 28px;
-            font-weight: bold;
-            color: white;
-            margin-top: 5px;
         }
 
         @media print {
@@ -260,64 +206,27 @@
 
             body {
                 background: white;
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-                margin: 0;
-                padding: 0;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
             }
 
             .certificate-container {
-                /* A4 Landscape dimensions */
-                width: 297mm !important;
-                height: 210mm !important;
-                /* Force fit without aspect ratio conflict */
-                max-width: 100vw !important;
-                max-height: 100vh !important;
-
-                margin: 0 !important;
-                padding: 0 !important;
-                box-shadow: none !important;
-                border: none !important;
-
-                /* Ensure single page */
-                page-break-after: avoid;
-                page-break-inside: avoid;
-                overflow: hidden;
-                /* Cut off anything that somehow spills */
-
-                position: relative;
-
-                /* Scale content if needed to prevent internal overflow */
-                display: block;
-            }
-
-            .corner,
-            .border-frame,
-            .badge-circle {
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
-
-            .content {
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
+                width: 297mm;
+                height: 210mm;
+                box-shadow: none;
             }
         }
     </style>
 </head>
 
 <body>
+
     <div class="certificate-container">
-        <!-- Corner decorations -->
+
         <div class="corner corner-top-left"></div>
         <div class="corner corner-bottom-right"></div>
-
-        <!-- Gold border -->
         <div class="border-frame"></div>
 
-        <!-- Logo -->
         <div class="logo">
             <img src="../assests/Gemini_Generated_Image_awja8lawja8lawja-removebg-preview.png" alt="SkillNest">
         </div>
@@ -326,67 +235,68 @@
             <h1 class="certificate-title">CERTIFICATE</h1>
             <p class="certificate-subtitle">Of Achievement</p>
 
-            <div class="divider">
-                <span class="divider-end"></span>
-            </div>
+            <div class="divider"></div>
 
             <p class="presentation-text">This certificate is proudly presented to</p>
 
-            <div class="recipient-name" id="studentName">Name Surname</div>
+            <div class="recipient-name" id="studentName">Student Name</div>
             <div class="name-underline"></div>
 
-            <p class="description-text" id="description">
-                For successfully completing the comprehensive training program with <span
-                    id="percentageText">100</span>% score and demonstrating
+            <p class="description-text">
+                For successfully completing the comprehensive training program with
+                <strong><span id="percentageText">0</span>% score</strong> and demonstrating
                 exceptional dedication, skill development, and outstanding performance in the course.
             </p>
 
-            <div class="course-info">
-                <p class="course-label">Course Completed:</p>
-                <div class="course-name" id="courseName">Data Analyst</div>
-            </div>
+            <p class="course-label">Course Completed:</p>
+            <div class="course-name" id="courseName">Course Name</div>
         </div>
 
         <div class="certificate-details">
-            <div class="detail-line">Date: <span class="detail-value" id="date">December 31, 2025</span></div>
-            <div class="detail-line">Certificate ID: <span class="detail-value" id="certId">SN-2025-DA-001234</span>
+            <div class="detail-line">Date: <span class="detail-value" id="date"></span></div>
+            <div class="detail-line">Certificate ID: <span class="detail-value" id="certId"></span></div>
+        </div>
+
+        <div class="score-badge">
+            <div class="badge-circle">
+                <div class="badge-text">Score</div>
+                <div class="badge-score" id="badgeScore">0%</div>
             </div>
         </div>
+
     </div>
 
     <script>
         window.onload = function () {
             const params = new URLSearchParams(window.location.search);
 
-            const name = params.get('name');
-            const course = params.get('course');
-            const percentage = params.get('percentage');
-            const dateStr = params.get('date');
-            const date = (dateStr && dateStr !== '2025' && dateStr !== 'undefined')
-                ? dateStr
-                : new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+            const name = params.get("name");
+            const course = params.get("course");
+            const percentage = params.get("percentage");
+            const certId = params.get("id");
+            const action = params.get("action");
 
-            const certId = params.get('id');
-            const action = params.get('action');
+            const date = new Date().toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric"
+            });
 
-            if (name) document.getElementById('studentName').textContent = name;
-            if (course) document.getElementById('courseName').textContent = course;
+            if (name) document.getElementById("studentName").textContent = name;
+            if (course) document.getElementById("courseName").textContent = course;
             if (percentage) {
-                document.getElementById('percentageText').textContent = percentage;
+                document.getElementById("percentageText").textContent = percentage;
+                document.getElementById("badgeScore").textContent = percentage + "%";
             }
+            if (certId) document.getElementById("certId").textContent = certId;
 
-            document.getElementById('date').textContent = date;
+            document.getElementById("date").textContent = date;
 
-            if (certId) document.getElementById('certId').textContent = certId;
-
-            // Handle download action
-            if (action === 'download') {
-                setTimeout(() => {
-                    window.print();
-                }, 1000);
+            if (action === "download") {
+                setTimeout(() => window.print(), 800);
             }
         };
     </script>
-</body>
 
+</body>
 </html>
