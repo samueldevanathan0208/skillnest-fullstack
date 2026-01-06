@@ -224,12 +224,12 @@
      border-bottom-color: #4338ca;
  }
 
- .certificate-preview.FastAPI {
+ .certificate-preview.fastapi {
      background: linear-gradient(135deg, #10B981, #047857);
      border-bottom-color: #4338ca;
  }
 
- .certificate-preview.PostgreSQL {
+ .certificate-preview.db {
      background: linear-gradient(135deg, #A855F7, #7E22CE);
      border-bottom-color: #4338ca;
  }

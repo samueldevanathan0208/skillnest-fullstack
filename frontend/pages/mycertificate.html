@@ -111,13 +111,13 @@
                 totalVideos: 10
             },
             fastapi: {
-                styleClass: 'FastAPI',
+                styleClass: 'fastapi', // Lowercase as requested
                 title: 'FastAPI',
                 type: 'Backend Specialization',
                 totalVideos: 10
             },
             db: {
-                styleClass: 'PostgreSQL',
+                styleClass: 'db', // Lowercase as requested
                 title: 'PostgreSQL',
                 type: 'Database Expert',
                 totalVideos: 10
@@ -193,7 +193,10 @@
                 // Render using the New CSS structure
                 // structure: .certificate-card -> .certificate-preview (with badge/title/type) -> .certificate-body (info/actions)
                 container.innerHTML = unlocked.map(cert => {
-                    const downloadUrl = `certificate_template.html?name=${encodeURIComponent(user.user_name)}&course=${encodeURIComponent(cert.title)}`;
+                    const viewUrl = `certificate_template.html?name=${encodeURIComponent(user.user_name)}&course=${encodeURIComponent(cert.title)}`;
+                    // For download, we can use the same link or a specific download helper if it existed.
+                    // Assuming consistency with view for now as no download endpoint provided.
+                    const downloadUrl = viewUrl;
 
                     return `
                     <div class="certificate-card">
@@ -214,8 +217,11 @@
                             </div>
 
                             <div class="certificate-actions">
-                                <a href="${downloadUrl}" class="action-btn btn-view" style="grid-column: 1 / -1;">
-                                    View Certificate
+                                <a href="${downloadUrl}" class="action-btn btn-download">
+                                    Download
+                                </a>
+                                <a href="${viewUrl}" class="action-btn btn-view">
+                                    View
                                 </a>
                             </div>
                         </div>
