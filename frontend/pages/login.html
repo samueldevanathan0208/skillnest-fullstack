@@ -39,7 +39,6 @@
                     <button type="submit" class="sign-in-btn">Sign in</button>
                 </form>
 
-                <!-- ✅ FIXED LOGIN SCRIPT -->
                 <script>
                     document.getElementById('login-form').addEventListener('submit', async (e) => {
                         e.preventDefault();
@@ -47,6 +46,8 @@
                         const email = document.getElementById('email').value;
                         const password = document.getElementById('password').value;
                         const API_BASE_URL = "https://skillnest-fullstack-5hws.vercel.app";
+
+                        console.log('🔵 Login attempt for:', email);
 
                         try {
                             const response = await fetch(`${API_BASE_URL}/login`, {
@@ -61,25 +62,39 @@
                                 })
                             });
 
+                            // Log response details for debugging
+                            console.log('📡 Response status:', response.status);
+                            console.log('📡 Response headers:', Object.fromEntries(response.headers.entries()));
+
                             const contentType = response.headers.get("content-type");
                             let result;
-                            
+
                             if (contentType && contentType.indexOf("application/json") !== -1) {
                                 result = await response.json();
+                                console.log('✅ Parsed JSON result:', result);
                             } else {
                                 const text = await response.text();
+                                console.log('⚠️ Non-JSON response:', text);
                                 result = { detail: text || "Server returned non-JSON response" };
                             }
 
                             if (!response.ok) {
-                                // Extract error message from detail (FastAPI standard) or message
-                                const errorMsg = result.detail || result.message || "Invalid email or password";
-                                console.error("Login failed:", result);
+                                // Enhanced error extraction with multiple fallbacks
+                                const errorMsg = result?.detail ||
+                                    result?.message ||
+                                    result?.error ||
+                                    (typeof result === 'string' ? result : null) ||
+                                    JSON.stringify(result) ||
+                                    "Invalid email or password";
+
+                                console.error("🔴 Login failed - Full error object:", result);
+                                console.error("🔴 Extracted error message:", errorMsg);
                                 alert("Login failed: " + errorMsg);
                                 return;
                             }
 
                             // SUCCESS CASE
+                            console.log('✅ Login successful:', result);
                             if (result.user) {
                                 localStorage.setItem('user', JSON.stringify(result.user));
                                 alert("Login successful!");
@@ -89,7 +104,9 @@
                             }
 
                         } catch (error) {
-                            console.error("Critical Login Error:", error);
+                            console.error("💥 Critical Login Error:", error);
+                            console.error("💥 Error type:", error.name);
+                            console.error("💥 Error message:", error.message);
                             alert("Login Error: " + error.message);
                         }
                     });
@@ -124,4 +141,5 @@
     </div>
 
 </body>
+
 </html>
