@@ -127,15 +127,25 @@
                 }
 
                 container.innerHTML = unlocked.map(cert => {
-                    const baseUrl = `certificate_template.html?name=${encodeURIComponent(user.user_name)}&course=${encodeURIComponent(cert.title)}&id=SK-${user.user_id}-${cert.key.toUpperCase()}&percentage=${cert.score}`;
+                    const today = new Date().toISOString().split('T')[0];
+                    const paddedId = 1000 + parseInt(user.user_id);
+                    const certId = `SKILL-${paddedId}-${cert.key.toUpperCase()}`;
 
+                    const queryParams = new URLSearchParams({
+                        name: user.user_name,
+                        course: cert.title,
+                        id: certId,
+                        percentage: cert.score,
+                        date: today
+                    }).toString();
+
+                    const baseUrl = `certificate_template.html?${queryParams}`;
                     const viewUrl = baseUrl;
                     const downloadUrl = `${baseUrl}&action=download`;
 
                     return `
                     <div class="certificate-card">
                         <div class="certificate-preview ${cert.styleClass}">
-                            <div class="certificate-badge">🏆</div>
                             <div class="certificate-title">${cert.title}</div>
                             <div class="certificate-type">${cert.type}</div>
                             <div class="verified-badge">✔ Verified</div>
@@ -145,7 +155,7 @@
                             <div class="certificate-id">
                                 <div class="certificate-id-label">Certificate ID</div>
                                 <div class="certificate-id-value">
-                                    SK-${user.user_id}-${cert.key.toUpperCase()}
+                                    ${certId}
                                 </div>
                             </div>
 

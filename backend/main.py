@@ -53,7 +53,6 @@ async def global_exception_handler(request: Request, exc: Exception):
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request: Request, exc: HTTPException):
     """Ensure HTTPException responses include CORS headers"""
-    print(f"🔴 HTTPException: {exc.status_code} - {exc.detail}")
     return JSONResponse(
         status_code=exc.status_code,
         content={"detail": exc.detail},
@@ -78,9 +77,8 @@ def health():
 def on_startup():
     try:
         Base.metadata.create_all(bind=engine)
-        print("✅ Database connected")
     except Exception as e:
-        print("❌ Database init failed:", e)
+        pass
 
 # --------------------------------------------------
 # USER APIs
@@ -254,10 +252,4 @@ def delete_partial_quiz_progress(user_id: int, quiz_id: str, db: Session = Depen
     db.commit()
     return {"status": "deleted"}
 
-# --------------------------------------------------
-# DEBUG
-# --------------------------------------------------
-@app.get("/debug/schema")
-def debug_schema():
-    from sqlalchemy import inspect
-    return inspect(engine).get_table_names()
+
