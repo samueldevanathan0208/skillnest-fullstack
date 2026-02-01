@@ -24,6 +24,7 @@ from py_schemas.progress_schemas import (
     QuizPartialProgressCreate,
     QuizResultCreate
 )
+from auth import hash_password, verify_password, create_access_token, get_current_user
 
 app = FastAPI(title="SkillNest API")
 
@@ -84,7 +85,7 @@ def on_startup():
 # USER APIs
 # --------------------------------------------------
 @app.get("/users")
-def get_users(db: Session = Depends(get_db)):
+def get_users(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     return db.query(User).all()
 
 @app.get("/user/{user_id}")
@@ -96,10 +97,15 @@ def get_user(user_id: int, db: Session = Depends(get_db)):
 
 @app.post("/create_user")
 def create_user(user: CreateUser, db: Session = Depends(get_db)):
+    # Check if user already exists
+    existing_user = db.query(User).filter(User.user_email == user.user_email).first()
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+
     new_user = User(
         user_name=user.user_name,
         user_email=user.user_email,
-        user_password=user.user_password,
+        user_password=hash_password(user.user_password),
         user_dateofbirth=user.user_dateofbirth,
         user_phone=user.user_phone,
         user_gender=user.user_gender,
@@ -112,15 +118,18 @@ def create_user(user: CreateUser, db: Session = Depends(get_db)):
 
 @app.post("/login")
 def login(user: LoginRequest, db: Session = Depends(get_db)):
-    db_user = db.query(User).filter(
-        User.user_email == user.user_email,
-        User.user_password == user.user_password
-    ).first()
+    db_user = db.query(User).filter(User.user_email == user.user_email).first()
 
-    if not db_user:
+    if not db_user or not verify_password(user.user_password, db_user.user_password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    return {"status": "success", "user": db_user}
+    access_token = create_access_token(data={"sub": str(db_user.user_id)})
+    return {
+        "status": "success",
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user_id": db_user.user_id
+    }
 
 @app.put("/user/{user_id}")
 def update_user(user_id: int, data: UpdateUser, db: Session = Depends(get_db)):
@@ -156,7 +165,7 @@ def create_course(course: Create_course, db: Session = Depends(get_db)):
     return {"status": "course created"}
 
 @app.get("/course")
-def get_courses(db: Session = Depends(get_db)):
+def get_courses(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     return db.query(Course).all()
 
 # --------------------------------------------------
