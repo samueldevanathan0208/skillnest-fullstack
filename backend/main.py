@@ -97,8 +97,9 @@ def get_user(user_id: int, db: Session = Depends(get_db)):
 
 @app.post("/create_user")
 def create_user(user: CreateUser, db: Session = Depends(get_db)):
-    # Hash the plain text password string ONLY
-    hashed_password = hash_password(user.user_password)
+    # Extract only the plain text string for hashing
+    plain_password = user.user_password
+    hashed_password = hash_password(plain_password)
     
     new_user = User(
         user_name=user.user_name,
@@ -118,7 +119,7 @@ def create_user(user: CreateUser, db: Session = Depends(get_db)):
 def login(user: LoginRequest, db: Session = Depends(get_db)):
     db_user = db.query(User).filter(User.user_email == user.user_email).first()
 
-    # Verify password against hash
+    # Pass only the plain text password string and the stored hash
     if not db_user or not verify_password(user.user_password, db_user.user_password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
@@ -146,7 +147,9 @@ def update_user(user_id: int, data: UpdateUser, db: Session = Depends(get_db)):
 @app.post("/delete_user/{user_id}")
 def delete_user(user_id: int, req: DeleteUserRequest, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.user_id == user_id).first()
-    if not user or user.user_password != req.password:
+    
+    # Verify password hash for deletion
+    if not user or not verify_password(req.password, user.user_password):
         raise HTTPException(status_code=401, detail="Unauthorized")
 
     db.delete(user)

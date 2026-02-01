@@ -22,9 +22,11 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 def hash_password(password: str):
+    """Hash a plain text password string."""
     return pwd_context.hash(password)
 
 def verify_password(plain_password: str, hashed_password: str):
+    """Verify a plain text password string against a hash."""
     return pwd_context.verify(plain_password, hashed_password)
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
