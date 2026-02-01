@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Signup | SkillNest</title>
     <link rel="stylesheet" href="../css/signup.css">
-    <script src="../js/api-config.js"></script>
+    <script src="../js/api.js"></script>
 </head>
 
 <body>
@@ -97,13 +97,10 @@
                 user_gender: document.getElementById('gen').value
             };
 
-            const response = await apiFetch("/create_user", {
+            const result = await apiFetch("/create_user", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(userData)
             });
-
-            const result = await response.json();
 
             if (result.status === "success") {
                 alert("Signup successful!");

@@ -7,7 +7,7 @@
     <title>Quizzes</title>
     <link rel="stylesheet" href="../css/quizzes.css">
     <link rel="stylesheet" href="../css/modals.css">
-    <script src="../js/api-config.js"></script>
+    <script src="../js/api.js"></script>
     <script>
         if (!localStorage.getItem("token")) {
             window.location.href = "login.html";
@@ -111,18 +111,10 @@
         async function loadQuizStats() {
             try {
                 // Fetch Results and Partials in parallel (JWT identity)
-                const [resultsRes, partialsRes] = await Promise.all([
+                const [results, partials] = await Promise.all([
                     apiFetch("/progress/quiz"),
                     apiFetch("/progress/quiz/partial")
                 ]);
-
-                if (resultsRes.status === 401) {
-                    window.location.href = 'login.html';
-                    return;
-                }
-
-                const results = resultsRes.ok ? await resultsRes.json() : {};
-                const partials = partialsRes.ok ? await partialsRes.json() : {};
 
                 renderQuizzes(results, partials);
 

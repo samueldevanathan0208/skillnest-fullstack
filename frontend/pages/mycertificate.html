@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="../css/dashboard.css">
     <link rel="stylesheet" href="../css/mylearn.css">
     <link rel="stylesheet" href="../css/modals.css">
-    <script src="../js/api-config.js"></script>
+    <script src="../js/api.js"></script>
     <script>
         if (!localStorage.getItem("token")) {
             window.location.href = "login.html";
@@ -87,9 +87,7 @@
 
         async function init() {
             try {
-                const response = await apiFetch("/user/me");
-                if (!response.ok) throw new Error("Unauthorized");
-                const user = await response.json();
+                const user = await apiFetch("/user/me");
                 loadCertificates(user);
             } catch (err) {
                 console.error(err);
@@ -103,13 +101,10 @@
             const container = document.getElementById("certificates");
 
             try {
-                const [courseRes, quizRes] = await Promise.all([
+                const [courseProgress, quizProgress] = await Promise.all([
                     apiFetch("/progress/course"),
                     apiFetch("/progress/quiz")
                 ]);
-
-                const courseProgress = await courseRes.json();
-                const quizProgress = await quizRes.json();
 
                 const unlocked = [];
 

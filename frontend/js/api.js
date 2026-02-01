@@ -1,30 +1,28 @@
-const API = "https://skillnest-fullstack-5hws.vercel.app";
+const API_BASE = "https://skillnest-fullstack-5hws.vercel.app";
 
 async function apiFetch(url, options = {}) {
-
     const token = localStorage.getItem("token");
-    const isPublic = url === "/login" || url === "/create_user";
 
-    if (!token && !isPublic) {
-        alert("Please log in to continue");
-        window.location.href = "/pages/login.html";
-        return;
-    }
-
-    options.headers = {
+    const headers = {
         "Content-Type": "application/json",
-        ...(token ? { "Authorization": "Bearer " + token } : {}),
         ...(options.headers || {})
     };
 
-    const res = await fetch(API + url, options);
+    if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+    }
 
-    if (res.status === 401 && !isPublic) {
-        localStorage.removeItem("token");
+    const response = await fetch(API_BASE + url, {
+        ...options,
+        headers
+    });
+
+    if (response.status === 401) {
         alert("Session expired. Please login again.");
+        localStorage.removeItem("token");
         window.location.href = "/pages/login.html";
         return;
     }
 
-    return res.json();
+    return response.json();
 }

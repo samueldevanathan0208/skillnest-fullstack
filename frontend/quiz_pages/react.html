@@ -5,6 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>React Quiz Master</title>
+    <script src="../js/api.js"></script>
+    <script>
+        if (!localStorage.getItem("token")) {
+            window.location.href = "../pages/login.html";
+        }
+    </script>
     <style>
         * {
             margin: 0;
@@ -424,11 +430,8 @@
         async function savePartialProgress() {
             const quizId = 'react';
             try {
-                await fetch(`${API_BASE_URL}/progress/quiz/partial`, {
+                await apiFetch("/progress/quiz/partial", {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
                     body: JSON.stringify({
                         quiz_id: quizId,
                         current_index: currentQuestion + 1,
@@ -537,9 +540,6 @@
                 // Save result
                 await apiFetch("/create_quiz", {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
                     body: JSON.stringify({
                         quiz_id: quizId,
                         score: percentage,

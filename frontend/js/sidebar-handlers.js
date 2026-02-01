@@ -4,16 +4,6 @@
  */
 
 (function () {
-    // Ensure API_CONFIG is loaded for interception
-    if (typeof API_CONFIG === 'undefined') {
-        const script = document.createElement('script');
-        script.src = '../js/api-config.js';
-        script.async = false; // Must be synchronous to intercept subsequent calls
-        document.head.appendChild(script);
-    }
-
-    const API_BASE_URL = 'https://skillnest-fullstack-5hws.vercel.app'; // Will be intercepted by api-config.js
-
     // 1. Modal HTML Template
     const modalHTML = `
         <!-- Global Delete Account Modal -->
@@ -109,15 +99,11 @@
             }
 
             try {
-                const response = await fetch(`${API_BASE_URL}/user/delete`, {
+                const result = await apiFetch("/user/delete", {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
                     body: JSON.stringify({ password: password })
                 });
 
-                const result = await response.json();
                 if (result.status === 'success') {
                     localStorage.removeItem('token');
                     window.location.href = 'signup.html';

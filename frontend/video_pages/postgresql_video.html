@@ -5,6 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PostgreSQL Course</title>
+    <script src="../js/api.js"></script>
+    <script>
+        if (!localStorage.getItem("token")) {
+            window.location.href = "../pages/login.html";
+        }
+    </script>
     <style>
         body {
             margin: 0;
@@ -139,7 +145,12 @@
             background-color: #374151;
         }
     </style>
-    <script src="../js/api-config.js"></script>
+    <script src="../js/api.js"></script>
+    <script>
+        if (!localStorage.getItem("token")) {
+            window.location.href = "../pages/login.html";
+        }
+    </script>
     <script>
         if (!localStorage.getItem("token")) {
             window.location.href = "../pages/login.html";
@@ -195,8 +206,7 @@
 
         async function fetchProgress() {
             try {
-                const response = await apiFetch("/progress/course");
-                const data = await response.json();
+                const data = await apiFetch("/progress/course");
                 return data[courseId] || [];
             } catch (error) {
                 console.error('Error fetching progress:', error);
@@ -258,23 +268,15 @@
         async function markComplete() {
             if (!courseProgressData.includes(currentIndex)) {
                 try {
-                    const response = await apiFetch("/progress/course/video", {
+                    const result = await apiFetch("/progress/course/video", {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
                         body: JSON.stringify({
                             course_id: courseId,
                             video_index: currentIndex
                         })
                     });
 
-                    if (response.status === 401) {
-                        alert('Please log in to save progress');
-                        return;
-                    }
-
-                    if (response.ok) {
+                    if (result.status === "success" || result.video_id) {
                         await loadVideos();
                         playVideo(currentIndex);
                     }
