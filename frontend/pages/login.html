@@ -48,24 +48,36 @@
 
             const API = "https://skillnest-fullstack-5hws.vercel.app";
 
-            const response = await fetch(API + "/login", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    user_email: email,
-                    user_password: password
-                })
-            });
+            try {
+                const response = await fetch(API + "/login", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        user_email: email,
+                        user_password: password
+                    })
+                });
 
-            const result = await response.json();
+                const result = await response.json();
 
-            // ✅ STORE JWT
-            if (result.access_token) {
+                // ❌ login failed
+                if (!response.ok) {
+                    alert(result.detail || "Invalid email or password");
+                    return;
+                }
+
+                // ✅ login success
                 localStorage.setItem("token", result.access_token);
+                localStorage.setItem("user_id", result.user_id);
+
                 alert("Login successful!");
                 window.location.href = "dashboard.html";
-            } else {
-                alert(result.detail || "Login failed");
+
+            } catch (err) {
+                console.error("Login error:", err);
+                alert("Server error. Please try again.");
             }
         });
     </script>
