@@ -97,15 +97,13 @@ def get_user(user_id: int, db: Session = Depends(get_db)):
 
 @app.post("/create_user")
 def create_user(user: CreateUser, db: Session = Depends(get_db)):
-    # Check if user already exists
-    existing_user = db.query(User).filter(User.user_email == user.user_email).first()
-    if existing_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
-
+    # Hash the plain text password string ONLY
+    hashed_password = hash_password(user.user_password)
+    
     new_user = User(
         user_name=user.user_name,
         user_email=user.user_email,
-        user_password=hash_password(user.user_password),
+        user_password=hashed_password,
         user_dateofbirth=user.user_dateofbirth,
         user_phone=user.user_phone,
         user_gender=user.user_gender,
@@ -120,6 +118,7 @@ def create_user(user: CreateUser, db: Session = Depends(get_db)):
 def login(user: LoginRequest, db: Session = Depends(get_db)):
     db_user = db.query(User).filter(User.user_email == user.user_email).first()
 
+    # Verify password against hash
     if not db_user or not verify_password(user.user_password, db_user.user_password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
