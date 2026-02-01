@@ -210,8 +210,17 @@ def create_quiz(data: QuizResultCreate, db: Session = Depends(get_db), current_u
 
 @app.post("/progress/course/video")
 def mark_video(data: VideoProgressCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    db.add(CourseVideoProgress(user_id=current_user.user_id, **data.dict()))
-    db.commit()
+    # Check if record already exists for this user, course, and video
+    existing = db.query(CourseVideoProgress).filter(
+        CourseVideoProgress.user_id == current_user.user_id,
+        CourseVideoProgress.course_id == data.course_id,
+        CourseVideoProgress.video_index == data.video_index
+    ).first()
+
+    if not existing:
+        db.add(CourseVideoProgress(user_id=current_user.user_id, **data.dict()))
+        db.commit()
+
     return {"status": "saved"}
 
 
@@ -234,11 +243,19 @@ def save_partial(data: QuizPartialProgressCreate, db: Session = Depends(get_db),
 
 @app.get("/progress/course")
 def get_course_progress(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    records = db.query(CourseVideoProgress).filter(CourseVideoProgress.user_id == current_user.user_id).all()
+    records = db.query(CourseVideoProgress).filter(
+        CourseVideoProgress.user_id == current_user.user_id
+    ).all()
 
     result = {}
     for r in records:
-        result.setdefault(r.course_id, []).append(r.video_index)
+        if r.course_id not in result:
+            result[r.course_id] = set()
+        result[r.course_id].add(r.video_index)
+
+    # Convert sets to lists for JSON serialization
+    for course_id in result:
+        result[course_id] = list(result[course_id])
 
     return result
 

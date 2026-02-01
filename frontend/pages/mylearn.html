@@ -143,8 +143,8 @@
                             const course = courseData[id];
                             if (!course) return;
 
-                            const completedCount = progressData[id].length;
-                            const percent = Math.round((completedCount / course.total) * 100);
+                            const uniqueVideos = new Set(progressData[id]).size;
+                            const percent = Math.min(100, Math.round((uniqueVideos / course.total) * 100));
                             const isCompleted = percent === 100;
 
                             totalStarted++;

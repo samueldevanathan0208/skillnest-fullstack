@@ -46,7 +46,8 @@
 
                 courseIds.forEach(id => {
                     if (progressData[id]) {
-                        const completedInCourse = progressData[id].length;
+                        // Use Set to ensure unique video indices are counted (preventing >100%)
+                        const completedInCourse = new Set(progressData[id]).size;
                         totalCompletedVideos += completedInCourse;
                         if (completedInCourse === totalVideosPerCourse) {
                             completedCoursesCount++;
@@ -54,7 +55,8 @@
                     }
                 });
 
-                const overallPercent = Math.round((totalCompletedVideos / totalPossibleVideos) * 100);
+                const rawPercent = (totalCompletedVideos / totalPossibleVideos) * 100;
+                const overallPercent = Math.min(100, Math.round(rawPercent));
 
                 // Update UI
                 const label = document.querySelector('.progress-label span');

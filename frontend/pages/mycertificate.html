@@ -109,10 +109,11 @@
                 const unlocked = [];
 
                 for (const key in certMetadata) {
-                    const videosDone = (courseProgress[key] || []).length;
+                    const uniqueVideos = new Set(courseProgress[key] || []).size;
                     const quiz = quizProgress[key];
 
-                    if (videosDone >= certMetadata[key].totalVideos && quiz?.attempts > 0) {
+                    // Rule: 100% video completion AND at least one quiz attempt
+                    if (uniqueVideos === certMetadata[key].totalVideos && quiz?.attempts > 0) {
                         unlocked.push({
                             key,
                             ...certMetadata[key],
