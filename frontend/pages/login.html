@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>Login | SkillNest</title>
     <link rel="stylesheet" href="../css/login.css">
+    <script src="../js/api-config.js"></script>
 </head>
 
 <body>
@@ -45,10 +46,8 @@
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
-            const API = "https://skillnest-fullstack-5hws.vercel.app";
-
             try {
-                const response = await fetch(API + "/login", {
+                const response = await apiFetch("/login", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"

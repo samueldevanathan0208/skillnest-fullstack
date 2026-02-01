@@ -420,7 +420,6 @@
         let score = 0;
         let selectedAnswer = null;
 
-        const API_BASE_URL = 'https://skillnest-fullstack-5hws.vercel.app';
 
         async function savePartialProgress() {
             const quizId = 'react';
@@ -445,7 +444,7 @@
             const quizId = 'react';
 
             try {
-                const response = await fetch(`${API_BASE_URL}/progress/quiz/partial`);
+                const response = await apiFetch("/progress/quiz/partial");
                 if (response.ok) {
                     const partials = await response.json();
                     const myPartial = partials[quizId];
@@ -456,7 +455,7 @@
                             score = myPartial.score;
                         } else {
                             // Clear partial if not resuming
-                            await fetch(`${API_BASE_URL}/progress/quiz/partial/${quizId}`, {
+                            await apiFetch(`/progress/quiz/partial/${quizId}`, {
                                 method: 'DELETE'
                             });
                         }
@@ -536,7 +535,7 @@
 
             try {
                 // Save result
-                await fetch(`${API_BASE_URL}/create_quiz`, {
+                await apiFetch("/create_quiz", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -549,7 +548,7 @@
                 });
 
                 // Clear partial progress
-                await fetch(`${API_BASE_URL}/progress/quiz/partial/${quizId}`, {
+                await apiFetch(`/progress/quiz/partial/${quizId}`, {
                     method: 'DELETE'
                 });
 
@@ -590,7 +589,7 @@
             const quizId = 'react';
 
             try {
-                await fetch(`${API_BASE_URL}/progress/quiz/partial/${quizId}`, {
+                await apiFetch(`/progress/quiz/partial/${quizId}`, {
                     method: 'DELETE'
                 });
             } catch (error) {

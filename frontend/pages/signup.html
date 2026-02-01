@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Signup | SkillNest</title>
     <link rel="stylesheet" href="../css/signup.css">
+    <script src="../js/api-config.js"></script>
 </head>
 
 <body>
@@ -96,9 +97,7 @@
                 user_gender: document.getElementById('gen').value
             };
 
-            const API = "https://skillnest-fullstack-5hws.vercel.app";
-
-            const response = await fetch(API + "/create_user", {
+            const response = await apiFetch("/create_user", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(userData)
@@ -116,4 +115,5 @@
     </script>
 
 </body>
+
 </html>

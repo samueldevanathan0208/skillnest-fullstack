@@ -11,7 +11,12 @@
     <link rel="stylesheet" href="../css/dashboard.css">
     <link rel="stylesheet" href="../css/mylearn.css">
     <link rel="stylesheet" href="../css/modals.css">
-
+    <script src="../js/api-config.js"></script>
+    <script>
+        if (!localStorage.getItem("token")) {
+            window.location.href = "login.html";
+        }
+    </script>
     <script src="../js/sidebar-handlers.js" defer></script>
 </head>
 
@@ -66,7 +71,6 @@
     </div>
 
     <script>
-        const API_BASE_URL = "https://skillnest-fullstack-5hws.vercel.app";
 
         const certMetadata = {
             html: { styleClass: "HTML", title: "HTML5", type: "Course Completion", totalVideos: 10 },
@@ -83,7 +87,7 @@
 
         async function init() {
             try {
-                const response = await fetch(`${API_BASE_URL}/user/me`);
+                const response = await apiFetch("/user/me");
                 if (!response.ok) throw new Error("Unauthorized");
                 const user = await response.json();
                 loadCertificates(user);
@@ -100,8 +104,8 @@
 
             try {
                 const [courseRes, quizRes] = await Promise.all([
-                    fetch(`${API_BASE_URL}/progress/course`),
-                    fetch(`${API_BASE_URL}/progress/quiz`)
+                    apiFetch("/progress/course"),
+                    apiFetch("/progress/quiz")
                 ]);
 
                 const courseProgress = await courseRes.json();

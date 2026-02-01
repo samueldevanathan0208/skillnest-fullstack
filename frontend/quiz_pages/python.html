@@ -5,6 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Python Quiz Master</title>
+    <script src="../js/api-config.js"></script>
+    <script>
+        if (!localStorage.getItem("token")) {
+            window.location.href = "../pages/login.html";
+        }
+    </script>
     <style>
         * {
             margin: 0;
@@ -419,7 +425,6 @@
         let score = 0;
         let selectedAnswer = null;
 
-        const API_BASE_URL = 'https://skillnest-fullstack-5hws.vercel.app';
 
         async function savePartialProgress() {
             const quizId = 'python';
@@ -444,7 +449,7 @@
             const quizId = 'python';
 
             try {
-                const response = await fetch(`${API_BASE_URL}/progress/quiz/partial`);
+                const response = await apiFetch("/progress/quiz/partial");
                 if (response.ok) {
                     const partials = await response.json();
                     const myPartial = partials[quizId];
@@ -455,7 +460,7 @@
                             score = myPartial.score;
                         } else {
                             // Clear partial if not resuming
-                            await fetch(`${API_BASE_URL}/progress/quiz/partial/${quizId}`, {
+                            await apiFetch(`/progress/quiz/partial/${quizId}`, {
                                 method: 'DELETE'
                             });
                         }
@@ -535,7 +540,7 @@
 
             try {
                 // Save result
-                await fetch(`${API_BASE_URL}/create_quiz`, {
+                await apiFetch("/create_quiz", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -548,7 +553,7 @@
                 });
 
                 // Clear partial progress
-                await fetch(`${API_BASE_URL}/progress/quiz/partial/${quizId}`, {
+                await apiFetch(`/progress/quiz/partial/${quizId}`, {
                     method: 'DELETE'
                 });
 
@@ -589,7 +594,7 @@
             const quizId = 'python';
 
             try {
-                await fetch(`${API_BASE_URL}/progress/quiz/partial/${quizId}`, {
+                await apiFetch(`/progress/quiz/partial/${quizId}`, {
                     method: 'DELETE'
                 });
             } catch (error) {

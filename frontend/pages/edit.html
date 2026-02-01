@@ -7,6 +7,12 @@
     <title>Edit Profile</title>
     <link rel="stylesheet" href="../css/edit.css">
     <link rel="stylesheet" href="../css/modals.css">
+    <script src="../js/api-config.js"></script>
+    <script>
+        if (!localStorage.getItem("token")) {
+            window.location.href = "login.html";
+        }
+    </script>
     <script src="../js/sidebar-handlers.js" defer></script>
 </head>
 
@@ -129,13 +135,12 @@
     <!-- Global Modals injected by sidebar-handlers.js -->
 
     <script>
-        const API_BASE_URL = 'https://skillnest-fullstack-5hws.vercel.app';
 
         // Initialize
         document.addEventListener('DOMContentLoaded', async () => {
             try {
                 // Fetch fresh user data from /user/me (JWT identity)
-                const response = await fetch(`${API_BASE_URL}/user/me`);
+                const response = await apiFetch("/user/me");
                 if (response.ok) {
                     const user = await response.json();
                     populateForm(user);
@@ -192,7 +197,7 @@
             };
 
             try {
-                const response = await fetch(`${API_BASE_URL}/user/me`, {
+                const response = await apiFetch("/user/me", {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json'

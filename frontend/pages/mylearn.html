@@ -7,6 +7,12 @@
     <title>My Learning</title>
     <link rel="stylesheet" href="../css/mylearn.css">
     <link rel="stylesheet" href="../css/modals.css">
+    <script src="../js/api-config.js"></script>
+    <script>
+        if (!localStorage.getItem("token")) {
+            window.location.href = "login.html";
+        }
+    </script>
     <script src="../js/sidebar-handlers.js" defer></script>
     <style>
         .empty-state {
@@ -115,13 +121,12 @@
                 'db': { title: 'PostgreSQL', headerText: 'SQL', total: 10, link: '../video_pages/postgresql_video.html' }
             };
 
-            const API_BASE_URL = 'https://skillnest-fullstack-5hws.vercel.app';
 
             async function updateUI() {
                 const container = document.getElementById('courses-container');
 
                 try {
-                    const response = await fetch(`${API_BASE_URL}/progress/course`);
+                    const response = await apiFetch("/progress/course");
                     if (!response.ok) throw new Error('Unauthorized');
 
                     const progressData = await response.json();

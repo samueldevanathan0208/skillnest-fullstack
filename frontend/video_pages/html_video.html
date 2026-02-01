@@ -139,6 +139,12 @@
             background-color: #374151;
         }
     </style>
+    <script src="../js/api-config.js"></script>
+    <script>
+        if (!localStorage.getItem("token")) {
+            window.location.href = "../pages/login.html";
+        }
+    </script>
 </head>
 
 <body>
@@ -185,12 +191,11 @@
 
         let currentIndex = 0;
         const courseId = 'html';
-        const API_BASE_URL = 'https://skillnest-fullstack-5hws.vercel.app';
         let courseProgressData = [];
 
         async function fetchProgress() {
             try {
-                const response = await fetch(`${API_BASE_URL}/progress/course`);
+                const response = await apiFetch("/progress/course");
                 const data = await response.json();
                 return data[courseId] || [];
             } catch (error) {
@@ -253,7 +258,7 @@
         async function markComplete() {
             if (!courseProgressData.includes(currentIndex)) {
                 try {
-                    const response = await fetch(`${API_BASE_URL}/progress/course/video`, {
+                    const response = await apiFetch("/progress/course/video", {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
