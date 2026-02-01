@@ -38,49 +38,48 @@
             </div>
         </div>
     </div>
+<script>
+document.getElementById('login-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-    <script>
-        document.getElementById('login-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
 
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value.trim();
+    const API = "https://skillnest-fullstack-5hws.vercel.app";
 
-            const API = "https://skillnest-fullstack-5hws.vercel.app";
-
-            try {
-                const response = await fetch(API + "/login", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        user_email: email,
-                        user_password: password
-                    })
-                });
-
-                const result = await response.json();
-
-                // ❌ login failed
-                if (!response.ok) {
-                    alert(result.detail || "Invalid email or password");
-                    return;
-                }
-
-                // ✅ login success
-                localStorage.setItem("token", result.access_token);
-                localStorage.setItem("user_id", result.user_id);
-
-                alert("Login successful!");
-                window.location.href = "dashboard.html";
-
-            } catch (err) {
-                console.error("Login error:", err);
-                alert("Server error. Please try again.");
-            }
+    try {
+        const response = await fetch(API + "/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                user_email: email,
+                user_password: password
+            })
         });
-    </script>
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            alert(result.detail || "Login failed");
+            return;
+        }
+
+        // ✅ only these two
+        localStorage.setItem("token", result.access_token);
+        localStorage.setItem("user_id", result.user_id);
+
+        alert("Login successful!");
+        window.location.href = "dashboard.html";
+
+    } catch (err) {
+        alert("Server error");
+        console.error(err);
+    }
+});
+</script>
+
 
 </body>
 </html>
