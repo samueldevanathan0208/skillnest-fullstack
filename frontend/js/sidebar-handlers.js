@@ -96,12 +96,11 @@
 
         // Confirm buttons
         document.getElementById('confirmSignOutBtn').onclick = () => {
-            localStorage.removeItem('user');
+            localStorage.removeItem('token');
             window.location.href = 'login.html';
         };
 
         document.getElementById('confirmDeleteBtn').onclick = async () => {
-            const user = JSON.parse(localStorage.getItem('user'));
             const password = document.getElementById('globalDeletePassword').value;
 
             if (!password) {
@@ -109,27 +108,18 @@
                 return;
             }
 
-            if (!user || !user.user_id) {
-                alert('User session not found. Please log in again.');
-                return;
-            }
-
             try {
-                const response = await fetch(`${API_BASE_URL}/delete_user/${user.user_id}`, {
+                const response = await fetch(`${API_BASE_URL}/user/delete`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'Cache-Control': 'no-cache, no-store, must-revalidate',
-                        'Pragma': 'no-cache',
-                        'Expires': '0'
+                        'Content-Type': 'application/json'
                     },
-                    cache: 'no-store',
                     body: JSON.stringify({ password: password })
                 });
 
                 const result = await response.json();
                 if (result.status === 'success') {
-                    localStorage.removeItem('user');
+                    localStorage.removeItem('token');
                     window.location.href = 'signup.html';
                 } else {
                     alert(result.message || 'Failed to delete account');

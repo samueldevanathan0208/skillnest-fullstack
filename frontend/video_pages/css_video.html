@@ -189,11 +189,8 @@
         let courseProgressData = [];
 
         async function fetchProgress() {
-            const user = JSON.parse(localStorage.getItem('user') || '{}');
-            if (!user.user_id) return [];
-
             try {
-                const response = await fetch(`${API_BASE_URL}/progress/course/${user.user_id}`);
+                const response = await fetch(`${API_BASE_URL}/progress/course`);
                 const data = await response.json();
                 return data[courseId] || [];
             } catch (error) {
@@ -254,29 +251,23 @@
         }
 
         async function markComplete() {
-            const user = JSON.parse(localStorage.getItem('user') || '{}');
-            if (!user.user_id) {
-                alert('Please log in to save progress');
-                return;
-            }
-
             if (!courseProgressData.includes(currentIndex)) {
                 try {
                     const response = await fetch(`${API_BASE_URL}/progress/course/video`, {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json',
-                            'Cache-Control': 'no-cache, no-store, must-revalidate',
-                            'Pragma': 'no-cache',
-                            'Expires': '0'
+                            'Content-Type': 'application/json'
                         },
-                        cache: 'no-store',
                         body: JSON.stringify({
-                            user_id: user.user_id,
                             course_id: courseId,
                             video_index: currentIndex
                         })
                     });
+
+                    if (response.status === 401) {
+                        alert('Please log in to save progress');
+                        return;
+                    }
 
                     if (response.ok) {
                         await loadVideos();

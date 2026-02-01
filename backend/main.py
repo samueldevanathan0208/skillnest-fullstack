@@ -97,12 +97,9 @@ def get_users(db: Session = Depends(get_db), current_user: User = Depends(get_cu
     return db.query(User).all()
 
 
-@app.get("/user/{user_id}")
-def get_user(user_id: int, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.user_id == user_id).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    return user
+@app.get("/user/me")
+def get_user(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    return current_user
 
 
 # -----------------------------
@@ -154,33 +151,26 @@ def login(user: LoginRequest, db: Session = Depends(get_db)):
     return {
         "status": "success",
         "access_token": access_token,
-        "token_type": "bearer",
-        "user_id": db_user.user_id
+        "token_type": "bearer"
     }
 
 
-@app.put("/user/{user_id}")
-def update_user(user_id: int, data: UpdateUser, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.user_id == user_id).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
+@app.put("/user/me")
+def update_user(data: UpdateUser, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     for k, v in data.dict(exclude_unset=True).items():
-        setattr(user, k, v)
+        setattr(current_user, k, v)
 
     db.commit()
-    db.refresh(user)
-    return {"status": "success", "user": user}
+    db.refresh(current_user)
+    return {"status": "success", "user": current_user}
 
 
-@app.post("/delete_user/{user_id}")
-def delete_user(user_id: int, req: DeleteUserRequest, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.user_id == user_id).first()
-
-    if not user or not verify_password(req.password.strip(), user.user_password):
+@app.post("/user/delete")
+def delete_user(req: DeleteUserRequest, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    if not verify_password(req.password.strip(), current_user.user_password):
         raise HTTPException(status_code=401, detail="Unauthorized")
 
-    db.delete(user)
+    db.delete(current_user)
     db.commit()
     return {"status": "success"}
 
@@ -207,8 +197,8 @@ def get_courses(db: Session = Depends(get_db), current_user: User = Depends(get_
 # ==================================================
 
 @app.post("/create_quiz")
-def create_quiz(data: QuizResultCreate, db: Session = Depends(get_db)):
-    quiz = Quiz(**data.dict())
+def create_quiz(data: QuizResultCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    quiz = Quiz(user_id=current_user.user_id, **data.dict())
     db.add(quiz)
     db.commit()
     return {"status": "quiz saved"}
@@ -219,16 +209,16 @@ def create_quiz(data: QuizResultCreate, db: Session = Depends(get_db)):
 # ==================================================
 
 @app.post("/progress/course/video")
-def mark_video(data: VideoProgressCreate, db: Session = Depends(get_db)):
-    db.add(CourseVideoProgress(**data.dict()))
+def mark_video(data: VideoProgressCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    db.add(CourseVideoProgress(user_id=current_user.user_id, **data.dict()))
     db.commit()
     return {"status": "saved"}
 
 
 @app.post("/progress/quiz/partial")
-def save_partial(data: QuizPartialProgressCreate, db: Session = Depends(get_db)):
+def save_partial(data: QuizPartialProgressCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     existing = db.query(QuizPartialProgress).filter(
-        QuizPartialProgress.user_id == data.user_id,
+        QuizPartialProgress.user_id == current_user.user_id,
         QuizPartialProgress.quiz_id == data.quiz_id
     ).first()
 
@@ -236,15 +226,15 @@ def save_partial(data: QuizPartialProgressCreate, db: Session = Depends(get_db))
         existing.current_index = data.current_index
         existing.score = data.score
     else:
-        db.add(QuizPartialProgress(**data.dict()))
+        db.add(QuizPartialProgress(user_id=current_user.user_id, **data.dict()))
 
     db.commit()
     return {"status": "saved"}
 
 
-@app.get("/progress/course/{user_id}")
-def get_course_progress(user_id: int, db: Session = Depends(get_db)):
-    records = db.query(CourseVideoProgress).filter(CourseVideoProgress.user_id == user_id).all()
+@app.get("/progress/course")
+def get_course_progress(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    records = db.query(CourseVideoProgress).filter(CourseVideoProgress.user_id == current_user.user_id).all()
 
     result = {}
     for r in records:
@@ -253,9 +243,9 @@ def get_course_progress(user_id: int, db: Session = Depends(get_db)):
     return result
 
 
-@app.get("/progress/quiz/{user_id}")
-def get_quiz_progress(user_id: int, db: Session = Depends(get_db)):
-    records = db.query(Quiz).filter(Quiz.user_id == user_id).all()
+@app.get("/progress/quiz")
+def get_quiz_progress(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    records = db.query(Quiz).filter(Quiz.user_id == current_user.user_id).all()
 
     temp = {}
     for r in records:
@@ -271,9 +261,9 @@ def get_quiz_progress(user_id: int, db: Session = Depends(get_db)):
     return result
 
 
-@app.get("/progress/quiz/partial/{user_id}")
-def get_partial_quiz_progress(user_id: int, db: Session = Depends(get_db)):
-    records = db.query(QuizPartialProgress).filter(QuizPartialProgress.user_id == user_id).all()
+@app.get("/progress/quiz/partial")
+def get_partial_quiz_progress(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    records = db.query(QuizPartialProgress).filter(QuizPartialProgress.user_id == current_user.user_id).all()
 
     result = {}
     for r in records:
@@ -285,10 +275,10 @@ def get_partial_quiz_progress(user_id: int, db: Session = Depends(get_db)):
     return result
 
 
-@app.delete("/progress/quiz/partial/{user_id}/{quiz_id}")
-def delete_partial_quiz_progress(user_id: int, quiz_id: str, db: Session = Depends(get_db)):
+@app.delete("/progress/quiz/partial/{quiz_id}")
+def delete_partial_quiz_progress(quiz_id: str, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     db.query(QuizPartialProgress).filter(
-        QuizPartialProgress.user_id == user_id,
+        QuizPartialProgress.user_id == current_user.user_id,
         QuizPartialProgress.quiz_id == quiz_id
     ).delete()
 

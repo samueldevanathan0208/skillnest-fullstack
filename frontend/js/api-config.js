@@ -1,11 +1,8 @@
 const API_CONFIG = {
-    // Production Vercel Backend
     BASE_URL: 'https://skillnest-fullstack-5hws.vercel.app'
 };
 
-// --- GLOBAL FETCH INTERCEPTION (Monkey Patch) ---
-// Since we cannot modify HTML files, this logic redirects all hardcoded 
-// 'http://127.0.0.1:8000' calls to the dynamic API_CONFIG.BASE_URL automatically.
+// --- GLOBAL FETCH INTERCEPTION ---
 (function () {
     const originalFetch = window.fetch;
     window.fetch = function () {
@@ -13,24 +10,48 @@ const API_CONFIG = {
         let resource = args[0];
         let options = args[1] || {};
 
-        // Redirect local calls to production Vercel URL
+        // Redirect local calls to production
         if (typeof resource === 'string' && resource.includes('http://127.0.0.1:8000')) {
             resource = resource.replace('http://127.0.0.1:8000', API_CONFIG.BASE_URL);
             args[0] = resource;
         }
 
-        // Force Anti-Caching for all non-GET requests (Login, Signup, Progress, etc.)
+        // --- JWT ATTACHMENT ---
+        const token = localStorage.getItem('token');
+        if (token) {
+            options.headers = {
+                ...options.headers,
+                'Authorization': `Bearer ${token}`
+            };
+        }
+
+        // Anti-Caching
         if (options.method && options.method.toUpperCase() !== 'GET') {
             options.cache = 'no-store';
             options.headers = {
                 ...options.headers,
-                'Cache-Control': 'no-cache, no-store, must-revalidate',
-                'Pragma': 'no-cache',
-                'Expires': '0'
+                'Cache-Control': 'no-cache, no-store, must-revalidate'
             };
-            args[1] = options;
         }
 
-        return originalFetch.apply(this, args);
+        args[1] = options;
+
+        return originalFetch.apply(this, args).then(response => {
+            // Global 401 handler (Unauthorized)
+            if (response.status === 401 && !resource.includes('/login') && !resource.includes('/create_user')) {
+                localStorage.removeItem('token');
+                window.location.href = 'login.html';
+            }
+            return response;
+        });
     };
 })();
+
+// --- GLOBAL AUTH GUARD ---
+if (!window.location.pathname.includes('login.html') &&
+    !window.location.pathname.includes('signup.html') &&
+    !window.location.pathname.includes('index.html')) {
+    if (!localStorage.getItem('token')) {
+        window.location.href = 'login.html';
+    }
+}

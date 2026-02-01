@@ -423,22 +423,14 @@
         const API_BASE_URL = 'https://skillnest-fullstack-5hws.vercel.app';
 
         async function savePartialProgress() {
-            const user = JSON.parse(localStorage.getItem('user') || '{}');
-            if (!user.user_id) return;
-
             const quizId = 'css';
             try {
                 await fetch(`${API_BASE_URL}/progress/quiz/partial`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'Cache-Control': 'no-cache, no-store, must-revalidate',
-                        'Pragma': 'no-cache',
-                        'Expires': '0'
+                        'Content-Type': 'application/json'
                     },
-                    cache: 'no-store',
                     body: JSON.stringify({
-                        user_id: user.user_id,
                         quiz_id: quizId,
                         current_index: currentQuestion + 1,
                         score: score
@@ -450,31 +442,28 @@
         }
 
         async function startQuiz() {
-            const user = JSON.parse(localStorage.getItem('user') || '{}');
             const quizId = 'css';
 
-            if (user.user_id) {
-                try {
-                    const response = await fetch(`${API_BASE_URL}/progress/quiz/partial/${user.user_id}`);
-                    if (response.ok) {
-                        const partials = await response.json();
-                        const myPartial = partials[quizId];
+            try {
+                const response = await fetch(`${API_BASE_URL}/progress/quiz/partial`);
+                if (response.ok) {
+                    const partials = await response.json();
+                    const myPartial = partials[quizId];
 
-                        if (myPartial && myPartial.currentIndex > 0) {
-                            if (confirm('You have a quiz in progress. Would you like to resume?')) {
-                                currentQuestion = myPartial.currentIndex;
-                                score = myPartial.score;
-                            } else {
-                                // Clear partial if not resuming
-                                await fetch(`${API_BASE_URL}/progress/quiz/partial/${user.user_id}/${quizId}`, {
-                                    method: 'DELETE'
-                                });
-                            }
+                    if (myPartial && myPartial.currentIndex > 0) {
+                        if (confirm('You have a quiz in progress. Would you like to resume?')) {
+                            currentQuestion = myPartial.currentIndex;
+                            score = myPartial.score;
+                        } else {
+                            // Clear partial if not resuming
+                            await fetch(`${API_BASE_URL}/progress/quiz/partial/${quizId}`, {
+                                method: 'DELETE'
+                            });
                         }
                     }
-                } catch (error) {
-                    console.error('Error checking progress:', error);
                 }
+            } catch (error) {
+                console.error('Error checking progress:', error);
             }
 
             document.querySelector('.start-screen').classList.remove('active');
@@ -543,37 +532,29 @@
         }
 
         async function saveQuizResult(score, total, percentage) {
-            const user = JSON.parse(localStorage.getItem('user') || '{}');
             const quizId = 'css';
 
-            if (user.user_id) {
-                try {
-                    // Save result
-                    await fetch(`${API_BASE_URL}/create_quiz`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Cache-Control': 'no-cache, no-store, must-revalidate',
-                            'Pragma': 'no-cache',
-                            'Expires': '0'
-                        },
-                        cache: 'no-store',
-                        body: JSON.stringify({
-                            user_id: user.user_id,
-                            quiz_id: quizId,
-                            score: percentage, // Saving percentage as score based on typical grading
-                            attempt_date: new Date().toISOString()
-                        })
-                    });
+            try {
+                // Save result
+                await fetch(`${API_BASE_URL}/create_quiz`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        quiz_id: quizId,
+                        score: percentage,
+                        attempt_date: new Date().toISOString()
+                    })
+                });
 
-                    // Clear partial progress
-                    await fetch(`${API_BASE_URL}/progress/quiz/partial/${user.user_id}/${quizId}`, {
-                        method: 'DELETE'
-                    });
+                // Clear partial progress
+                await fetch(`${API_BASE_URL}/progress/quiz/partial/${quizId}`, {
+                    method: 'DELETE'
+                });
 
-                } catch (error) {
-                    console.error('Error saving quiz result:', error);
-                }
+            } catch (error) {
+                console.error('Error saving quiz result:', error);
             }
         }
 
@@ -606,17 +587,14 @@
         }
 
         async function restartQuiz() {
-            const user = JSON.parse(localStorage.getItem('user') || '{}');
             const quizId = 'css';
 
-            if (user.user_id) {
-                try {
-                    await fetch(`${API_BASE_URL}/progress/quiz/partial/${user.user_id}/${quizId}`, {
-                        method: 'DELETE'
-                    });
-                } catch (error) {
-                    console.error('Error clearing progress:', error);
-                }
+            try {
+                await fetch(`${API_BASE_URL}/progress/quiz/partial/${quizId}`, {
+                    method: 'DELETE'
+                });
+            } catch (error) {
+                console.error('Error clearing progress:', error);
             }
 
             currentQuestion = 0;

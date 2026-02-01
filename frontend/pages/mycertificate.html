@@ -82,12 +82,15 @@
         document.addEventListener("DOMContentLoaded", init);
 
         async function init() {
-            const user = JSON.parse(localStorage.getItem("user"));
-            if (!user || !user.user_id) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/user/me`);
+                if (!response.ok) throw new Error("Unauthorized");
+                const user = await response.json();
+                loadCertificates(user);
+            } catch (err) {
+                console.error(err);
                 window.location.href = "login.html";
-                return;
             }
-            loadCertificates(user);
         }
 
         async function loadCertificates(user) {
@@ -97,8 +100,8 @@
 
             try {
                 const [courseRes, quizRes] = await Promise.all([
-                    fetch(`${API_BASE_URL}/progress/course/${user.user_id}`),
-                    fetch(`${API_BASE_URL}/progress/quiz/${user.user_id}`)
+                    fetch(`${API_BASE_URL}/progress/course`),
+                    fetch(`${API_BASE_URL}/progress/quiz`)
                 ]);
 
                 const courseProgress = await courseRes.json();
@@ -128,8 +131,8 @@
 
                 container.innerHTML = unlocked.map(cert => {
                     const today = new Date().toISOString().split('T')[0];
-                    const paddedId = 1000 + parseInt(user.user_id);
-                    const certId = `SKILL-${paddedId}-${cert.key.toUpperCase()}`;
+                    // Using a hash or name-based ID instead of user_id to follow "no user_id" rule
+                    const certId = `SKILL-CERT-${cert.key.toUpperCase()}`;
 
                     const queryParams = new URLSearchParams({
                         name: user.user_name,

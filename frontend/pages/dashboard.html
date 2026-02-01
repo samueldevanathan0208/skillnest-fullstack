@@ -9,37 +9,18 @@
     <link rel="stylesheet" href="../css/modals.css">
     <script src="../js/sidebar-handlers.js" defer></script>
     <script>
-        // Check if user is logged in
-        const user = JSON.parse(localStorage.getItem('user'));
-        if (!user) {
-            window.location.href = 'login.html';
-        }
-
         document.addEventListener('DOMContentLoaded', async () => {
-            if (user && user.user_id) {
-                try {
-                    // Fetch fresh user data to ensure name is up to date
-                    const response = await fetch(`${API_BASE_URL}/user/${user.user_id}`);
-                    if (response.ok) {
-                        const freshUser = await response.json();
-                        // Update UI with fresh name
-                        document.getElementById('user-greeting').textContent = `Hey, ${freshUser.user_name || user.user_name}`;
-                        document.getElementById('user-id').textContent = `ID: ${freshUser.user_id}`;
-
-                        // Update localStorage to keep it in sync
-                        // Preserve session token or other fields if any, merging fresh data
-                        const updatedUser = { ...user, ...freshUser };
-                        localStorage.setItem('user', JSON.stringify(updatedUser));
-                    } else {
-                        // Fallback to local storage if fetch fails
-                        document.getElementById('user-greeting').textContent = `Hey, ${user.user_name}`;
-                        document.getElementById('user-id').textContent = `ID: ${user.user_id}`;
-                    }
-                } catch (e) {
-                    console.error("Error fetching fresh user data:", e);
+            try {
+                // Fetch fresh user data from /user/me (JWT derived)
+                const response = await fetch(`${API_BASE_URL}/user/me`);
+                if (response.ok) {
+                    const user = await response.json();
                     document.getElementById('user-greeting').textContent = `Hey, ${user.user_name}`;
-                    document.getElementById('user-id').textContent = `ID: ${user.user_id}`;
+                    document.getElementById('user-id').textContent = `Account verified`;
                 }
+            } catch (e) {
+                console.error("Error fetching user profile:", e);
+                document.getElementById('user-greeting').textContent = "Welcome back!";
             }
 
             updateCourseProgress();
@@ -48,14 +29,13 @@
         const API_BASE_URL = 'https://skillnest-fullstack-5hws.vercel.app';
 
         async function updateCourseProgress() {
-            if (!user || !user.user_id) return;
-
             const courseIds = ['html', 'css', 'js', 'python', 'java', 'react', 'fastapi', 'postgresql'];
             const totalVideosPerCourse = 10;
             const totalPossibleVideos = courseIds.length * totalVideosPerCourse;
 
             try {
-                const response = await fetch(`${API_BASE_URL}/progress/course/${user.user_id}`);
+                // Progress endpoint no longer needs user_id in path
+                const response = await fetch(`${API_BASE_URL}/progress/course`);
                 if (!response.ok) throw new Error('Failed to fetch progress');
 
                 const progressData = await response.json();
