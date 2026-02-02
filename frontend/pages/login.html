@@ -57,6 +57,7 @@
 
                 if (result && result.access_token) {
                     // ✅ Store only the JWT token
+                    console.log("Login successful, received token:", result.access_token);
                     localStorage.setItem("token", result.access_token);
                     alert("Login successful!");
                     window.location.href = "dashboard.html";

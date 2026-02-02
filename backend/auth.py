@@ -68,25 +68,34 @@ def get_current_user(
     token: str = Depends(oauth2_scheme),
     db: Session = Depends(get_db)
 ):
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
+    def auth_error(msg: str):
+        return HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=f"Auth error: {msg}",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id = payload.get("sub")
 
         if user_id is None:
-            raise credentials_exception
+            raise auth_error("Token missing 'sub' claim")
 
-    except JWTError:
-        raise credentials_exception
+    except JWTError as e:
+        raise auth_error(f"JWT Decode failed: {str(e)}")
+    except Exception as e:
+        raise auth_error(f"Unexpected token error: {str(e)}")
 
-    user = db.query(User).filter(User.user_id == int(user_id)).first()
+    try:
+        user = db.query(User).filter(User.user_id == int(user_id)).first()
+    except ValueError:
+        raise auth_error("Invalid user ID format in token")
+    except Exception as e:
+        # This might be a DB connection error, but let's check it
+        raise HTTPException(status_code=500, detail=f"Database error during auth: {str(e)}")
 
     if not user:
-        raise credentials_exception
+        raise auth_error(f"User with ID {user_id} not found in database")
 
     return user

@@ -17,16 +17,22 @@ async function apiFetch(url, options = {}) {
     }
 
     try {
+        console.log(`Fetching from: ${API_BASE}${url}`);
         const response = await fetch(API_BASE + url, {
             ...options,
             headers
         });
 
         if (response.status === 401 && !isPublic) {
+            const errorBody = await response.json().catch(() => ({}));
+            const detail = errorBody.detail || "Unknown error";
+
             console.error("401 Unauthorized for:", url, "Token used:", token ? "YES (check console)" : "NO");
             if (token) console.log("Token value:", token);
+            console.log("Error Detail:", detail);
+
             localStorage.removeItem("token");
-            alert("Session expired. Please login again.");
+            alert(`Session expired. Please login again.\nReason: ${detail}`);
             window.location.href = "/pages/login.html";
             return;
         }
