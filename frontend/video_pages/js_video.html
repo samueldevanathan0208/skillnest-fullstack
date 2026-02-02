@@ -170,7 +170,7 @@
                 <button class="nav-btn" id="prevBtn" onclick="goPrev()">Previous</button>
                 <button class="nav-btn" id="completeBtn" onclick="markComplete()" style="background: #28a745;">Mark
                     Complete</button>
-                <button class="nav-btn" id="nextBtn" onclick="goNext()" disabled>Next</button>
+                <button class="nav-btn" id="nextBtn" onclick="goNext()" style="display:none">Next</button>
             </div>
         </div>
 
@@ -197,6 +197,13 @@
         let currentIndex = 0;
         const courseId = 'js';
         let courseProgressData = [];
+
+        function showNextButton() {
+            const nextBtn = document.getElementById("nextBtn");
+            if (nextBtn) {
+                nextBtn.style.display = "block";
+            }
+        }
 
         async function fetchProgress() {
             try {
@@ -256,7 +263,11 @@
 
             yt.src = video.src + "?enablejsapi=1";
 
-            nextBtn.disabled = !isCompleted;
+            if (isCompleted) {
+                showNextButton();
+            } else {
+                nextBtn.style.display = "none";
+            }
         }
 
         async function markComplete() {
@@ -270,9 +281,10 @@
                         })
                     });
 
-                    if (result.status === "success" || result.video_id) {
+                    if (result.status === "success" || result.video_id || result.status === "saved") {
                         await loadVideos();
                         playVideo(currentIndex);
+                        showNextButton();
                     }
                 } catch (error) {
                     console.error('Error saving progress:', error);
