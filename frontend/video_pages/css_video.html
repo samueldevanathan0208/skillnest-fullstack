@@ -251,10 +251,10 @@
                 item.classList.toggle("active", i === index);
             });
 
-            document.getElementById("videoTitle").textContent = video.title;
-            document.getElementById("videoInfo").textContent = "Duration: " + video.duration;
-
-            yt.src = video.src + "?enablejsapi=1";
+            if (yt.dataset.index !== index.toString()) {
+                yt.src = video.src + "?enablejsapi=1";
+                yt.dataset.index = index;
+            }
 
             nextBtn.disabled = !isCompleted;
         }
@@ -270,10 +270,10 @@
                 })
             });
 
-            // update local state instantly
-            courseProgressData.push(currentIndex);
+            // update local state and sidebar instantly
+            await loadVideos();
 
-            // update UI only
+            // update button states
             playVideo(currentIndex);
         }
 
