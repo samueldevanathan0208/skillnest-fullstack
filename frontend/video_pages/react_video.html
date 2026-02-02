@@ -245,6 +245,8 @@
             document.querySelectorAll(".video-item").forEach((item, i) => {
                 item.classList.toggle("active", i === index);
             });
+            document.getElementById("videoTitle").textContent = video.title;
+            document.getElementById("videoInfo").textContent = "Duration: " + video.duration;
 
             if (yt.dataset.index !== index.toString()) {
                 yt.src = video.src + "?enablejsapi=1";
@@ -257,19 +259,24 @@
         async function markComplete() {
             if (courseProgressData.includes(currentIndex)) return;
 
-            await apiFetch("/progress/course/video", {
-                method: "POST",
-                body: JSON.stringify({
-                    course_id: courseId,
-                    video_index: currentIndex
-                })
-            });
-
-            // update local state and sidebar instantly
-            await loadVideos();
-
-            // update button states
+            // Optimistic update: Enable Next button instantly
+            courseProgressData.push(currentIndex);
             playVideo(currentIndex);
+
+            try {
+                await apiFetch("/progress/course/video", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        course_id: courseId,
+                        video_index: currentIndex
+                    })
+                });
+
+                // update sidebar checkmarks and unlock next
+                await loadVideos();
+            } catch (error) {
+                console.error('Error saving progress:', error);
+            }
         }
 
         function goNext() {
