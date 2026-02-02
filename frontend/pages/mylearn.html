@@ -7,7 +7,7 @@
     <title>My Learning</title>
     <link rel="stylesheet" href="../css/mylearn.css">
     <link rel="stylesheet" href="../css/modals.css">
-    <script src="../js/api-v3.js"></script>
+    <script src="../js/api.js?v=4"></script>
     <script>
         if (!localStorage.getItem("token")) {
             window.location.href = "login.html";
@@ -164,7 +164,7 @@
                                 <div class="progress-section">
                                     <div class="progress-info">
                                         <span>${isCompleted ? '100% Complete' : percent + '% in progress'}</span>
-                                        <span>${completedCount}/${course.total} videos</span>
+                                        <span>${uniqueVideos}/${course.total} videos</span>
                                     </div>
                                     <div class="progress-bar-bg">
                                         <div class="progress-bar-fill" style="width: ${percent}%"></div>
