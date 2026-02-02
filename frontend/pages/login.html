@@ -55,14 +55,17 @@
                     })
                 });
 
-                // ✅ Store only the JWT token
-                localStorage.setItem("token", result.access_token);
-
-                alert("Login successful!");
-                window.location.href = "dashboard.html";
+                if (result && result.access_token) {
+                    // ✅ Store only the JWT token
+                    localStorage.setItem("token", result.access_token);
+                    alert("Login successful!");
+                    window.location.href = "dashboard.html";
+                } else {
+                    alert(result?.detail || "Invalid email or password");
+                }
 
             } catch (err) {
-                alert("Server error");
+                alert("Server error connecting to backend");
                 console.error(err);
             }
         });
