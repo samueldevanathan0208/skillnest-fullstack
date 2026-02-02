@@ -1,4 +1,6 @@
 const API_BASE = "https://skillnest-fullstack-5hws.vercel.app";
+console.log("Using API_BASE:", API_BASE);
+console.log("Current App Path:", window.location.pathname);
 
 async function apiFetch(url, options = {}) {
     const token = localStorage.getItem("token");

@@ -90,7 +90,7 @@
 
             const userData = {
                 user_name: document.getElementById('fullName').value.trim(),
-                user_email: document.getElementById('email').value.trim(),
+                user_email: document.getElementById('email').value.trim().toLowerCase(),
                 user_password: password,
                 user_dateofbirth: document.getElementById('dob').value,
                 user_phone: document.getElementById('phone').value.trim(),

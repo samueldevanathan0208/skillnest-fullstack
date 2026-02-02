@@ -139,30 +139,39 @@ def create_user(user: CreateUser, db: Session = Depends(get_db)):
 @app.post("/login")
 def login(user: LoginRequest, db: Session = Depends(get_db)):
     try:
-        db_user = db.query(User).filter(User.user_email == user.user_email.strip()).first()
+        email = user.user_email.strip().lower()
+        print(f"Login attempt for: {email}")
+        
+        # Try finding the user (case-insensitive)
+        db_user = db.query(User).filter(User.user_email.ilike(email)).first()
         
         if not db_user:
-            raise HTTPException(status_code=401, detail="User not found")
+            print(f"User not found in DB: {email}")
+            raise HTTPException(status_code=401, detail=f"User '{email}' not found")
 
         password = str(user.user_password).strip()
 
         if not verify_password(password, db_user.user_password):
+            print(f"Invalid password for: {email}")
             raise HTTPException(status_code=401, detail="Invalid password")
 
         access_token = create_access_token(data={"sub": str(db_user.user_id)})
+        print(f"Login successful for: {email} (ID: {db_user.user_id})")
 
         return {
             "status": "success",
             "access_token": access_token,
             "token_type": "bearer"
         }
-    except HTTPException as e:
-        raise e
+    except HTTPException:
+        raise
     except Exception as e:
-        print(f"Login Crash: {str(e)}")
+        import traceback
+        error_trace = traceback.format_exc()
+        print(f"CRITICAL LOGIN ERROR:\n{error_trace}")
         raise HTTPException(
             status_code=500, 
-            detail=f"Login Error (Server-side): {type(e).__name__}: {str(e)}"
+            detail=f"Server Crash: {type(e).__name__}: {str(e)}"
         )
 
 
