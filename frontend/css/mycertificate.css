@@ -162,11 +162,12 @@
  /* Certificate Grid & Card Styles - Matching Dashboard */
  .certificates-grid {
      display: grid;
-     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-     gap: 1.5rem;
+     grid-template-columns:1fr 1fr 1fr;
+     gap: 20px;
  }
 
  .certificate-card {
+    max-width: 350px;
      background: #fff;
      border-radius: 1rem;
      overflow: hidden;
