@@ -70,6 +70,7 @@ def get_current_user(
     db: Session = Depends(get_db)
 ):
     def auth_error(msg: str):
+        print(f"AUTH REJECTED: {msg}")
         return HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=f"Auth error: {msg}",
@@ -77,26 +78,34 @@ def get_current_user(
         )
 
     try:
+        # Debugging: Print first 10 chars of token
+        print(f"Authenticating token starting with: {token[:10]}...")
+        
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id = payload.get("sub")
 
         if user_id is None:
-            raise auth_error("Token missing 'sub' claim")
+            raise auth_error(f"Token decoded but 'sub' claim missing. Payload: {payload}")
 
     except JWTError as e:
+        # Check if it's expired
+        if "expired" in str(e).lower():
+            raise auth_error("Token has expired. Please login again.")
         raise auth_error(f"JWT Decode failed: {str(e)}")
     except Exception as e:
-        raise auth_error(f"Unexpected token error: {str(e)}")
+        raise auth_error(f"Unexpected token error: {type(e).__name__}: {str(e)}")
 
     try:
-        user = db.query(User).filter(User.user_id == int(user_id)).first()
+        user_id_int = int(user_id)
+        user = db.query(User).filter(User.user_id == user_id_int).first()
     except ValueError:
-        raise auth_error("Invalid user ID format in token")
+        raise auth_error(f"Invalid user ID format in token: {user_id}")
     except Exception as e:
-        # This might be a DB connection error, but let's check it
+        print(f"DB Error in Auth: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Database error during auth: {str(e)}")
 
     if not user:
-        raise auth_error(f"User with ID {user_id} not found in database")
+        raise auth_error(f"User with ID {user_id} not found in database. Token is valid but user is gone.")
 
+    print(f"AUTH SUCCESS for user: {user.user_email} (ID: {user.user_id})")
     return user
