@@ -11,10 +11,12 @@
     <script>
         console.log("Dashboard Session Check - Start");
         const token = localStorage.getItem("token");
-        if (!token) {
-            console.warn("NO TOKEN FOUND in localStorage. Redirecting...");
+        if (!localStorage.getItem("token")) {
+            console.warn("Stopping script: No token found.");
             window.location.href = "login.html";
-        } else {
+        }
+        // Force refresh v5
+        else {
             console.log("TOKEN FOUND. Length:", token.length);
         }
     </script>
@@ -45,6 +47,10 @@
             try {
                 // Progress endpoint no longer needs user_id in path
                 const progressData = await apiFetch("/progress/course");
+                if (!progressData) {
+                    console.warn("No progress data received from API.");
+                    return;
+                }
 
                 let totalCompletedVideos = 0;
                 let completedCoursesCount = 0;

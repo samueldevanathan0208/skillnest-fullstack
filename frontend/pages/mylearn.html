@@ -127,6 +127,8 @@
 
                 try {
                     const progressData = await apiFetch("/progress/course");
+                    if (!progressData) return;
+                    // Build v5
 
                     let totalStarted = 0;
                     let totalInProgress = 0;
