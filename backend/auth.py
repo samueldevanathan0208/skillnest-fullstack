@@ -19,14 +19,15 @@ load_dotenv()
 # ==================================================
 SECRET_KEY = os.getenv("SECRET_KEY", "skillnest-secret-key")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 120
+ACCESS_TOKEN_EXPIRE_MINUTES = 10080  # 1 week (user requested long sessions)
 
 # ==================================================
 # 🔥 FIXED PASSWORD HASHING (NO BCRYPT)
 # ==================================================
 # pbkdf2_sha256 = NO 72 byte limit + Vercel safe
+# schemes=["pbkdf2_sha256", "bcrypt"] = Supports both new and legacy hashes
 pwd_context = CryptContext(
-    schemes=["pbkdf2_sha256"],
+    schemes=["pbkdf2_sha256", "bcrypt"],
     deprecated="auto"
 )
 

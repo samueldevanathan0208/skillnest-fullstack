@@ -138,21 +138,32 @@ def create_user(user: CreateUser, db: Session = Depends(get_db)):
 # -----------------------------
 @app.post("/login")
 def login(user: LoginRequest, db: Session = Depends(get_db)):
+    try:
+        db_user = db.query(User).filter(User.user_email == user.user_email.strip()).first()
+        
+        if not db_user:
+            raise HTTPException(status_code=401, detail="User not found")
 
-    db_user = db.query(User).filter(User.user_email == user.user_email.strip()).first()
+        password = str(user.user_password).strip()
 
-    password = str(user.user_password).strip()
+        if not verify_password(password, db_user.user_password):
+            raise HTTPException(status_code=401, detail="Invalid password")
 
-    if not db_user or not verify_password(password, db_user.user_password):
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+        access_token = create_access_token(data={"sub": str(db_user.user_id)})
 
-    access_token = create_access_token(data={"sub": str(db_user.user_id)})
-
-    return {
-        "status": "success",
-        "access_token": access_token,
-        "token_type": "bearer"
-    }
+        return {
+            "status": "success",
+            "access_token": access_token,
+            "token_type": "bearer"
+        }
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        print(f"Login Crash: {str(e)}")
+        raise HTTPException(
+            status_code=500, 
+            detail=f"Login Error (Server-side): {type(e).__name__}: {str(e)}"
+        )
 
 
 @app.put("/user/me")
