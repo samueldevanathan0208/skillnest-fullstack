@@ -6,10 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HTML Course</title>
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             margin: 0;
-            font-family: Arial, sans-serif;
-            background: #d8d8d8;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f3f4f6;
+            color: #1f2937;
+            overflow-x: hidden;
         }
 
         .container {
@@ -24,61 +30,75 @@
             flex: 1;
             background: white;
             padding: 20px;
-            border-radius: 8px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
         .video-player {
             width: 100%;
             aspect-ratio: 16/9;
             background: #000;
-            border-radius: 5px;
+            border-radius: 8px;
+            overflow: hidden;
         }
 
         .video-title {
-            font-size: 22px;
-            margin: 15px 0 5px 0;
+            font-size: 24px;
+            margin: 20px 0 10px 0;
+            font-weight: 700;
         }
 
         .video-info {
-            color: #666;
-            font-size: 14px;
+            color: #6b7280;
+            font-size: 15px;
+            margin-bottom: 20px;
         }
 
         .btn-container {
             margin-top: 20px;
             display: flex;
             justify-content: space-between;
+            gap: 15px;
         }
 
         .nav-btn {
-            padding: 12px 20px;
-            background: #007bff;
+            padding: 12px 24px;
+            background: #4900c1;
             color: white;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
-            width: 30%;
+            width: 100%;
             font-size: 16px;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .nav-btn:hover {
+            background: #37009b;
         }
 
         .nav-btn:disabled {
-            background: #b5b5b5;
+            background: #d1d5db;
             cursor: not-allowed;
         }
 
         .playlist-section {
             width: 350px;
             background: white;
-            border-radius: 8px;
-            padding: 15px;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            height: fit-content;
         }
 
         .playlist-header {
             font-size: 18px;
-            font-weight: bold;
+            font-weight: 700;
             margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #007bff;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e5e7eb;
+            color: #111827;
         }
 
         .video-list {
@@ -88,55 +108,108 @@
 
         .video-item {
             display: flex;
-            gap: 10px;
+            gap: 12px;
             padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-            border: 2px solid transparent;
-            opacity: 0.6;
+            margin-bottom: 8px;
+            border-radius: 8px;
             cursor: pointer;
-            pointer-events: none;
+            transition: background 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .video-item:hover {
+            background: #f9fafb;
         }
 
         .video-item.active {
-            background: #e3f2fd;
-            border-color: #007bff;
-            opacity: 1;
+            background: #eef2ff;
+            border-color: #4900c1;
         }
 
         .video-thumb {
             width: 120px;
             height: 68px;
-            background: #ddd;
+            background: #e5e7eb;
             border-radius: 4px;
             object-fit: cover;
+        }
+
+        .item-content {
+            flex: 1;
+            min-width: 0;
+            /* for text truncate if needed */
         }
 
         .item-title {
             font-size: 14px;
             font-weight: 500;
+            color: #111827;
+            margin-bottom: 4px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
         .item-duration {
-            color: #888;
+            color: #6b7280;
             font-size: 12px;
         }
 
         .back-home {
             display: inline-flex;
             align-items: center;
-            gap: 5px;
+            gap: 8px;
             padding: 10px 20px;
-            background-color: #1f2937;
-            color: white;
+            background-color: #f3f4f6;
+            color: #4b5563;
             text-decoration: none;
-            border-radius: 5px;
-            font-weight: bold;
-            margin-bottom: 15px;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            font-size: 14px;
+            transition: all 0.2s;
         }
 
         .back-home:hover {
-            background-color: #374151;
+            background-color: #e5e7eb;
+            color: #1f2937;
+        }
+
+        /* --- Responsive Design --- */
+        @media (max-width: 1024px) {
+            .container {
+                flex-direction: column;
+                padding: 15px;
+                margin: 0 auto;
+            }
+
+            .playlist-section {
+                width: 100%;
+                max-height: 400px;
+                overflow: hidden;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .video-list {
+                max-height: 300px;
+                /* shorter on mobile */
+            }
+
+            .video-section {
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .video-title {
+                font-size: 20px;
+            }
+
+            .btn-container {
+                flex-direction: column;
+            }
         }
     </style>
     <script src="../js/api.js?v=4"></script>

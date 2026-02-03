@@ -1,209 +1,122 @@
-* {
-    font-family: 'Segoe UI';
+*{
+    font-family:'Segoe UI';
+    box-sizing:border-box;
 }
 
-body {
-    margin: 0%;
-    width: 100%;
-    height: 200px;
+body{
+    margin:0;
+    overflow-x:hidden;
 }
 
-.class {
-    background-color: #4900c1;
-    height: 917px;
-    z-index: -1;
+/* background restore */
+.class{
+    background:#4900c1;
+    min-height:100vh;
 }
 
-.logo {
-    margin-left: 50px;
-    width: 70px;
-    margin-right: auto;
+/* ===== NAVBAR ===== */
+.navbar{
+    display:flex;
+    align-items:center;
+    gap:80px;
+    background:#fff;
+    padding:15px 80px;
 }
 
-.navbar {
-    display: flex;
-    align-items: center;
-    gap: 80px;
-    background-color: #ffffff;
-    padding-right: 100px;
+.navbar a{
+    text-decoration:none;
+    color:#000;
 }
 
-.navbar a {
-    text-decoration: none;
-    color: rgb(0, 0, 0);
-    font-size: 18px;
-    font-weight: 400;
+.navbar .Signin{
+    background:#ffd700;
+    padding:10px 25px;
+    border-radius:50px;
+    margin-left:auto;
 }
 
-.navbar .Signin {
-    background-color: #ffd700;
-    color: black;
-    padding: 10px 25px;
-    border-radius: 50px;
-    font-weight: 550;
+.logo{
+    width:70px;
 }
 
-
-
-
-
-.container {
-
-    margin-top: 40px;
-    margin-left: 100px;
-    background-color: #6200ff;
-    border-radius: 24px;
-    padding: 60px 50px;
-    width: 400px;
-    height: 650px;
-
+/* ===== LAYOUT ===== */
+.flex{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:60px;
+    padding:40px;
 }
 
-.first {
+/* ===== DESKTOP CARD (restore old size) ===== */
+.container{
+    background:#6200ff;
+    border-radius:24px;
+    padding:60px 50px;
+    width:420px;
+    height:680px;
+    box-shadow:0 10px 40px rgba(0,0,0,0.2);
+}
+
+/* form */
+label{
+    color:white;
+    font-weight:600;
+}
+
+input,select{
+    width:100%;
+    padding:14px;
+    border-radius:10px;
+    border:none;
+    margin-bottom:14px;
+}
+
+button{
+    width:100%;
+    padding:16px;
+    background:#ffd700;
+    border:none;
+    border-radius:10px;
+    font-weight:bold;
+}
+
+/* image */
+.flex img{
+    width:620px;
+    height:810px;
+}
+
+#signup-form{
     margin-top: -40px;
 }
+/* ================================================= */
+/* ✅ MOBILE ONLY */
+/* ================================================= */
 
-label {
-    display: block;
-    color: white;
-    font-size: 18px;
-    font-weight: 600;
-    margin-top: 10px;
-}
+@media(max-width:768px){
 
-input {
-    width: 350px;
-    padding: 14px 16px;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    background-color: white;
-    color: #666;
-    outline: none;
-}
-
-select {
-    width: 380px;
-    padding: 14px 18px;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    background-color: white;
-    color: #666;
-    outline: none;
-}
-
-button {
-    margin-top: 30px;
-    width: 380px;
-    padding: 14px 16px;
-    border: none;
-    border-radius: 8px;
-    background-color: #4900c1;
-    color: #ffffff;
-    outline: none;
-    font-size: 20px;
-    font-weight: 600;
-}
-
-button:hover {
-    background-color: #240555;
-    ;
-}
-
-.flex {
-    display: flex;
-}
-
-.flex img {
-    width: 620px;
-    margin-left: 70px;
-    height: 810px;
-}
-
-/* --- Responsive Design Injection --- */
-
-@media (max-width: 1200px) {
-    .flex img {
-        width: 500px;
-        height: auto;
-        margin-left: 30px;
+    .navbar{
+        flex-direction:column;
+        gap:12px;
+        text-align:center;
     }
 
-    .navbar {
-        gap: 40px;
-        padding-right: 50px;
-    }
-}
-
-@media (max-width: 1024px) {
-    .container {
-        margin-left: 50px;
-        width: 380px;
+    .navbar a{
+        width:100%;
     }
 
-    .flex img {
-        width: 450px;
-    }
-}
-
-@media (max-width: 768px) {
-    .navbar {
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 20px;
-        padding: 10px;
+    .flex{
+        flex-direction:column;
     }
 
-    .logo {
-        margin-left: 0;
-        margin-right: 0;
+    .flex img{
+        display:none;
     }
 
-    .flex {
-        flex-direction: column;
-        align-items: center;
-        padding: 20px;
-    }
-
-    .flex img {
-        margin-left: 0;
-        width: 100%;
-        max-width: 400px;
-        height: auto;
-        order: -1;
-    }
-
-    .container {
-        margin-left: 0;
-        width: 100%;
-        max-width: 400px;
-        height: auto;
-        margin-top: 20px;
-        padding: 40px 30px;
-    }
-
-    input,
-    select,
-    button {
-        width: 100%;
-    }
-}
-
-@media (max-width: 425px) {
-    .navbar a {
-        font-size: 14px;
-    }
-
-    .container {
-        padding: 30px 20px;
-    }
-
-    label {
-        font-size: 16px;
-    }
-
-    button {
-        font-size: 18px;
+    .container{
+        width:95%;
+        height:auto;
+        padding:30px 20px;
     }
 }

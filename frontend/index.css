@@ -1,45 +1,38 @@
 * {
     font-family: 'Segoe UI';
+    box-sizing: border-box;
 }
 
 body {
-    margin: 0%;
-
+    margin: 0;
     width: 100%;
-    height: 200px;
+    overflow-x: hidden;
 }
 
-.class {
-    background-color: #4900c1;
-
-    height: 917px;
-    z-index: -1;
+img {
+    max-width: 100%;
+    height: auto;
 }
 
-
-
+/* ===== GLOBAL NAVBAR ===== */
 .navbar {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 80px;
+    padding: 15px 25px;
+    flex-wrap: wrap;
     background-color: #ffffff;
-    padding-right: 100px;
-}
-
-.logo {
-    margin-left: 50px;
-    width: 70px;
-    margin-right: auto;
+    width: 100%;
 }
 
 .navbar a {
+    margin: 10px;
+    gap: 60px;
     text-decoration: none;
-    color: rgb(0, 0, 0);
+    color: #000;
     font-size: 18px;
     font-weight: 400;
 }
-
-
 
 .navbar .Signin {
     background-color: #ffd700;
@@ -47,6 +40,34 @@ body {
     padding: 10px 25px;
     border-radius: 50px;
     font-weight: 550;
+    margin-left: auto;
+}
+
+.logo {
+    width: 70px;
+    margin: 0;
+}
+.firsta{
+    margin-left: 50px;
+}
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+        padding: 15px;
+    }
+
+    .navbar a {
+        width: 100%;
+        display: block;
+        margin: 5px 0;
+    }
+
+    .navbar .Signin {
+        margin: 10px auto;
+        width: fit-content;
+    }
 }
 
 .tagline {
@@ -59,6 +80,9 @@ body {
 
 .maintag {
     display: flex;
+    background-color: #4900c1;
+ 
+    height: 820px;
 }
 
 .maintag img {
@@ -468,33 +492,13 @@ body {
 
 /* --- Responsive Design Injection --- */
 
-/* 1440px - Large Desktop */
-@media (max-width: 1440px) {
-    .maintag img {
-        width: 500px;
-        height: auto;
-    }
-}
-
-/* 1200px - Desktop */
-@media (max-width: 1200px) {
-    .navbar {
-        gap: 40px;
-        padding-right: 50px;
-    }
-
-    .tagline {
-        font-size: 80px;
-    }
-
-    .maintag img {
-        width: 400px;
-        margin-left: 100px;
-    }
-}
-
-/* 1024px - Laptop/Tablet Landscape */
+/* Tablet - 1024px */
 @media (max-width: 1024px) {
+    .navbar {
+        gap: 20px;
+        padding-right: 20px;
+    }
+
     .tagline {
         font-size: 70px;
         margin-top: 50px;
@@ -521,20 +525,29 @@ body {
     .quote span {
         margin-left: 100px;
     }
+
+    .footer-grid {
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 2rem;
+    }
 }
 
-/* 768px - Tablet Portrait */
+/* Mobile - 768px */
 @media (max-width: 768px) {
     .navbar {
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 20px;
-        padding: 10px;
+        flex-direction: column;
+        padding: 20px;
+        gap: 15px;
+        text-align: center;
     }
 
     .logo {
-        margin-left: 0;
-        margin-right: 0;
+        margin: 0 auto 10px;
+    }
+
+    .navbar a {
+        width: 100%;
+        padding: 10px 0;
     }
 
     .maintag {
@@ -545,7 +558,7 @@ body {
     .maintag img {
         margin-left: 0;
         margin-top: 20px;
-        width: 90%;
+        width: 80%;
         height: auto;
         order: -1;
     }
@@ -554,6 +567,7 @@ body {
         font-size: 50px;
         text-align: center;
         margin-left: 0;
+        margin-top: 20px;
     }
 
     .subtag {
@@ -584,10 +598,15 @@ body {
         align-items: center;
     }
 
+    .flex img {
+        display: none;
+    }
+
     .flex p {
         margin-left: 0;
         margin-top: 30px;
         text-align: center;
+        font-size: 18px;
     }
 
     .scall {
@@ -610,14 +629,17 @@ body {
 
     .footer-grid {
         grid-template-columns: 1fr 1fr;
-        gap: 2rem;
     }
 }
 
-/* 425px - Large Mobile */
-@media (max-width: 425px) {
+/* Small phones - 480px */
+@media (max-width: 480px) {
     .tagline {
         font-size: 40px;
+    }
+
+    .subtag {
+        font-size: 18px;
     }
 
     .courses-grid {
@@ -629,29 +651,15 @@ body {
     }
 
     .navbar a {
-        font-size: 14px;
-    }
-}
-
-/* 375px - Medium Mobile */
-@media (max-width: 375px) {
-    .tagline {
-        font-size: 36px;
+        font-size: 16px;
     }
 
-    .course-header {
-        height: 120px;
-        font-size: 2rem;
-    }
-}
-
-/* 320px - Small Mobile */
-@media (max-width: 320px) {
-    .tagline {
-        font-size: 30px;
+    .quote {
+        margin-left: 20px;
+        font-size: 20px;
     }
 
-    .subtag {
-        font-size: 18px;
+    .quote span {
+        margin-left: 0;
     }
 }

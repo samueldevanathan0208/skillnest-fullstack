@@ -1,189 +1,218 @@
-    * {
-        font-family: 'Segoe UI';
-    }
+* {
+    font-family: 'Segoe UI';
+    box-sizing: border-box;
+}
 
-    body {
-        margin: 0%;
-        width: 100%;
-        height: 200px;
-        background-color: #f9fafb;
-        color: #333;
-        line-height: 1.6;
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-    }
+body {
+    margin: 0;
+    width: 100%;
+    overflow-x: hidden;
+    background-color: #f9fafb;
+    color: #333;
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
 
-    .logo {
-        margin-left: 50px;
-        width: 100px;
-        margin-right: auto;
-    }
+img {
+    max-width: 100%;
+    height: auto;
+}
 
+/* ===== GLOBAL NAVBAR ===== */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 25px;
+    flex-wrap: wrap;
+    background-color: #4900c1;
+    /* Kept brand color for this page's navbar theme */
+    width: 100%;
+}
+
+.navbar a {
+    margin: 10px;
+    text-decoration: none;
+    color: white;
+    font-size: 18px;
+    font-weight: 400;
+}
+
+.navbar .Signin {
+    background-color: #ffd700;
+    color: black;
+    padding: 10px 25px;
+    border-radius: 50px;
+    font-weight: 550;
+    margin-left: auto;
+}
+
+.logo {
+    width: 70px;
+    margin: 0;
+}
+
+@media (max-width: 768px) {
     .navbar {
-        display: flex;
-        align-items: center;
-        gap: 80px;
-        background-color: #4900c1;
-        /* Changed from #4900c1 */
-        padding-right: 100px;
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+        padding: 15px;
     }
 
     .navbar a {
-        text-decoration: none;
-        color: white;
-        /* Changed from white */
-        font-size: 18px;
-        font-weight: 400;
+        width: 100%;
+        display: block;
+        margin: 5px 0;
     }
 
     .navbar .Signin {
-        background-color: #ffd700;
-        color: white;
-        padding: 10px 25px;
-        border-radius: 50px;
-        font-weight: 550;
+        margin: 10px auto;
+        width: fit-content;
+    }
+}
+
+
+
+
+
+
+
+
+
+.container {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
+}
+
+.scheduling-card {
+    background: #fff;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    max-width: 550px;
+    width: 100%;
+    text-align: center;
+}
+
+.scheduling-card h1 {
+    font-size: 2rem;
+    color: #4900c1;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.scheduling-card p {
+    font-size: 1.1rem;
+    color: #555;
+    margin-bottom: 30px;
+}
+
+.schedule-form {
+    display: grid;
+    gap: 20px;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: #667eea;
+    outline: none;
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.submit-button {
+    display: block;
+    width: 100%;
+    padding: 15px;
+    background: #4900c1;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.3s, transform 0.3s;
+    margin-top: 10px;
+}
+
+.submit-button:hover {
+    opacity: 0.95;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* --- Responsive Design Injection --- */
+
+@media (max-width: 1024px) {
+    .navbar {
+        gap: 40px;
+        padding-right: 50px;
+    }
+}
+
+@media (max-width: 768px) {
+    .navbar {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 20px;
+        padding: 10px;
     }
 
-
-
-
-
-
-
-
-
-    .container {
-        flex-grow: 1;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 40px 20px;
+    .logo {
+        margin-left: 0;
+        margin-right: 0;
+        width: 80px;
     }
 
     .scheduling-card {
-        background: #fff;
-        padding: 40px;
-        border-radius: 12px;
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-        max-width: 550px;
-        width: 100%;
-        text-align: center;
+        padding: 2rem 1.5rem;
     }
 
     .scheduling-card h1 {
-        font-size: 2rem;
-        color: #4900c1;
-        margin-bottom: 10px;
-        font-weight: 700;
+        font-size: 1.6rem;
+    }
+}
+
+@media (max-width: 425px) {
+    .navbar a {
+        font-size: 14px;
     }
 
     .scheduling-card p {
-        font-size: 1.1rem;
-        color: #555;
-        margin-bottom: 30px;
-    }
-
-    .schedule-form {
-        display: grid;
-        gap: 20px;
-        text-align: left;
-    }
-
-    .form-group label {
-        display: block;
-        font-weight: 600;
-        margin-bottom: 8px;
-        color: #333;
-    }
-
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-        width: 100%;
-        padding: 12px;
-        border: 1px solid #ddd;
-        border-radius: 8px;
         font-size: 1rem;
-        transition: border-color 0.3s;
-    }
-
-    .form-group input:focus,
-    .form-group select:focus,
-    .form-group textarea:focus {
-        border-color: #667eea;
-        outline: none;
-    }
-
-    .form-group textarea {
-        resize: vertical;
-        min-height: 100px;
     }
 
     .submit-button {
-        display: block;
-        width: 100%;
-        padding: 15px;
-        background: #4900c1;
-        color: #fff;
-        border: none;
-        border-radius: 8px;
-        font-size: 1.1rem;
-        font-weight: 700;
-        cursor: pointer;
-        transition: opacity 0.3s, transform 0.3s;
-        margin-top: 10px;
+        font-size: 1rem;
+        padding: 12px;
     }
-
-    .submit-button:hover {
-        opacity: 0.95;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    }
-
-    /* --- Responsive Design Injection --- */
-
-    @media (max-width: 1024px) {
-        .navbar {
-            gap: 40px;
-            padding-right: 50px;
-        }
-    }
-
-    @media (max-width: 768px) {
-        .navbar {
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 20px;
-            padding: 10px;
-        }
-
-        .logo {
-            margin-left: 0;
-            margin-right: 0;
-            width: 80px;
-        }
-
-        .scheduling-card {
-            padding: 2rem 1.5rem;
-        }
-
-        .scheduling-card h1 {
-            font-size: 1.6rem;
-        }
-    }
-
-    @media (max-width: 425px) {
-        .navbar a {
-            font-size: 14px;
-        }
-
-        .scheduling-card p {
-            font-size: 1rem;
-        }
-
-        .submit-button {
-            font-size: 1rem;
-            padding: 12px;
-        }
-    }
+}
