@@ -7,7 +7,7 @@
     <title>Edit Profile</title>
     <link rel="stylesheet" href="../css/edit.css">
     <link rel="stylesheet" href="../css/modals.css">
-    <script src="../js/api.js?v=4"></script>
+    <script src="../js/api.js?v=5"></script>
     <script>
         if (!localStorage.getItem("token")) {
             window.location.href = "login.html";
@@ -150,12 +150,10 @@
         });
 
         function populateForm(user) {
-            // Update Header Info
+            console.log("Populating form with user data:", user);
             document.querySelector('.avatar-info h2').textContent = user.user_name || 'User';
-            if (user.user_created_at) {
-                document.getElementById('member-since').textContent = `Member since ${user.user_created_at}`;
-            }
 
+            document.getElementById('member-since').textContent = `Member since ${user.user_created_at}`;
             // Populate Inputs
             const fullName = user.user_name || '';
             const firstSpaceIndex = fullName.indexOf(' ');
