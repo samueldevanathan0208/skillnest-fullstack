@@ -74,7 +74,7 @@
                     <div class="avatar-section">
                         <div class="avatar-info">
                             <h2></h2> <!-- Dynamically filled -->
-                            <p>Member since January 2024</p>
+                            <p id="member-since">Member since January 2024</p>
                         </div>
                         <div class="avatar-actions">
                             <button class="btn-secondary">Upload New Photo</button>
@@ -152,6 +152,9 @@
         function populateForm(user) {
             // Update Header Info
             document.querySelector('.avatar-info h2').textContent = user.user_name || 'User';
+            if (user.user_created_at) {
+                document.getElementById('member-since').textContent = `Member since ${user.user_created_at}`;
+            }
 
             // Populate Inputs
             const fullName = user.user_name || '';

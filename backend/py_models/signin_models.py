@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String
+import datetime
 from database import Base
 
 class User(Base):
@@ -11,4 +12,4 @@ class User(Base):
     user_dateofbirth = Column(String)
     user_phone = Column(String)
     user_gender = Column(String)
-    user_created_at = Column(String, default="January 2024")
+    user_created_at = Column(String, default=lambda: datetime.datetime.now().strftime("%B %Y"))
