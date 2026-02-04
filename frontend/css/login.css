@@ -21,13 +21,14 @@ body {
 .navbar {
     display: flex;
     align-items: center;
-    gap: 80px;
+    gap: 0;
     background-color: #ffffff;
-    padding: 15px 80px;
+    padding: 15px 40px;
 }
 
 .logo {
     width: 70px;
+    margin: 0;
     margin-right: auto;
 }
 
@@ -36,6 +37,7 @@ body {
     color: rgb(0, 0, 0);
     font-size: 18px;
     font-weight: 400;
+    margin-right: 75px;
 }
 
 .navbar .Signin {
@@ -45,6 +47,13 @@ body {
     border-radius: 50px;
     font-weight: 550;
     margin-left: auto;
+    /* Push to far right */
+    margin-right: 0;
+}
+
+.firsta {
+    margin-left: 500px;
+    /* Reset specific margin */
 }
 
 /* ===== LAYOUT ===== */

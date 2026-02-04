@@ -17,17 +17,21 @@ img {
 /* ===== GLOBAL NAVBAR ===== */
 .navbar {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 15px 25px;
-    flex-wrap: wrap;
+    padding: 15px 40px;
     background-color: #ffffff;
     width: 100%;
 }
 
+.logo {
+    width: 70px;
+    margin: 0;
+    margin-right: auto;
+    /* Push next items to rights */
+}
+
 .navbar a {
-    margin: 10px;
-    gap: 60px;
+    margin-right: 75px;
     text-decoration: none;
     color: #000;
     font-size: 18px;
@@ -41,15 +45,15 @@ img {
     border-radius: 50px;
     font-weight: 550;
     margin-left: auto;
+    /* Push to far right */
+    margin-right: 0;
 }
 
-.logo {
-    width: 70px;
-    margin: 0;
+.firsta {
+    margin-left: 500px;
+    /* Reset specific margin */
 }
-.firsta{
-    margin-left: 50px;
-}
+
 @media (max-width: 768px) {
     .navbar {
         flex-direction: column;
@@ -81,7 +85,7 @@ img {
 .maintag {
     display: flex;
     background-color: #4900c1;
- 
+
     height: 820px;
 }
 
@@ -106,6 +110,7 @@ img {
     font-family: 'Segoe UI';
     margin-left: 480px;
     font-size: 60px;
+    margin-top: 100px;
 }
 
 .hirespace {
@@ -142,7 +147,6 @@ img {
 .item {
     width: 200px;
     height: 100px;
-    background-color: red;
     border-radius: 6px;
     position: absolute;
     left: 100%;
@@ -211,7 +215,6 @@ img {
 .itemd {
     width: 200px;
     height: 100px;
-    background-color: red;
     border-radius: 6px;
     position: absolute;
     left: 100%;

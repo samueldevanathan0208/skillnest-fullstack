@@ -23,17 +23,21 @@ img {
 /* ===== GLOBAL NAVBAR ===== */
 .navbar {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 15px 25px;
-    flex-wrap: wrap;
+    padding: 15px 40px;
     background-color: #4900c1;
-    /* Kept brand color for this page's navbar theme */
+    /* Kept brand color */
     width: 100%;
 }
 
+.logo {
+    width: 70px;
+    margin: 0;
+    margin-right: auto;
+}
+
 .navbar a {
-    margin: 10px;
+    margin-right: 75px;
     text-decoration: none;
     color: white;
     font-size: 18px;
@@ -47,11 +51,13 @@ img {
     border-radius: 50px;
     font-weight: 550;
     margin-left: auto;
+    /* Push to far right */
+    margin-right: 0;
 }
 
-.logo {
-    width: 70px;
-    margin: 0;
+.firsta {
+    margin-left: 500px;
+    /* Reset specific margin */
 }
 
 @media (max-width: 768px) {
