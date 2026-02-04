@@ -252,6 +252,140 @@
             font-size: 28px;
         }
 
+        /* =========================================
+           RESPONSIVE MOBILE STYLES
+           ========================================= */
+        /* =========================================
+           RESPONSIVE MOBILE STYLES
+           ========================================= */
+        /* =========================================
+           RESPONSIVE MOBILE STYLES
+           ========================================= */
+        @media (max-width: 768px) {
+            .certificate-wrapper {
+                padding: 10px;
+                align-items: center;
+                display: flex;
+                justify-content: center;
+            }
+
+            .certificate-container {
+                width: 100%;
+                max-width: 100%;
+                aspect-ratio: 4 / 3;
+                padding: 10px;
+            }
+
+            /* Adjust Corner Graphics */
+            .corner {
+                width: 50px;
+                height: 50px;
+            }
+
+            .border-frame {
+                inset: 6px;
+                border-width: 3px;
+            }
+
+            /* Logo - significantly smaller and higher */
+            .logo {
+                top: 20px;
+                width: 30px;
+            }
+
+            /* Content Area - pushed down to clear logo */
+            .content {
+                width: 94%;
+                top: 48%;
+                /* Moved down from 42% */
+            }
+
+            /* Typography Scaling */
+            .certificate-title {
+                font-size: 18px;
+                /* Reduced from 20px */
+                letter-spacing: 2px;
+                margin-bottom: 2px;
+            }
+
+            .certificate-subtitle {
+                font-size: 9px;
+                margin-bottom: 4px;
+                letter-spacing: 1px;
+            }
+
+            .divider {
+                width: 80px;
+                margin: 4px auto;
+                height: 1px;
+            }
+
+            .divider::before {
+                padding: 0 4px;
+                font-size: 8px;
+                top: -4px;
+            }
+
+            .presentation-text {
+                font-size: 8px;
+                margin: 4px 0;
+            }
+
+            .recipient-name {
+                font-size: 20px;
+                margin: 4px 0;
+                line-height: 1.1;
+            }
+
+            .name-underline {
+                width: 50%;
+                margin: 0 auto 6px;
+                height: 1px;
+            }
+
+            .description-text {
+                font-size: 7px;
+                line-height: 1.25;
+                margin: 0 auto 6px;
+                max-width: 95%;
+            }
+
+            .course-label {
+                font-size: 7px;
+                margin-top: 4px;
+            }
+
+            .course-name {
+                font-size: 14px;
+                margin-top: 1px;
+            }
+
+            /* Details & Badge - Compact */
+            .certificate-details {
+                bottom: 10px;
+                left: 10px;
+            }
+
+            .detail-line {
+                font-size: 6px;
+                margin: 1px 0;
+            }
+
+            .score-badge {
+                width: 45px;
+                height: 45px;
+                bottom: 10px;
+            }
+
+            .badge-text {
+                font-size: 6px;
+            }
+
+            .badge-score {
+                font-size: 12px;
+            }
+        }
+
         @media print {
             @page {
                 size: A4 landscape;

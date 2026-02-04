@@ -1,138 +1,198 @@
-*{
-    font-family:'Segoe UI';
-    box-sizing:border-box;
+* {
+    font-family: 'Segoe UI';
+    box-sizing: border-box;
 }
 
-/* ===== BODY ===== */
-body{
-    margin:0;
-    overflow-x:hidden;
+body {
+    margin: 0;
+    width: 100%;
+    overflow-x: hidden;
+    background-color: #f3f4f6;
 }
 
-/* ===== PAGE BACKGROUND (restore old design) ===== */
-.class{
-    background:#4900c1;
-    min-height:100vh;
+/* Background wrapper */
+.class {
+    background-color: #4900c1;
+    min-height: 100vh;
+    z-index: -1;
 }
 
-/* ===== NAVBAR ===== */
-.navbar{
-    display:flex;
-    align-items:center;
-    gap:80px;
-    background:#fff;
-    padding:15px 80px;
+/* ===== NAVBAR (Matches Signup) ===== */
+.navbar {
+    display: flex;
+    align-items: center;
+    gap: 80px;
+    background-color: #ffffff;
+    padding: 15px 80px;
 }
 
-.navbar a{
-    text-decoration:none;
-    color:#000;
-    font-size:18px;
+.logo {
+    width: 70px;
+    margin-right: auto;
 }
 
-.navbar .Signin{
-    background:#ffd700;
-    padding:10px 25px;
-    border-radius:50px;
-    margin-left:auto;
+.navbar a {
+    text-decoration: none;
+    color: rgb(0, 0, 0);
+    font-size: 18px;
+    font-weight: 400;
 }
 
-.logo{
-    width:70px;
+.navbar .Signin {
+    background-color: #ffd700;
+    color: black;
+    padding: 10px 25px;
+    border-radius: 50px;
+    font-weight: 550;
+    margin-left: auto;
 }
 
 /* ===== LAYOUT ===== */
-.flex{
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    gap:60px;
-    padding:40px;
+.flex {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 60px;
+    padding: 40px;
 }
 
-/* ===== DESKTOP CARD (RESTORED EXACT SIZE) ===== */
-.login-container{
-    background:#4900c1;
-    border-radius:24px;
-    padding:60px 50px;
-    width:500px;
-    height:700px;
-    box-shadow:0 10px 40px rgba(0,0,0,0.2);
+/* ===== LOGIN CARD ===== */
+.login-container {
+    background-color: #6200ff;
+    border-radius: 24px;
+    padding: 60px 50px;
+    width: 420px;
+    /* consistent with signup container width */
+    height: 680px;
+    /* consistent height */
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+h1 {
+    color: white;
+    font-size: 42px;
+    font-weight: 700;
+    margin-bottom: 25px;
+    text-align: center;
 }
 
 /* ===== FORM ===== */
-h1{
-    color:white;
-    font-size:42px;
-    margin-bottom:40px;
+.form-group {
+    margin-bottom: 20px;
 }
 
-label{
-    color:white;
-    font-weight:600;
-    margin-bottom:10px;
-    display:block;
+label {
+    display: block;
+    color: white;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 10px;
 }
 
-input{
-    width:100%;
-    padding:16px 20px;
-    border:none;
-    border-radius:10px;
-    font-size:16px;
+input {
+    width: 100%;
+    padding: 14px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    background-color: white;
+    color: #666;
+    outline: none;
 }
 
-.sign-in-btn{
-    width:100%;
-    padding:18px;
-    background:#6200ff;
-    color:white;
-    border:none;
-    border-radius:10px;
-    font-size:18px;
-    margin-top:30px;
+.sign-in-btn {
+    width: 100%;
+    padding: 16px;
+    background-color: #ffd700;
+    color: black;
+    border: none;
+    border-radius: 8px;
+    font-size: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 10px;
 }
 
-/* image */
-.thumb{
-    width:650px;
-    height:810px;
+.sign-in-btn:hover {
+    background-color: #e6c200;
+}
+
+/* Extras */
+.divider {
+    text-align: center;
+    color: white;
+    font-size: 16px;
+    margin: 30px 0;
+}
+
+.register-text {
+    text-align: center;
+    color: white;
+    font-size: 16px;
+}
+
+.register-text a {
+    color: white;
+    font-weight: 700;
+    text-decoration: none;
+    font-size: 18px;
+}
+
+/* Image */
+.thumb {
+    width: 620px;
+    height: 810px;
+    object-fit: contain;
 }
 
 /* ================================================= */
-/* ✅ MOBILE RESPONSIVE ONLY */
+/* ✅ MOBILE & TABLET RESPONSIVE */
 /* ================================================= */
 
-@media(max-width:768px){
-
-    .navbar{
-        flex-direction:column;
-        gap:12px;
-        text-align:center;
+@media (max-width: 1024px) {
+    .navbar {
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+        padding: 15px;
     }
 
-    .navbar a{
-        width:100%;
+    .navbar a {
+        width: 100%;
+        display: block;
     }
 
-    .flex{
-        flex-direction:column;
+    .logo {
+        margin: 0 auto;
     }
 
-    /* hide image */
-    .thumb{
-        display:none;
+    .navbar .Signin {
+        margin: 10px auto;
     }
 
-    /* smaller card */
-    .login-container{
-        width:95%;
-        height:auto;
-        padding:35px 25px;
+    .flex {
+        flex-direction: column;
+        padding: 20px 10px;
+        gap: 20px;
     }
 
-    h1{
-        font-size:28px;
-        text-align:center;
+    /* Hide image on mobile/tablet to match signup */
+    .thumb,
+    .flex img {
+        display: none !important;
+    }
+
+    .login-container {
+        width: 95%;
+        max-width: 420px;
+        height: auto;
+        padding: 40px 25px;
+    }
+
+    h1 {
+        font-size: 32px;
     }
 }
