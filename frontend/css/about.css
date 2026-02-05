@@ -68,6 +68,11 @@ img {
         width: 100%;
         display: block;
         margin: 5px 0;
+        margin-right: 0;
+    }
+
+    .firsta {
+        margin-left: 0;
     }
 
     .navbar .Signin {

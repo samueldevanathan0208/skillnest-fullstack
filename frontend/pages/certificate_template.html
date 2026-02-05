@@ -255,13 +255,7 @@
         /* =========================================
            RESPONSIVE MOBILE STYLES
            ========================================= */
-        /* =========================================
-           RESPONSIVE MOBILE STYLES
-           ========================================= */
-        /* =========================================
-           RESPONSIVE MOBILE STYLES
-           ========================================= */
-        @media (max-width: 768px) {
+        @media only screen and (max-width: 768px) {
             .certificate-wrapper {
                 padding: 10px;
                 align-items: center;
@@ -386,42 +380,101 @@
             }
         }
 
+        /* =========================================
+           PRINT STYLES
+           ========================================= */
         @media print {
             @page {
                 size: A4 landscape;
                 margin: 0;
             }
 
+            html,
             body {
-                background: white;
+                width: 297mm;
+                height: 210mm;
                 margin: 0;
                 padding: 0;
-                display: block;
+                background: white;
+                overflow: hidden;
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
 
-            .certificate-header {
-                display: none !important;
-            }
-
-            .certificate-wrapper {
-                padding: 0;
-                margin: 0;
-                display: block;
-            }
-
-            .certificate-container {
-                width: 297mm;
-                height: 210mm;
-                max-width: none;
-                box-shadow: none;
-                margin: 0;
-                border: none;
-            }
-
+            /* Hide UI elements */
+            .certificate-header,
             .no-print {
                 display: none !important;
+            }
+
+            /* Main Wrapper */
+            .certificate-wrapper {
+                display: block !important;
+                width: 100% !important;
+                height: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            /* Certificate Container - Scaled to Fit A4 */
+            .certificate-container {
+                width: 297mm !important;
+                height: 210mm !important;
+                max-width: none !important;
+                aspect-ratio: auto !important;
+                box-shadow: none !important;
+                margin: 0 !important;
+                border: none !important;
+                position: absolute;
+                top: 0;
+                left: 0;
+
+                /* Reset any mobile transforms/scaling */
+                transform: none !important;
+
+                /* Force Desktop Font Sizes for Print */
+                font-size: 16px;
+            }
+
+            /* Force critical elements to desktop sizes */
+            .certificate-title {
+                font-size: 64px !important;
+            }
+
+            .recipient-name {
+                font-size: 52px !important;
+            }
+
+            .logo {
+                top: 50px !important;
+                width: 80px !important;
+            }
+
+            .content {
+                top: 45% !important;
+                width: calc(100% - 100px) !important;
+            }
+
+            .score-badge {
+                width: 110px !important;
+                height: 110px !important;
+                bottom: 50px !important;
+            }
+
+            .corner {
+                width: 200px !important;
+                height: 200px !important;
+            }
+
+            .border-frame {
+                inset: 25px !important;
+                border-width: 8px !important;
+            }
+
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                page-break-inside: avoid;
             }
         }
     </style>
@@ -431,7 +484,7 @@
 
     <div class="certificate-header no-print">
         <a href="mycertificate.html" class="btn btn-back">← Back to Certificates</a>
-        <button onclick="window.print()" class="btn btn-print">Print / Save PDF</button>
+        <button onclick="checkDesktopOnly()" class="btn btn-print">Print / Save PDF</button>
     </div>
 
     <div class="certificate-wrapper">
@@ -488,6 +541,16 @@
             (function () {
                 let hasPrinted = false;
 
+                // Expose to global scope for button click
+                window.checkDesktopOnly = function () {
+                    // Check if screen width is mobile/tablet (<= 768px)
+                    if (window.innerWidth <= 768) {
+                        alert("Please login on desktop to download certificate");
+                        return;
+                    }
+                    window.print();
+                };
+
                 function init() {
                     console.log("[Certificate] Initializing...");
                     const params = new URLSearchParams(window.location.search);
@@ -504,7 +567,12 @@
                     renderData(data);
 
                     if (data.action === "download") {
-                        handleAutoPrint();
+                        // Apply same restriction to auto-print
+                        if (window.innerWidth <= 768) {
+                            alert("Please login on desktop to download certificate");
+                        } else {
+                            handleAutoPrint();
+                        }
                     }
                 }
 

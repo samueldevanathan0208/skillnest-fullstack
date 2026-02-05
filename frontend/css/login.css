@@ -172,6 +172,12 @@ input {
     .navbar a {
         width: 100%;
         display: block;
+        margin-right: 0;
+        margin-bottom: 15px;
+    }
+
+    .firsta {
+        margin-left: 0;
     }
 
     .logo {
