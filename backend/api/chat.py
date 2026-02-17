@@ -12,25 +12,29 @@ class ChatRequest(BaseModel):
 async def chat_with_ai(request: ChatRequest):
     api_key = os.getenv("OPENROUTER_API_KEY") or os.getenv("OPENAI_API_KEY")
     if not api_key:
+        print("ERROR: API Key is missing.")
         raise HTTPException(status_code=500, detail="API Key not configured")
 
-    # If using OpenRouter, we need to set the base url
-    base_url = "https://openrouter.ai/api/v1" if "OPENROUTER" in os.environ.keys() or os.getenv("OPENROUTER_API_KEY") else None
+    print(f"DEBUG: Using API Key: {api_key[:5]}... (Length: {len(api_key)})")
+
+    # OpenRouter Configuration
+    base_url = "https://openrouter.ai/api/v1"
     
-    # User provided code uses 'gpt-4o-mini', assuming OpenAI standard or OpenRouter mapping
-    # Adjusting to be robust
     client = OpenAI(
         api_key=api_key,
-        base_url=base_url
+        base_url=base_url,
+        default_headers={
+            "HTTP-Referer": "http://localhost:3000", # Required by OpenRouter for ranking
+            "X-Title": "SkillNest Chatbot"
+        }
     )
 
     try:
         response = client.chat.completions.create(
-            model="gpt-4o-mini", # Or "openai/gpt-3.5-turbo" if using OpenRouter specific
+            model="openai/gpt-4o-mini", # Explicit OpenRouter model ID
             messages=[{"role": "user", "content": request.message}]
         )
         return {"reply": response.choices[0].message.content}
     except Exception as e:
         print(f"AI Error: {e}")
-        # Fallback for demo purposes if quota is full etc, but better to return error
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"AI Error: {str(e)}")

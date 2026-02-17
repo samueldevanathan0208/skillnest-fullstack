@@ -1,3 +1,14 @@
+from dotenv import load_dotenv
+import os
+import sys
+
+# Load .env from parent directory or current directory
+# Adjust path to find .env in LMS(fullstack)/.env
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+env_path = os.path.join(parent_dir, ".env")
+load_dotenv(env_path)
+
 from fastapi import FastAPI, Depends, HTTPException, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware

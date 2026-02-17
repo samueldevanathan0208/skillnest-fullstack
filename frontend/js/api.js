@@ -1,4 +1,5 @@
 const API_BASE = "https://skillnest-fullstack-5hws.vercel.app";
+// const API_BASE = "http://127.0.0.1:8000";
 console.log("%c SKILLNEST API V3 LOADED ", "background: #222; color: #bada55; font-size: 20px;");
 console.log("Current API_BASE:", API_BASE);
 console.log("Current Page Path:", window.location.pathname);
