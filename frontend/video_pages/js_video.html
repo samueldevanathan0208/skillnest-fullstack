@@ -397,13 +397,12 @@
         async function loadNotes() {
             try {
                 const user = JSON.parse(localStorage.getItem("user"));
-                if (!user) return; // Silent return if no user
+                if (!user) return;
 
-                // Use the new simplified endpoint
-                const response = await fetch(`${API_BASE}/notes/${user.user_id}/${courseId}`);
-                if (response.ok) {
-                    const data = await response.json();
-                    document.getElementById('notesTextarea').value = data.notes || "";
+                // Use apiFetch which handles tokens automatically
+                const data = await apiFetch(`/notes/${user.user_id}/${courseId}`);
+                if (data && data.notes !== undefined) {
+                    document.getElementById('notesTextarea').value = data.notes;
                 }
             } catch (error) {
                 console.error('Error loading notes:', error);
@@ -417,16 +416,21 @@
                 return;
             }
 
+            // JWT Token Check
+            if (!localStorage.getItem("token")) {
+                console.warn("Stopping script: No token found.");
+                window.location.href = "../pages/login.html";
+                return;
+            }
+
             const noteContent = document.getElementById('notesTextarea').value;
             const status = document.getElementById('save-status');
             status.textContent = "Saving...";
 
             try {
-                const response = await fetch(`${API_BASE}/notes/save`, {
+                // Use apiFetch for authenticated request
+                const response = await apiFetch("/notes/save", {
                     method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
                     body: JSON.stringify({
                         user_id: user.user_id,
                         course_id: courseId,
@@ -434,7 +438,7 @@
                     })
                 });
 
-                if (response.ok) {
+                if (response && (response.status === "saved" || response.status === "updated")) {
                     status.textContent = "Saved!";
                     setTimeout(() => status.textContent = "", 2000);
                 } else {
