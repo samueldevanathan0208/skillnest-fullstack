@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillNest | Problem List</title>
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <script src="../js/api.js?v=4"></script>
+    <script>
+        if (!localStorage.getItem("token")) {
+            window.location.href = "login.html";
+        }
+    </script>
+    <style>
+        :root {
+            --primary-color: #4900c1;
+            --success-color: #28a745;
+            --bg-color: #f8f9fa;
+        }
+
+        .main-content {
+            padding: 0 !important;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            background-color: #4900c1;
+            color: #fff;
+            padding: 3rem 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 100%;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: white;
+        }
+
+        .back-btn {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: color 0.3s;
+            display: block;
+            margin-top: 0.5rem;
+        }
+
+        .back-btn:hover {
+            color: white;
+        }
+
+        .problem-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .problem-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .difficulty {
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 0.5rem;
+        }
+
+        .difficulty.easy {
+            background: #d4f9e2;
+            color: #155724;
+        }
+
+        .difficulty.medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .difficulty.hard {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .solve-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.8rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 1rem;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .solve-btn.solved {
+            background: var(--success-color);
+        }
+    </style>
+    <script src="../js/sidebar-handlers.js" defer></script>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <nav>
+            <div class="nav-section">
+                <img class="logo" src="../assests/Gemini_Generated_Image_awja8lawja8lawja-removebg-preview.png"
+                    alt="Logo">
+                <a href="dashboard.html" class="nav-item">
+                    <span>Dashboard</span>
+                </a>
+                <a href="mylearn.html" class="nav-item">
+                    <span>My Learning</span>
+                </a>
+                <a href="mycertificate.html" class="nav-item">
+                    <span>Certificate</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <h3 class="nav-section-title">Learn</h3>
+                <a href="learingpath.html" class="nav-item">
+                    <span>Learning Path</span>
+                </a>
+                <a href="quizzes.html" class="nav-item">
+                    <span>Quizzes</span>
+                </a>
+                <a href="problem-solving.html" class="nav-item active">
+                    <span>Problem Solving</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <h3 class="nav-section-title">Account Setting</h3>
+                <a href="edit.html" class="nav-item">
+                    <span>Edit Profile</span>
+                </a>
+                <a href="#" id="delete-profile-link" class="nav-item">
+                    <span>Delete Profile</span>
+                </a>
+                <a href="#" id="sign-out-link" class="nav-item">
+                    <span>Sign Out</span>
+                </a>
+            </div>
+        </nav>
+    </aside>
+
+    <div class="main-content">
+        <div class="header">
+            <h1 id="lang-title">Problem Solving</h1>
+            <a href="problem-solving.html" class="back-btn">← Back to Languages</a>
+        </div>
+        <div class="container">
+            <div id="problem-grid" class="problem-grid">
+                <!-- Problems injected here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const langId = urlParams.get('lang') || 'python';
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            document.getElementById('lang-title').innerText = `Problem Solving in ${langId.charAt(0).toUpperCase() + langId.slice(1)}`;
+
+            try {
+                const problems = await apiFetch(`/problem-solving/${langId}/problems`);
+                const grid = document.getElementById('problem-grid');
+
+                grid.innerHTML = problems.map(p => `
+                    <div class="problem-card">
+                        <div>
+                            <span class="difficulty ${p.difficulty.toLowerCase()}">${p.difficulty}</span>
+                            <h3 style="margin: 0.5rem 0;">${p.title}</h3>
+                            <p style="font-size: 0.85rem; color: #666; margin-bottom: 1rem;">Challenge your ${langId} skills with this problem.</p>
+                        </div>
+                        <a href="ps-editor.html?problem=${p.id}&lang=${langId}" class="solve-btn">Solve</a>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error("Error loading problems:", error);
+            }
+        });
+    </script>
+</body>
+
+</html>
