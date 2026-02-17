@@ -21,6 +21,7 @@ from py_models.signin_models import User
 from py_models.course_models import Course
 from py_models.quiz_models import Quiz
 from py_models.progress_models import CourseVideoProgress, QuizPartialProgress
+from py_models.problem_models import ProblemProgress
 
 from py_schemas.signin_schemas import (
     CreateUser,
@@ -38,13 +39,14 @@ from py_schemas.progress_schemas import (
 from auth import hash_password, verify_password, create_access_token, get_current_user
 
 # Import new routers
-from api import notes, chat
+from api import notes, chat, problem_solving
 
 app = FastAPI(title="SkillNest API")
 
 # Include Routers
 app.include_router(notes.router)
 app.include_router(chat.router)
+app.include_router(problem_solving.router)
 
 
 # --------------------------------------------------

@@ -49,6 +49,9 @@
                 <a href="quizzes.html" class="nav-item">
                     <span>Quizzes</span>
                 </a>
+                <a href="problem-solving.html" class="nav-item">
+                    <span>Problem Solving</span>
+                </a>
             </div>
 
             <div class="nav-section">
@@ -136,6 +139,47 @@
 
                     container.innerHTML = '';
 
+                    // --- 1. PROBLEM SOLVING PROGRESS ---
+                    try {
+                        const psData = await apiFetch("/problem-solving/languages");
+                        if (psData && psData.length > 0) {
+                            psData.forEach(lang => {
+                                if (lang.solved > 0) {
+                                    const percent = Math.round((lang.solved / lang.total) * 100);
+                                    const isCompleted = percent === 100;
+
+                                    const card = document.createElement('div');
+                                    card.className = 'course-card';
+                                    card.innerHTML = `
+                                    <div class="course-header" style="background:var(--primary-color)">PS</div>
+                                    <div class="course-content">
+                                        <span class="course-status ${isCompleted ? 'status-completed' : 'status-progress'}">
+                                            ${isCompleted ? 'Completed' : 'In Progress'}
+                                        </span>
+                                        <h3 class="course-title">Problem Solving: ${lang.name}</h3>
+                                        
+                                        <div class="progress-section">
+                                            <div class="progress-info">
+                                                <span>${percent}% Solved</span>
+                                                <span>${lang.solved}/${lang.total} Problems</span>
+                                            </div>
+                                            <div class="progress-bar-bg">
+                                                <div class="progress-bar-fill" style="width: ${percent}%"></div>
+                                            </div>
+                                        </div>
+
+                                        <a href="ps-list.html?lang=${lang.id}" class="continue-btn">
+                                            ${isCompleted ? 'Review' : 'Continue Solving'}
+                                        </a>
+                                    </div>
+                                    `;
+                                    container.appendChild(card);
+                                }
+                            });
+                        }
+                    } catch (e) { console.error("Error loading PS data", e); }
+
+                    // --- 2. COURSE PROGRESS ---
                     const startedCourses = Object.keys(progressData);
 
                     if (startedCourses.length === 0) {

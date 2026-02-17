@@ -37,6 +37,7 @@
                 <h3 class="nav-section-title">Learn</h3>
                 <a href="learingpath.html" class="nav-item">Learning Path</a>
                 <a href="quizzes.html" class="nav-item">Quizzes</a>
+                <a href="problem-solving.html" class="nav-item">Problem Solving</a>
             </div>
 
             <div class="nav-section">
@@ -101,9 +102,10 @@
             const container = document.getElementById("certificates");
 
             try {
-                const [courseProgress, quizProgress] = await Promise.all([
+                const [courseProgress, quizProgress, psProgress] = await Promise.all([
                     apiFetch("/progress/course"),
-                    apiFetch("/progress/quiz")
+                    apiFetch("/progress/quiz"),
+                    apiFetch("/problem-solving/languages")
                 ]);
 
                 const unlocked = [];
@@ -120,6 +122,21 @@
                             score: quiz.bestScore || 0
                         });
                     }
+                }
+
+                // Problem Solving Certificates
+                if (psProgress) {
+                    psProgress.forEach(lang => {
+                        if (lang.solved === 21) {
+                            unlocked.push({
+                                key: `ps-${lang.id}`,
+                                title: `Problem Solving in ${lang.name}`,
+                                type: "Skill Verification",
+                                score: 100,
+                                styleClass: 'python' // Reuse existing style or add new one
+                            });
+                        }
+                    });
                 }
 
                 loading.style.display = "none";

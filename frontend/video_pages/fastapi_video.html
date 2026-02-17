@@ -89,7 +89,9 @@
             border-radius: 12px;
             padding: 20px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            height: fit-content;
+            height: 500px;
+            display: flex;
+            flex-direction: column;
         }
 
         .playlist-header {
@@ -99,11 +101,15 @@
             padding-bottom: 15px;
             border-bottom: 2px solid #e5e7eb;
             color: #111827;
+            flex-shrink: 0;
         }
 
         .video-list {
-            max-height: 600px;
+            flex: 1;
             overflow-y: auto;
+            /* Custom Scrollbar for better look */
+            scrollbar-width: thin;
+            scrollbar-color: #4900c1 #f3f4f6;
         }
 
         .video-item {
@@ -212,7 +218,9 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="../css/chatbot.css">
     <script src="../js/api.js?v=4"></script>
+    <script src="../js/chatbot.js" defer></script>
     <script>
         if (!localStorage.getItem("token")) {
             window.location.href = "../pages/login.html";
@@ -242,24 +250,41 @@
             </div>
         </div>
 
-        <div class="playlist-section">
-            <div class="playlist-header">Course Videos</div>
-            <div class="video-list" id="videoList"></div>
+        <div class="right-column" style="width: 350px; display: flex; flex-direction: column; gap: 20px;">
+            <div class="playlist-section" style="width: 100%;">
+                <div class="playlist-header">Course Videos</div>
+                <div class="video-list" id="videoList"></div>
+            </div>
+
+            <div class="notes-section"
+                style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <div class="notes-header"
+                    style="font-size: 18px; font-weight: 700; margin-bottom: 12px; color: #111827;">
+                    My Notes <span id="save-status"
+                        style="font-size: 12px; color: #6b7280; font-weight: normal;"></span>
+                </div>
+                <textarea id="notesTextarea"
+                    style="width: 100%; height: 150px; padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px; resize: none; margin-bottom: 12px; font-family: inherit;"
+                    placeholder="Write your notes for this specific course content..."></textarea>
+                <button onclick="saveNotes()"
+                    style="width: 100%; padding: 10px; background: #28a745; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Save
+                    Notes</button>
+            </div>
         </div>
     </div>
 
     <script>
         const videos = [
-            { title: "1. FastAPI Introduction in Tamil", duration: "11:30", thumbnail: "https://img.youtube.com/vi/7t2alSnE2-I/hqdefault.jpg", src: "https://www.youtube.com/embed/7t2alSnE2-I" },
-            { title: "2. Setting up FastAPI & Uvicorn", duration: "13:20", thumbnail: "https://img.youtube.com/vi/7t2alSnE2-I/hqdefault.jpg", src: "https://www.youtube.com/embed/7t2alSnE2-I" },
-            { title: "3. Path and Query Parameters", duration: "15:45", thumbnail: "https://img.youtube.com/vi/7t2alSnE2-I/hqdefault.jpg", src: "https://www.youtube.com/embed/7t2alSnE2-I" },
-            { title: "4. Request Body with Pydantic", duration: "18:10", thumbnail: "https://img.youtube.com/vi/7t2alSnE2-I/hqdefault.jpg", src: "https://www.youtube.com/embed/7t2alSnE2-I" },
-            { title: "5. CRUD Operations in FastAPI", duration: "25:00", thumbnail: "https://img.youtube.com/vi/7t2alSnE2-I/hqdefault.jpg", src: "https://www.youtube.com/embed/7t2alSnE2-I" },
-            { title: "6. Handling Errors & Status Codes", duration: "12:40", thumbnail: "https://img.youtube.com/vi/7t2alSnE2-I/hqdefault.jpg", src: "https://www.youtube.com/embed/7t2alSnE2-I" },
-            { title: "7. Dependency Injection Intro", duration: "16:15", thumbnail: "https://img.youtube.com/vi/7t2alSnE2-I/hqdefault.jpg", src: "https://www.youtube.com/embed/7t2alSnE2-I" },
-            { title: "8. Databases with SQLAlchemy", duration: "28:30", thumbnail: "https://img.youtube.com/vi/7t2alSnE2-I/hqdefault.jpg", src: "https://www.youtube.com/embed/7t2alSnE2-I" },
-            { title: "9. Authentication in FastAPI", duration: "22:50", thumbnail: "https://img.youtube.com/vi/7t2alSnE2-I/hqdefault.jpg", src: "https://www.youtube.com/embed/7t2alSnE2-I" },
-            { title: "10. Deploying FastAPI App", duration: "19:40", thumbnail: "https://img.youtube.com/vi/7t2alSnE2-I/hqdefault.jpg", src: "https://www.youtube.com/embed/7t2alSnE2-I" }
+            { title: "1. FastAPI Introduction in Tamil", duration: "08:45", thumbnail: "https://img.youtube.com/vi/tLKKmouUams/hqdefault.jpg", src: "https://www.youtube.com/embed/tLKKmouUams" },
+            { title: "2. Setting up FastAPI", duration: "10:30", thumbnail: "https://img.youtube.com/vi/7t2alSnE2-I/hqdefault.jpg", src: "https://www.youtube.com/embed/7t2alSnE2-I" },
+            { title: "3. Path Parameters", duration: "12:15", thumbnail: "https://img.youtube.com/vi/tLKKmouUams/hqdefault.jpg", src: "https://www.youtube.com/embed/tLKKmouUams" },
+            { title: "4. Query Parameters", duration: "11:50", thumbnail: "https://img.youtube.com/vi/0sOvCWFmrtA/hqdefault.jpg", src: "https://www.youtube.com/embed/0sOvCWFmrtA" },
+            { title: "5. Request Body", duration: "14:20", thumbnail: "https://img.youtube.com/vi/7t2alSnE2-I/hqdefault.jpg", src: "https://www.youtube.com/embed/7t2alSnE2-I" },
+            { title: "6. Form Data and File Uploads", duration: "16:40", thumbnail: "https://img.youtube.com/vi/tLKKmouUams/hqdefault.jpg", src: "https://www.youtube.com/embed/tLKKmouUams" },
+            { title: "7. Handling Errors", duration: "13:10", thumbnail: "https://img.youtube.com/vi/0sOvCWFmrtA/hqdefault.jpg", src: "https://www.youtube.com/embed/0sOvCWFmrtA" },
+            { title: "8. Middleware in FastAPI", duration: "15:30", thumbnail: "https://img.youtube.com/vi/tLKKmouUams/hqdefault.jpg", src: "https://www.youtube.com/embed/tLKKmouUams" },
+            { title: "9. Authentication with JWT", duration: "20:15", thumbnail: "https://img.youtube.com/vi/7t2alSnE2-I/hqdefault.jpg", src: "https://www.youtube.com/embed/7t2alSnE2-I" },
+            { title: "10. Connecting to Database", duration: "22:50", thumbnail: "https://img.youtube.com/vi/0sOvCWFmrtA/hqdefault.jpg", src: "https://www.youtube.com/embed/0sOvCWFmrtA" }
         ];
 
         let currentIndex = 0;
@@ -352,6 +377,7 @@
             }
         }
 
+
         function goNext() {
             if (currentIndex < videos.length - 1) {
                 currentIndex++;
@@ -366,9 +392,65 @@
             }
         }
 
+        // --- NOTES FUNCTIONALITY ---
+        async function loadNotes() {
+            try {
+                const user = JSON.parse(localStorage.getItem("user"));
+                if (!user) return; // Silent return if no user
+
+                // Use the new simplified endpoint
+                const response = await fetch(`${API_BASE}/notes/${user.user_id}/${courseId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('notesTextarea').value = data.notes || "";
+                }
+            } catch (error) {
+                console.error('Error loading notes:', error);
+            }
+        }
+
+        async function saveNotes() {
+            const user = JSON.parse(localStorage.getItem("user"));
+            if (!user) {
+                alert("Please login to save notes");
+                return;
+            }
+
+            const noteContent = document.getElementById('notesTextarea').value;
+            const status = document.getElementById('save-status');
+            status.textContent = "Saving...";
+
+            try {
+                const response = await fetch(`${API_BASE}/notes/save`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        user_id: user.user_id,
+                        course_id: courseId,
+                        notes: noteContent
+                    })
+                });
+
+                if (response.ok) {
+                    status.textContent = "Saved!";
+                    setTimeout(() => status.textContent = "", 2000);
+                } else {
+                    status.textContent = "Failed";
+                    status.style.color = "red";
+                }
+            } catch (error) {
+                console.error('Error saving notes:', error);
+                status.textContent = "Error!";
+                status.style.color = "red";
+            }
+        }
+
         window.onload = () => {
             loadVideos();
             playVideo(0);
+            loadNotes(); // Load notes on page load
         };
     </script>
 </body>

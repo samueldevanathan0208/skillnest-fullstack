@@ -5,12 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PostgreSQL Course</title>
-    <script src="../js/api.js?v=4"></script>
-    <script>
-        if (!localStorage.getItem("token")) {
-            window.location.href = "../pages/login.html";
-        }
-    </script>
     <style>
         * {
             box-sizing: border-box;
@@ -95,7 +89,9 @@
             border-radius: 12px;
             padding: 20px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            height: fit-content;
+            height: 500px;
+            display: flex;
+            flex-direction: column;
         }
 
         .playlist-header {
@@ -105,11 +101,15 @@
             padding-bottom: 15px;
             border-bottom: 2px solid #e5e7eb;
             color: #111827;
+            flex-shrink: 0;
         }
 
         .video-list {
-            max-height: 600px;
+            flex: 1;
             overflow-y: auto;
+            /* Custom Scrollbar for better look */
+            scrollbar-width: thin;
+            scrollbar-color: #4900c1 #f3f4f6;
         }
 
         .video-item {
@@ -218,6 +218,14 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="../css/chatbot.css">
+    <script src="../js/api.js?v=4"></script>
+    <script src="../js/chatbot.js" defer></script>
+    <script>
+        if (!localStorage.getItem("token")) {
+            window.location.href = "../pages/login.html";
+        }
+    </script>
 </head>
 
 <body>
@@ -242,28 +250,45 @@
             </div>
         </div>
 
-        <div class="playlist-section">
-            <div class="playlist-header">Course Videos</div>
-            <div class="video-list" id="videoList"></div>
+        <div class="right-column" style="width: 350px; display: flex; flex-direction: column; gap: 20px;">
+            <div class="playlist-section" style="width: 100%;">
+                <div class="playlist-header">Course Videos</div>
+                <div class="video-list" id="videoList"></div>
+            </div>
+
+            <div class="notes-section"
+                style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <div class="notes-header"
+                    style="font-size: 18px; font-weight: 700; margin-bottom: 12px; color: #111827;">
+                    My Notes <span id="save-status"
+                        style="font-size: 12px; color: #6b7280; font-weight: normal;"></span>
+                </div>
+                <textarea id="notesTextarea"
+                    style="width: 100%; height: 150px; padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px; resize: none; margin-bottom: 12px; font-family: inherit;"
+                    placeholder="Write your notes for this specific course content..."></textarea>
+                <button onclick="saveNotes()"
+                    style="width: 100%; padding: 10px; background: #28a745; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Save
+                    Notes</button>
+            </div>
         </div>
     </div>
 
     <script>
         const videos = [
-            { title: "1. PostgreSQL Introduction in Tamil", duration: "14:00", thumbnail: "https://img.youtube.com/vi/zw4s3Ey8ayo/hqdefault.jpg", src: "https://www.youtube.com/embed/zw4s3Ey8ayo" },
-            { title: "2. SQL vs NoSQL Explained", duration: "12:15", thumbnail: "https://img.youtube.com/vi/zw4s3Ey8ayo/hqdefault.jpg", src: "https://www.youtube.com/embed/zw4s3Ey8ayo" },
-            { title: "3. Creating Databases & Tables", duration: "16:40", thumbnail: "https://img.youtube.com/vi/zw4s3Ey8ayo/hqdefault.jpg", src: "https://www.youtube.com/embed/zw4s3Ey8ayo" },
-            { title: "4. Inserting and Selecting Data", duration: "18:20", thumbnail: "https://img.youtube.com/vi/zw4s3Ey8ayo/hqdefault.jpg", src: "https://www.youtube.com/embed/zw4s3Ey8ayo" },
-            { title: "5. Filtering with WHERE Clause", duration: "11:50", thumbnail: "https://img.youtube.com/vi/zw4s3Ey8ayo/hqdefault.jpg", src: "https://www.youtube.com/embed/zw4s3Ey8ayo" },
-            { title: "6. Updating and Deleting Records", duration: "13:30", thumbnail: "https://img.youtube.com/vi/zw4s3Ey8ayo/hqdefault.jpg", src: "https://www.youtube.com/embed/zw4s3Ey8ayo" },
-            { title: "7. Using JOINs in PostgreSQL", duration: "25:00", thumbnail: "https://img.youtube.com/vi/zw4s3Ey8ayo/hqdefault.jpg", src: "https://www.youtube.com/embed/zw4s3Ey8ayo" },
-            { title: "8. Aggregate Functions (COUNT, SUM)", duration: "15:45", thumbnail: "https://img.youtube.com/vi/zw4s3Ey8ayo/hqdefault.jpg", src: "https://www.youtube.com/embed/zw4s3Ey8ayo" },
-            { title: "9. Indexing for Performance", duration: "20:10", thumbnail: "https://img.youtube.com/vi/zw4s3Ey8ayo/hqdefault.jpg", src: "https://www.youtube.com/embed/zw4s3Ey8ayo" },
-            { title: "10. Database Backup & Restore", duration: "22:00", thumbnail: "https://img.youtube.com/vi/zw4s3Ey8ayo/hqdefault.jpg", src: "https://www.youtube.com/embed/zw4s3Ey8ayo" }
+            { title: "1. PostgreSQL Introduction in Tamil", duration: "11:20", thumbnail: "https://img.youtube.com/vi/qw--VYLpxG4/hqdefault.jpg", src: "https://www.youtube.com/embed/qw--VYLpxG4" },
+            { title: "2. Installing PostgreSQL", duration: "13:45", thumbnail: "https://img.youtube.com/vi/36819q1F25Y/hqdefault.jpg", src: "https://www.youtube.com/embed/36819q1F25Y" },
+            { title: "3. Creating and Managing Databases", duration: "15:30", thumbnail: "https://img.youtube.com/vi/ZtV7WWtULKw/hqdefault.jpg", src: "https://www.youtube.com/embed/ZtV7WWtULKw" },
+            { title: "4. Basic SQL Queries", duration: "12:50", thumbnail: "https://img.youtube.com/vi/qw--VYLpxG4/hqdefault.jpg", src: "https://www.youtube.com/embed/qw--VYLpxG4" },
+            { title: "5. Filtering Data (WHERE)", duration: "14:15", thumbnail: "https://img.youtube.com/vi/36819q1F25Y/hqdefault.jpg", src: "https://www.youtube.com/embed/36819q1F25Y" },
+            { title: "6. Joins in PostgreSQL", duration: "18:40", thumbnail: "https://img.youtube.com/vi/ZtV7WWtULKw/hqdefault.jpg", src: "https://www.youtube.com/embed/ZtV7WWtULKw" },
+            { title: "7. Aggregation Functions", duration: "16:20", thumbnail: "https://img.youtube.com/vi/qw--VYLpxG4/hqdefault.jpg", src: "https://www.youtube.com/embed/qw--VYLpxG4" },
+            { title: "8. Group By and Having", duration: "15:00", thumbnail: "https://img.youtube.com/vi/36819q1F25Y/hqdefault.jpg", src: "https://www.youtube.com/embed/36819q1F25Y" },
+            { title: "9. Subqueries and CTEs", duration: "20:30", thumbnail: "https://img.youtube.com/vi/ZtV7WWtULKw/hqdefault.jpg", src: "https://www.youtube.com/embed/ZtV7WWtULKw" },
+            { title: "10. Indexing and Performance", duration: "25:00", thumbnail: "https://img.youtube.com/vi/qw--VYLpxG4/hqdefault.jpg", src: "https://www.youtube.com/embed/qw--VYLpxG4" }
         ];
 
         let currentIndex = 0;
-        const courseId = 'db';
+        const courseId = 'postgresql';
         let courseProgressData = [];
 
         async function fetchProgress() {
@@ -352,6 +377,7 @@
             }
         }
 
+
         function goNext() {
             if (currentIndex < videos.length - 1) {
                 currentIndex++;
@@ -366,9 +392,65 @@
             }
         }
 
+        // --- NOTES FUNCTIONALITY ---
+        async function loadNotes() {
+            try {
+                const user = JSON.parse(localStorage.getItem("user"));
+                if (!user) return; // Silent return if no user
+
+                // Use the new simplified endpoint
+                const response = await fetch(`${API_BASE}/notes/${user.user_id}/${courseId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('notesTextarea').value = data.notes || "";
+                }
+            } catch (error) {
+                console.error('Error loading notes:', error);
+            }
+        }
+
+        async function saveNotes() {
+            const user = JSON.parse(localStorage.getItem("user"));
+            if (!user) {
+                alert("Please login to save notes");
+                return;
+            }
+
+            const noteContent = document.getElementById('notesTextarea').value;
+            const status = document.getElementById('save-status');
+            status.textContent = "Saving...";
+
+            try {
+                const response = await fetch(`${API_BASE}/notes/save`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        user_id: user.user_id,
+                        course_id: courseId,
+                        notes: noteContent
+                    })
+                });
+
+                if (response.ok) {
+                    status.textContent = "Saved!";
+                    setTimeout(() => status.textContent = "", 2000);
+                } else {
+                    status.textContent = "Failed";
+                    status.style.color = "red";
+                }
+            } catch (error) {
+                console.error('Error saving notes:', error);
+                status.textContent = "Error!";
+                status.style.color = "red";
+            }
+        }
+
         window.onload = () => {
             loadVideos();
             playVideo(0);
+            loadNotes(); // Load notes on page load
         };
     </script>
 </body>
