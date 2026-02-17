@@ -26,8 +26,14 @@ from py_schemas.progress_schemas import (
 
 from auth import hash_password, verify_password, create_access_token, get_current_user
 
+# Import new routers
+from api import notes, chat
 
 app = FastAPI(title="SkillNest API")
+
+# Include Routers
+app.include_router(notes.router)
+app.include_router(chat.router)
 
 
 # --------------------------------------------------
