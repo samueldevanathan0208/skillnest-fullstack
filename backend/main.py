@@ -75,9 +75,9 @@ def root():
     return {"status": "SkillNest API is running"}
 
 
-@app.get("/health")
-def health():
-    return {"status": "ok", "service": "SkillNest API"}
+# @app.get("/health")
+# def health():
+#     return {"status": "ok", "service": "SkillNest API"}
 
 
 # --------------------------------------------------

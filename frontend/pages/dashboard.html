@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="../css/dashboard.css">
     <link rel="stylesheet" href="../css/modals.css">
     <script src="../js/api.js?v=4"></script>
+    <script src="../js/sidebar-handlers.js" defer></script>
     <script>
         console.log("Dashboard Session Check - Start");
         const token = localStorage.getItem("token");
@@ -15,13 +16,10 @@
             console.warn("Stopping script: No token found.");
             window.location.href = "login.html";
         }
-        // Force refresh v5
+   
         else {
             console.log("TOKEN FOUND. Length:", token.length);
         }
-    </script>
-    <script src="../js/sidebar-handlers.js" defer></script>
-    <script>
         document.addEventListener('DOMContentLoaded', async () => {
             try {
                 // Fetch fresh user data from /user/me (JWT derived)
