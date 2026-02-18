@@ -62,41 +62,52 @@ app.add_middleware(
 
 
 # --------------------------------------------------
-# GLOBAL ERROR HANDLER
-# --------------------------------------------------
-@app.exception_handler(Exception)
-async def global_exception_handler(request: Request, exc: Exception):
-    return JSONResponse(
-        status_code=500,
-        content={
-            "status": "error",
-            "message": str(exc),
-            "type": type(exc).__name__
-        },
-        headers={"Access-Control-Allow-Origin": "*"}
-    )
-
-
-@app.exception_handler(HTTPException)
-async def http_exception_handler(request: Request, exc: HTTPException):
-    return JSONResponse(
-        status_code=exc.status_code,
-        content={"detail": exc.detail},
-        headers={"Access-Control-Allow-Origin": "*"}
-    )
-
-
-# --------------------------------------------------
-# HEALTH CHECK
+# HEALTH CHECK & DIAGNOSTICS
 # --------------------------------------------------
 @app.get("/")
 def root():
     return {"status": "SkillNest API is running"}
 
+@app.get("/health")
+def health(db: Session = Depends(get_db)):
+    try:
+        # Test DB connection
+        db.execute("SELECT 1")
+        return {
+            "status": "healthy",
+            "database": "connected",
+            "server_time": datetime.datetime.now().isoformat()
+        }
+    except Exception as e:
+        print(f"CRITICAL: Health check failed: {str(e)}")
+        return JSONResponse(
+            status_code=503,
+            content={
+                "status": "unhealthy",
+                "database": "disconnected",
+                "error": str(e)
+            }
+        )
 
-# @app.get("/health")
-# def health():
-#     return {"status": "ok", "service": "SkillNest API"}
+# --------------------------------------------------
+# GLOBAL ERROR HANDLER (Enhanced Logging)
+# --------------------------------------------------
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    import traceback
+    error_details = traceback.format_exc()
+    print(f"SERVER ERROR: {error_details}") # Logged to Vercel/Terminal
+    
+    return JSONResponse(
+        status_code=500,
+        content={
+            "status": "error",
+            "message": str(exc),
+            "type": type(exc).__name__,
+            "path": request.url.path
+        },
+        headers={"Access-Control-Allow-Origin": "*"}
+    )
 
 
 # --------------------------------------------------
