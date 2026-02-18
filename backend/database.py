@@ -9,20 +9,19 @@ load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-if DATABASE_URL:
-    import re
-    # Mask password for safety in logs
-    masked_url = re.sub(r':([^@]+)@', ':****@', DATABASE_URL)
-    print(f"[DB] Attempting connection to: {masked_url}")
+# Handle SSL and protocol prefix for SQLAlchemy 2.0 + Supabase
+if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
-if not DATABASE_URL:
-    raise RuntimeError("DATABASE_URL not set")
+if DATABASE_URL and "sslmode" not in DATABASE_URL:
+    separator = "&" if "?" in DATABASE_URL else "?"
+    DATABASE_URL += f"{separator}sslmode=require"
 
 engine = create_engine(
     DATABASE_URL,
-    pool_pre_ping=True,
-    pool_size=1,        # CRITICAL for serverless
-    max_overflow=0,     # CRITICAL for serverless
+    pool_pre_ping=True, # Verify connection health before use
+    pool_size=1,        # Minimal pooling for serverless (avoids connection exhaustion)
+    max_overflow=0,     # No extra connections beyond pool_size
 )
 
 SessionLocal = sessionmaker(

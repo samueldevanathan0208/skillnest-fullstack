@@ -12,6 +12,7 @@ load_dotenv(env_path)
 from fastapi import FastAPI, Depends, HTTPException, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 import datetime
 
@@ -71,8 +72,8 @@ def root():
 @app.get("/health")
 def health(db: Session = Depends(get_db)):
     try:
-        # Test DB connection
-        db.execute("SELECT 1")
+        # Test DB connection using SQLAlchemy 2.0 text()
+        db.execute(text("SELECT 1"))
         return {
             "status": "healthy",
             "database": "connected",
