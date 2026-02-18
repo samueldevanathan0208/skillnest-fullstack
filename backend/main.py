@@ -54,7 +54,7 @@ app.include_router(problem_solving.router)
 # --------------------------------------------------
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*", "null"],
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],

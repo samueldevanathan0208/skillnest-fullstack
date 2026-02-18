@@ -4,7 +4,7 @@ sqlalchemy
 psycopg2-binary
 python-dotenv
 pydantic
-passlib[bcrypt]
+requests
 python-jose[cryptography]
+passlib[bcrypt]
 python-multipart
-openai
