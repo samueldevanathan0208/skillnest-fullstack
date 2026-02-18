@@ -95,6 +95,72 @@
             gap: 1rem;
         }
 
+        .code-section {
+            display: flex;
+            gap: 1.5rem;
+            align-items: stretch;
+            min-height: 500px;
+        }
+
+        .editor-wrapper {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .test-case-panel {
+            flex: 1;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #e2e8f0;
+        }
+
+        .test-case-panel h3 {
+            margin: 0 0 1.5rem 0;
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .test-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        .test-table th {
+            text-align: left;
+            padding: 0.75rem;
+            background: #f1f5f9;
+            color: #475569;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .test-table td {
+            padding: 1rem 0.75rem;
+            border-bottom: 1px solid #f1f5f9;
+            color: #1e293b;
+            font-family: 'Consolas', monospace;
+        }
+
+        .test-table tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .test-table tr:nth-child(even) {
+            background-color: #fbfcfe;
+        }
+
         textarea#code-editor {
             width: 100%;
             height: 500px;
@@ -196,10 +262,27 @@
                 </div>
             </div>
         </div>
-        <div class="code-panel">
-            <textarea id="code-editor" spellcheck="false"></textarea>
-            <button onclick="submitCode()" id="submit-btn" class="submit-btn">Run & Submit</button>
-            <div id="result-display"></div>
+        <div class="code-section">
+            <div class="editor-wrapper">
+                <textarea id="code-editor" spellcheck="false"></textarea>
+                <button onclick="submitCode()" id="submit-btn" class="submit-btn">Run & Submit</button>
+                <div id="result-display"></div>
+            </div>
+
+            <div class="test-case-panel">
+                <h3><span>🔍</span> Test Cases</h3>
+                <table class="test-table">
+                    <thead>
+                        <tr>
+                            <th>Test</th>
+                            <th>Result</th>
+                        </tr>
+                    </thead>
+                    <tbody id="test-case-body">
+                        <!-- Dynamic content -->
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -228,6 +311,21 @@
 
                     const starterData = JSON.parse(currentProblem.starter_code);
                     document.getElementById('code-editor').value = starterData[langId] || "";
+
+                    // Populate Test Case Table
+                    const tbody = document.getElementById('test-case-body');
+                    const cases = currentProblem.test_cases || [];
+
+                    if (cases.length > 0) {
+                        tbody.innerHTML = cases.map(c => `
+                            <tr>
+                                <td>solve(${Array.isArray(c.input) ? c.input.join(', ') : JSON.stringify(c.input)})</td>
+                                <td>${JSON.stringify(c.expected)}</td>
+                            </tr>
+                        `).join('');
+                    } else {
+                        tbody.innerHTML = '<tr><td colspan="2" style="text-align:center; color:#94a3b8;">No test cases defined</td></tr>';
+                    }
                 }
             } catch (error) {
                 console.error("Error loading problem:", error);

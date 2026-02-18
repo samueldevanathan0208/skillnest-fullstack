@@ -43,31 +43,52 @@ PROBLEMS_DATA = [
 # --------------------------------------------------
 # TEST CASES
 # --------------------------------------------------
+# --------------------------------------------------
+# COMPREHENSIVE TEST CASES (All 21 Problems)
+# --------------------------------------------------
 TEST_CASES = {
-    "python1": {
-        "function_name": "solve",
-        "cases": [
-            {"input": (2, 3), "expected": 5},
-            {"input": (10, 5), "expected": 15},
-            {"input": (-1, 1), "expected": 0}
-        ]
-    },
-    "python2": {
-        "function_name": "solve",
-        "cases": [
-            {"input": (2,), "expected": True},
-            {"input": (5,), "expected": False},
-            {"input": (10,), "expected": True}
-        ]
-    },
-    "python3": {
-        "function_name": "solve",
-        "cases": [
-            {"input": (2, 3), "expected": 3},
-            {"input": (10, 5), "expected": 10},
-            {"input": (-1, 10), "expected": 10}
-        ]
-    }
+    # 1. Add Two Numbers
+    "1": {"cases": [{"input": (5, 3), "expected": 8}, {"input": (10, 2), "expected": 12}, {"input": (0, 0), "expected": 0}]},
+    # 2. Check Even or Odd
+    "2": {"cases": [{"input": (4,), "expected": True}, {"input": (7,), "expected": False}, {"input": (0,), "expected": True}]},
+    # 3. Find Maximum
+    "3": {"cases": [{"input": (10, 20), "expected": 20}, {"input": (5, 2), "expected": 5}, {"input": (-1, -5), "expected": -1}]},
+    # 4. Reverse String
+    "4": {"cases": [{"input": ("hello",), "expected": "olleh"}, {"input": ("world",), "expected": "dlrow"}, {"input": ("a",), "expected": "a"}]},
+    # 5. Count Vowels
+    "5": {"cases": [{"input": ("coding",), "expected": 2}, {"input": ("sky",), "expected": 0}, {"input": ("aeiou",), "expected": 5}]},
+    # 6. Factorial
+    "6": {"cases": [{"input": (5,), "expected": 120}, {"input": (0,), "expected": 1}, {"input": (3,), "expected": 6}]},
+    # 7. Palindrome
+    "7": {"cases": [{"input": ("racecar",), "expected": True}, {"input": ("hello",), "expected": False}, {"input": ("madam",), "expected": True}]},
+    # 8. Sum of List
+    "8": {"cases": [{"input": ([1, 2, 3, 4],), "expected": 10}, {"input": ([],), "expected": 0}, {"input": ([5],), "expected": 5}]},
+    # 9. Largest Element
+    "9": {"cases": [{"input": ([5, 8, 2, 10],), "expected": 10}, {"input": ([1],), "expected": 1}, {"input": ([-1, -5, -2],), "expected": -1}]},
+    # 10. Count Words
+    "10": {"cases": [{"input": ("Sky is blue",), "expected": 3}, {"input": ("Hello",), "expected": 1}, {"input": ("",), "expected": 0}]},
+    # 11. String Length
+    "11": {"cases": [{"input": ("nest",), "expected": 4}, {"input": ("",), "expected": 0}, {"input": ("a b",), "expected": 3}]},
+    # 12. Prime Number
+    "12": {"cases": [{"input": (7,), "expected": True}, {"input": (4,), "expected": False}, {"input": (1,), "expected": False}]},
+    # 13. Fibonacci
+    "13": {"cases": [{"input": (6,), "expected": 8}, {"input": (1,), "expected": 1}, {"input": (0,), "expected": 0}]},
+    # 14. Count Evens
+    "14": {"cases": [{"input": ([1, 2, 3, 4, 5, 6],), "expected": 3}, {"input": ([1, 3, 5],), "expected": 0}, {"input": ([2, 4, 6],), "expected": 3}]},
+    # 15. To Uppercase
+    "15": {"cases": [{"input": ("react",), "expected": "REACT"}, {"input": ("Hello",), "expected": "HELLO"}, {"input": ("",), "expected": ""}]},
+    # 16. Find Minimum
+    "16": {"cases": [{"input": ([10, 20, 5, 40],), "expected": 5}, {"input": ([1],), "expected": 1}, {"input": ([-1, -5],), "expected": -5}]},
+    # 17. Remove Duplicates
+    "17": {"cases": [{"input": ([1, 2, 2, 3, 4, 4],), "expected": [1, 2, 3, 4]}, {"input": ([1, 1, 1],), "expected": [1]}, {"input": ([],), "expected": []}]},
+    # 18. Second Largest
+    "18": {"cases": [{"input": ([10, 20, 5, 40],), "expected": 20}, {"input": ([1, 2],), "expected": 1}, {"input": ([5, 5, 5],), "expected": None}]},
+    # 19. Reverse List
+    "19": {"cases": [{"input": ([1, 2, 3],), "expected": [3, 2, 1]}, {"input": ([5],), "expected": [5]}, {"input": ([],), "expected": []}]},
+    # 20. Anagram Check
+    "20": {"cases": [{"input": ("listen", "silent"), "expected": True}, {"input": ("hello", "world"), "expected": False}, {"input": ("abc", "cba"), "expected": True}]},
+    # 21. Leap Year
+    "21": {"cases": [{"input": (2024,), "expected": True}, {"input": (2023,), "expected": False}, {"input": (2000,), "expected": True}]},
 }
 
 # --------------------------------------------------
@@ -76,13 +97,18 @@ TEST_CASES = {
 import concurrent.futures
 
 def run_python_test(code: str, problem_id: str):
-    spec = TEST_CASES.get(problem_id)
+    # problem_id comes as 'python1', 'python2' etc. Extract numeric part.
+    numeric_id = "".join(filter(str.isdigit, problem_id)) 
+    spec = TEST_CASES.get(numeric_id)
+    
     if not spec:
         return {"passed": False, "error": f"Test cases not defined for {problem_id}"}
 
+    function_name = "solve"
+    
     # 1. Fast check for basic function definition
-    if f"def {spec['function_name']}" not in code:
-        return {"passed": False, "error": f"Function '{spec['function_name']}' not found in your code."}
+    if f"def {function_name}" not in code:
+        return {"passed": False, "error": f"Function '{function_name}' not found in your code."}
 
     # Restricted execution environment
     safe_globals = {
@@ -111,10 +137,10 @@ def run_python_test(code: str, problem_id: str):
         try:
             # Execute code
             exec(code, safe_globals)
-            func = safe_globals.get(spec['function_name'])
+            func = safe_globals.get(function_name)
             
             if not func or not callable(func):
-                return {"passed": False, "error": f"Function '{spec['function_name']}' is not defined correctly."}
+                return {"passed": False, "error": f"Function '{function_name}' is not defined correctly."}
 
             # Run test cases
             for i, case in enumerate(spec['cases']):
@@ -167,6 +193,7 @@ def generate_problems(lang):
             "description": p["desc"],
             "input": p.get("input", "N/A"),
             "output": p.get("output", "N/A"),
+            "test_cases": TEST_CASES.get(p["id"], {}).get("cases", []),
             "starter_code": "{\"" + lang + "\": " + "\"" + starter.replace("\n", "\\n").replace('"', '\\"') + "\"}"
         })
     return problems
