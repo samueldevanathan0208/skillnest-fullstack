@@ -10,8 +10,8 @@ import datetime
 
 router = APIRouter(prefix="/problem-solving", tags=["Problem Solving"])
 
-import signal
-from contextlib import contextmanager
+import multiprocessing
+import queue
 
 # --------------------------------------------------
 # 21 Problems Data
@@ -71,26 +71,18 @@ TEST_CASES = {
 }
 
 # --------------------------------------------------
-# SAFETY & TIMEOUT
+# SAFETY & TIMEOUT (using multiprocessing)
 # --------------------------------------------------
-@contextmanager
-def timeout(seconds):
-    def signal_handler(signum, frame):
-        raise TimeoutError("Execution timed out")
-    
-    # Register the signal function handler
-    signal.signal(signal.SIGALRM, signal_handler)
-    signal.alarm(seconds)
-    try:
-        yield
-    finally:
-        # Disable the alarm
-        signal.alarm(0)
+import concurrent.futures
 
 def run_python_test(code: str, problem_id: str):
     spec = TEST_CASES.get(problem_id)
     if not spec:
         return {"passed": False, "error": f"Test cases not defined for {problem_id}"}
+
+    # 1. Fast check for basic function definition
+    if f"def {spec['function_name']}" not in code:
+        return {"passed": False, "error": f"Function '{spec['function_name']}' not found in your code."}
 
     # Restricted execution environment
     safe_globals = {
@@ -115,38 +107,37 @@ def run_python_test(code: str, problem_id: str):
         }
     }
 
-    try:
-        # 1. Check for basic function definition
-        if f"def {spec['function_name']}" not in code:
-            return {"passed": False, "error": f"Function '{spec['function_name']}' not found in your code."}
-
-        # 2. Execute code with timeout
-        with timeout(2): # 2 second limit
+    def _execute():
+        try:
+            # Execute code
             exec(code, safe_globals)
-        
-        func = safe_globals.get(spec['function_name'])
-        if not func or not callable(func):
-             return {"passed": False, "error": f"Function '{spec['function_name']}' is not defined correctly."}
+            func = safe_globals.get(spec['function_name'])
+            
+            if not func or not callable(func):
+                return {"passed": False, "error": f"Function '{spec['function_name']}' is not defined correctly."}
 
-        # 3. Run test cases
-        results = []
-        for i, case in enumerate(spec['cases']):
-            actual = func(*case['input'])
-            if actual == case['expected']:
-                results.append({"case": i+1, "status": "Passed"})
-            else:
-                return {
-                    "passed": False,
-                    "error": f"Test case {i+1} failed",
-                    "details": f"Input: {case['input']}, Expected: {case['expected']}, Got: {actual}"
-                }
-        
-        return {"passed": True, "results": results}
+            # Run test cases
+            for i, case in enumerate(spec['cases']):
+                actual = func(*case['input'])
+                if actual != case['expected']:
+                    return {
+                        "passed": False,
+                        "error": f"Test case {i+1} failed",
+                        "details": f"Input: {case['input']}, Expected: {case['expected']}, Got: {actual}"
+                    }
+            return {"passed": True}
+        except Exception as e:
+            return {"passed": False, "error": f"Runtime Error: {str(e)}"}
 
-    except TimeoutError:
-        return {"passed": False, "error": "Code took too long to execute (Infinite loop?)"}
-    except Exception as e:
-        return {"passed": False, "error": f"Runtime Error: {str(e)}"}
+    # 2. Use ThreadPoolExecutor for timeout (Vercel-friendly)
+    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+        future = executor.submit(_execute)
+        try:
+            return future.result(timeout=2) # 2 second limit
+        except concurrent.futures.TimeoutError:
+            return {"passed": False, "error": "Code took too long to execute (Timeout)"}
+        except Exception as e:
+            return {"passed": False, "error": f"Internal Error: {str(e)}"}
 
 # --------------------------------------------------
 # GENERATE PROBLEMS
