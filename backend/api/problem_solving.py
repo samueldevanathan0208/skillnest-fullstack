@@ -17,27 +17,27 @@ import queue
 # 21 Problems Data
 # --------------------------------------------------
 PROBLEMS_DATA = [
-    {"id": "1", "title": "Add Two Numbers", "desc": "Write a function `solve(a, b)` to return the sum of two numbers.", "diff": "Easy", "args": "a, b", "j_args": "int a, int b", "j_ret": "int", "fname": "solve"},
-    {"id": "2", "title": "Check Even or Odd", "desc": "Check if a number `solve(n)` is even or odd.", "diff": "Easy", "args": "n", "j_args": "int n", "j_ret": "boolean", "fname": "solve"},
-    {"id": "3", "title": "Find Maximum", "desc": "Find the maximum of two numbers `solve(a, b)`.", "diff": "Easy", "args": "a, b", "j_args": "int a, int b", "j_ret": "int", "fname": "solve"},
-    {"id": "4", "title": "Reverse String", "desc": "Reverse the given string.", "diff": "Easy", "args": "s", "j_args": "String s", "j_ret": "String"},
-    {"id": "5", "title": "Count Vowels", "desc": "Count the number of vowels in a string.", "diff": "Easy", "args": "s", "j_args": "String s", "j_ret": "int"},
-    {"id": "6", "title": "Factorial", "desc": "Find the factorial of a number.", "diff": "Medium", "args": "n", "j_args": "int n", "j_ret": "int"},
-    {"id": "7", "title": "Palindrome", "desc": "Check if a string is a palindrome.", "diff": "Easy", "args": "s", "j_args": "String s", "j_ret": "boolean"},
-    {"id": "8", "title": "Sum of List", "desc": "Calculate the sum of all elements in a list/array.", "diff": "Easy", "args": "nums", "j_args": "int[] nums", "j_ret": "int"},
-    {"id": "9", "title": "Largest Element", "desc": "Find the largest element in a list/array.", "diff": "Easy", "args": "nums", "j_args": "int[] nums", "j_ret": "int"},
-    {"id": "10", "title": "Count Words", "desc": "Count the number of words in a sentence.", "diff": "Easy", "args": "s", "j_args": "String s", "j_ret": "int"},
-    {"id": "11", "title": "String Length", "desc": "Find length of string without using built-in length function.", "diff": "Medium", "args": "s", "j_args": "String s", "j_ret": "int"},
-    {"id": "12", "title": "Prime Number", "desc": "Check if a number is prime.", "diff": "Medium", "args": "n", "j_args": "int n", "j_ret": "boolean"},
-    {"id": "13", "title": "Fibonacci", "desc": "Find the Nth Fibonacci number.", "diff": "Medium", "args": "n", "j_args": "int n", "j_ret": "int"},
-    {"id": "14", "title": "Count Evens", "desc": "Count even numbers in a list.", "diff": "Easy", "args": "nums", "j_args": "int[] nums", "j_ret": "int"},
-    {"id": "15", "title": "To Uppercase", "desc": "Convert string to uppercase.", "diff": "Medium", "args": "s", "j_args": "String s", "j_ret": "String"},
-    {"id": "16", "title": "Find Minimum", "desc": "Find the minimum number in a list.", "diff": "Easy", "args": "nums", "j_args": "int[] nums", "j_ret": "int"},
-    {"id": "17", "title": "Remove Duplicates", "desc": "Remove duplicates from a list.", "diff": "Medium", "args": "nums", "j_args": "int[] nums", "j_ret": "int[]"},
-    {"id": "18", "title": "Second Largest", "desc": "Find the second largest number in a list.", "diff": "Medium", "args": "nums", "j_args": "int[] nums", "j_ret": "int"},
-    {"id": "19", "title": "Reverse List", "desc": "Reverse a list/array.", "diff": "Easy", "args": "nums", "j_args": "int[] nums", "j_ret": "int[]"},
-    {"id": "20", "title": "Anagram Check", "desc": "Check if two strings are anagrams.", "diff": "Medium", "args": "s1, s2", "j_args": "String s1, String s2", "j_ret": "boolean"},
-    {"id": "21", "title": "Leap Year", "desc": "Check if a year is a leap year.", "diff": "Easy", "args": "year", "j_args": "int year", "j_ret": "boolean"},
+    {"id": "1", "title": "Add Two Numbers", "desc": "Write a function `solve(a, b)` to return the sum of two numbers.", "diff": "Easy", "args": "a, b", "j_args": "int a, int b", "j_ret": "int", "fname": "solve", "input": "a=5, b=3", "output": "8"},
+    {"id": "2", "title": "Check Even or Odd", "desc": "Check if a number `solve(n)` is even or odd.", "diff": "Easy", "args": "n", "j_args": "int n", "j_ret": "boolean", "fname": "solve", "input": "n=4", "output": "True (\"Even\")"},
+    {"id": "3", "title": "Find Maximum", "desc": "Find the maximum of two numbers `solve(a, b)`.", "diff": "Easy", "args": "a, b", "j_args": "int a, int b", "j_ret": "int", "fname": "solve", "input": "a=10, b=20", "output": "20"},
+    {"id": "4", "title": "Reverse String", "desc": "Reverse the given string.", "diff": "Easy", "args": "s", "j_args": "String s", "j_ret": "String", "input": "\"hello\"", "output": "\"olleh\""},
+    {"id": "5", "title": "Count Vowels", "desc": "Count the number of vowels in a string.", "diff": "Easy", "args": "s", "j_args": "String s", "j_ret": "int", "input": "\"coding\"", "output": "2"},
+    {"id": "6", "title": "Factorial", "desc": "Find the factorial of a number.", "diff": "Medium", "args": "n", "j_args": "int n", "j_ret": "int", "input": "n=5", "output": "120"},
+    {"id": "7", "title": "Palindrome", "desc": "Check if a string is a palindrome.", "diff": "Easy", "args": "s", "j_args": "String s", "j_ret": "boolean", "input": "\"racecar\"", "output": "True"},
+    {"id": "8", "title": "Sum of List", "desc": "Calculate the sum of all elements in a list/array.", "diff": "Easy", "args": "nums", "j_args": "int[] nums", "j_ret": "int", "input": "[1, 2, 3, 4]", "output": "10"},
+    {"id": "9", "title": "Largest Element", "desc": "Find the largest element in a list/array.", "diff": "Easy", "args": "nums", "j_args": "int[] nums", "j_ret": "int", "input": "[5, 8, 2, 10]", "output": "10"},
+    {"id": "10", "title": "Count Words", "desc": "Count the number of words in a sentence.", "diff": "Easy", "args": "s", "j_args": "String s", "j_ret": "int", "input": "\"Sky is blue\"", "output": "3"},
+    {"id": "11", "title": "String Length", "desc": "Find length of string without using built-in length function.", "diff": "Medium", "args": "s", "j_args": "String s", "j_ret": "int", "input": "\"nest\"", "output": "4"},
+    {"id": "12", "title": "Prime Number", "desc": "Check if a number is prime.", "diff": "Medium", "args": "n", "j_args": "int n", "j_ret": "boolean", "input": "n=7", "output": "True"},
+    {"id": "13", "title": "Fibonacci", "desc": "Find the Nth Fibonacci number.", "diff": "Medium", "args": "n", "j_args": "int n", "j_ret": "int", "input": "n=6", "output": "8"},
+    {"id": "14", "title": "Count Evens", "desc": "Count even numbers in a list.", "diff": "Easy", "args": "nums", "j_args": "int[] nums", "j_ret": "int", "input": "[1, 2, 3, 4, 5, 6]", "output": "3"},
+    {"id": "15", "title": "To Uppercase", "desc": "Convert string to uppercase.", "diff": "Medium", "args": "s", "j_args": "String s", "j_ret": "String", "input": "\"react\"", "output": "\"REACT\""},
+    {"id": "16", "title": "Find Minimum", "desc": "Find the minimum number in a list.", "diff": "Easy", "args": "nums", "j_args": "int[] nums", "j_ret": "int", "input": "[10, 20, 5, 40]", "output": "5"},
+    {"id": "17", "title": "Remove Duplicates", "desc": "Remove duplicates from a list.", "diff": "Medium", "args": "nums", "j_args": "int[] nums", "j_ret": "int[]", "input": "[1, 2, 2, 3, 4, 4]", "output": "[1, 2, 3, 4]"},
+    {"id": "18", "title": "Second Largest", "desc": "Find the second largest number in a list.", "diff": "Medium", "args": "nums", "j_args": "int[] nums", "j_ret": "int", "input": "[10, 20, 5, 40]", "output": "20"},
+    {"id": "19", "title": "Reverse List", "desc": "Reverse a list/array.", "diff": "Easy", "args": "nums", "j_args": "int[] nums", "j_ret": "int[]", "input": "[1, 2, 3]", "output": "[3, 2, 1]"},
+    {"id": "20", "title": "Anagram Check", "desc": "Check if two strings are anagrams.", "diff": "Medium", "args": "s1, s2", "j_args": "String s1, String s2", "j_ret": "boolean", "input": "\"listen\", \"silent\"", "output": "True"},
+    {"id": "21", "title": "Leap Year", "desc": "Check if a year is a leap year.", "diff": "Easy", "args": "year", "j_args": "int year", "j_ret": "boolean", "input": "year=2024", "output": "True"},
 ]
 
 # --------------------------------------------------
@@ -165,6 +165,8 @@ def generate_problems(lang):
             "title": p["title"],
             "difficulty": p["diff"],
             "description": p["desc"],
+            "input": p.get("input", "N/A"),
+            "output": p.get("output", "N/A"),
             "starter_code": "{\"" + lang + "\": " + "\"" + starter.replace("\n", "\\n").replace('"', '\\"') + "\"}"
         })
     return problems

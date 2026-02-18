@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SkillNest | Code Editor</title>
     <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="../css/modals.css">
     <script src="../js/api.js?v=4"></script>
     <script>
         if (!localStorage.getItem("token")) {
@@ -33,6 +34,59 @@
             padding: 2rem;
             border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 2rem;
+        }
+
+        .info-content {
+            flex: 1;
+        }
+
+        .example-box {
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border-left: 5px solid var(--primary-color);
+            min-width: 300px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .example-box h4 {
+            margin: 0 0 1rem 0;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .example-item {
+            margin-bottom: 0.8rem;
+            font-size: 0.95rem;
+        }
+
+        .example-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .example-item strong {
+            color: #475569;
+            display: block;
+            margin-bottom: 0.2rem;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .example-item code {
+            background: #e2e8f0;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-family: 'Consolas', monospace;
+            display: block;
+            color: #1e293b;
         }
 
         .code-panel {
@@ -123,11 +177,24 @@
 <body>
     <div class="editor-container">
         <div class="problem-info">
-            <a href="javascript:history.back()"
-                style="color: var(--primary-color); text-decoration: none; font-weight: 600; margin-bottom: 1rem; display: block;">←
-                Back</a>
-            <h1 id="p-title">Loading...</h1>
-            <div id="p-description" style="margin-top: 1rem; line-height: 1.6;"></div>
+            <div class="info-content">
+                <a href="javascript:history.back()"
+                    style="color: var(--primary-color); text-decoration: none; font-weight: 600; margin-bottom: 1rem; display: block;">←
+                    Back</a>
+                <h1 id="p-title">Loading...</h1>
+                <div id="p-description" style="margin-top: 1rem; line-height: 1.6;"></div>
+            </div>
+            <div class="example-box">
+                <h4><span>💡</span> Example</h4>
+                <div class="example-item">
+                    <strong>Input</strong>
+                    <code id="p-input">...</code>
+                </div>
+                <div class="example-item">
+                    <strong>Expected Output</strong>
+                    <code id="p-output">...</code>
+                </div>
+            </div>
         </div>
         <div class="code-panel">
             <textarea id="code-editor" spellcheck="false"></textarea>
@@ -156,6 +223,8 @@
                 if (currentProblem) {
                     document.getElementById('p-title').innerText = currentProblem.title;
                     document.getElementById('p-description').innerHTML = currentProblem.description;
+                    document.getElementById('p-input').innerText = currentProblem.input || "N/A";
+                    document.getElementById('p-output').innerText = currentProblem.output || "N/A";
 
                     const starterData = JSON.parse(currentProblem.starter_code);
                     document.getElementById('code-editor').value = starterData[langId] || "";
