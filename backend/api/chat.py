@@ -4,6 +4,11 @@ import os
 import requests
 import json
 
+router = APIRouter()
+
+class ChatRequest(BaseModel):
+    message: str
+
 SYSTEM_PROMPT = """
 You are SkillNest AI Tutor.
 
