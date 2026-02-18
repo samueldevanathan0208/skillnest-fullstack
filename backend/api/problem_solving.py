@@ -10,11 +10,16 @@ import datetime
 
 router = APIRouter(prefix="/problem-solving", tags=["Problem Solving"])
 
+import signal
+from contextlib import contextmanager
+
+# --------------------------------------------------
 # 21 Problems Data
+# --------------------------------------------------
 PROBLEMS_DATA = [
-    {"id": "1", "title": "Add Two Numbers", "desc": "Write a function to return the sum of two numbers.", "diff": "Easy", "args": "a, b", "j_args": "int a, int b", "j_ret": "int"},
-    {"id": "2", "title": "Check Even or Odd", "desc": "Check if a number is even or odd.", "diff": "Easy", "args": "n", "j_args": "int n", "j_ret": "boolean"},
-    {"id": "3", "title": "Find Maximum", "desc": "Find the maximum of two numbers.", "diff": "Easy", "args": "a, b", "j_args": "int a, int b", "j_ret": "int"},
+    {"id": "1", "title": "Add Two Numbers", "desc": "Write a function `solve(a, b)` to return the sum of two numbers.", "diff": "Easy", "args": "a, b", "j_args": "int a, int b", "j_ret": "int", "fname": "solve"},
+    {"id": "2", "title": "Check Even or Odd", "desc": "Check if a number `solve(n)` is even or odd.", "diff": "Easy", "args": "n", "j_args": "int n", "j_ret": "boolean", "fname": "solve"},
+    {"id": "3", "title": "Find Maximum", "desc": "Find the maximum of two numbers `solve(a, b)`.", "diff": "Easy", "args": "a, b", "j_args": "int a, int b", "j_ret": "int", "fname": "solve"},
     {"id": "4", "title": "Reverse String", "desc": "Reverse the given string.", "diff": "Easy", "args": "s", "j_args": "String s", "j_ret": "String"},
     {"id": "5", "title": "Count Vowels", "desc": "Count the number of vowels in a string.", "diff": "Easy", "args": "s", "j_args": "String s", "j_ret": "int"},
     {"id": "6", "title": "Factorial", "desc": "Find the factorial of a number.", "diff": "Medium", "args": "n", "j_args": "int n", "j_ret": "int"},
@@ -35,6 +40,117 @@ PROBLEMS_DATA = [
     {"id": "21", "title": "Leap Year", "desc": "Check if a year is a leap year.", "diff": "Easy", "args": "year", "j_args": "int year", "j_ret": "boolean"},
 ]
 
+# --------------------------------------------------
+# TEST CASES
+# --------------------------------------------------
+TEST_CASES = {
+    "python1": {
+        "function_name": "solve",
+        "cases": [
+            {"input": (2, 3), "expected": 5},
+            {"input": (10, 5), "expected": 15},
+            {"input": (-1, 1), "expected": 0}
+        ]
+    },
+    "python2": {
+        "function_name": "solve",
+        "cases": [
+            {"input": (2,), "expected": True},
+            {"input": (5,), "expected": False},
+            {"input": (10,), "expected": True}
+        ]
+    },
+    "python3": {
+        "function_name": "solve",
+        "cases": [
+            {"input": (2, 3), "expected": 3},
+            {"input": (10, 5), "expected": 10},
+            {"input": (-1, 10), "expected": 10}
+        ]
+    }
+}
+
+# --------------------------------------------------
+# SAFETY & TIMEOUT
+# --------------------------------------------------
+@contextmanager
+def timeout(seconds):
+    def signal_handler(signum, frame):
+        raise TimeoutError("Execution timed out")
+    
+    # Register the signal function handler
+    signal.signal(signal.SIGALRM, signal_handler)
+    signal.alarm(seconds)
+    try:
+        yield
+    finally:
+        # Disable the alarm
+        signal.alarm(0)
+
+def run_python_test(code: str, problem_id: str):
+    spec = TEST_CASES.get(problem_id)
+    if not spec:
+        return {"passed": False, "error": f"Test cases not defined for {problem_id}"}
+
+    # Restricted execution environment
+    safe_globals = {
+        "__builtins__": {
+            "len": len,
+            "range": range,
+            "print": print,
+            "int": int,
+            "float": float,
+            "str": str,
+            "bool": bool,
+            "list": list,
+            "dict": dict,
+            "set": set,
+            "abs": abs,
+            "max": max,
+            "min": min,
+            "sum": sum,
+            "sorted": sorted,
+            "enumerate": enumerate,
+            "zip": zip,
+        }
+    }
+
+    try:
+        # 1. Check for basic function definition
+        if f"def {spec['function_name']}" not in code:
+            return {"passed": False, "error": f"Function '{spec['function_name']}' not found in your code."}
+
+        # 2. Execute code with timeout
+        with timeout(2): # 2 second limit
+            exec(code, safe_globals)
+        
+        func = safe_globals.get(spec['function_name'])
+        if not func or not callable(func):
+             return {"passed": False, "error": f"Function '{spec['function_name']}' is not defined correctly."}
+
+        # 3. Run test cases
+        results = []
+        for i, case in enumerate(spec['cases']):
+            actual = func(*case['input'])
+            if actual == case['expected']:
+                results.append({"case": i+1, "status": "Passed"})
+            else:
+                return {
+                    "passed": False,
+                    "error": f"Test case {i+1} failed",
+                    "details": f"Input: {case['input']}, Expected: {case['expected']}, Got: {actual}"
+                }
+        
+        return {"passed": True, "results": results}
+
+    except TimeoutError:
+        return {"passed": False, "error": "Code took too long to execute (Infinite loop?)"}
+    except Exception as e:
+        return {"passed": False, "error": f"Runtime Error: {str(e)}"}
+
+# --------------------------------------------------
+# GENERATE PROBLEMS
+# --------------------------------------------------
 def generate_problems(lang):
     problems = []
     for p in PROBLEMS_DATA:
@@ -74,6 +190,9 @@ class SubmitRequest(BaseModel):
     language: str
     code: str
 
+# --------------------------------------------------
+# API ENDPOINTS
+# --------------------------------------------------
 @router.get("/languages")
 def get_languages(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     user_id = current_user.user_id
@@ -118,21 +237,30 @@ def submit_solution(request: SubmitRequest, db: Session = Depends(get_db)):
     code = request.code.strip()
     
     if len(code) < 15:
-        return {"status": "Failed", "error": "Code is too short to be a valid solution."}
+        return {"status": "Failed", "error": "Code is too short."}
     
-    # Simple heuristic judge
-    # Checks if code has 'solve' function and some basic logic
-    has_solve = "def solve" in code or "public" in code or "function solve" in code
-    has_logic = any(op in code for op in ["+", "-", "*", "/", "%", "if", "for", "while", "return", "Solution"])
-    
-    if not (has_solve and has_logic):
-         return {"status": "Failed", "error": "Test case failed: Your code doesn't seem to implement the logic correctly."}
+    # 1. EVALUATE BASED ON LANGUAGE
+    if request.language == "python":
+        result = run_python_test(code, request.problem_id)
+        if not result["passed"]:
+            return {
+                "status": "Failed", 
+                "error": result["error"],
+                "details": result.get("details", "")
+            }
+        status = "Passed"
+    else:
+        # Mocked validation for other languages
+        has_solve = "public" in code or "function solve" in code
+        has_logic = any(op in code for op in ["+", "-", "*", "/", "%", "if", "for", "while", "return", "Solution"])
+        
+        if not (has_solve and has_logic):
+            return {"status": "Failed", "error": f"Mock Test Failed: {request.language} logic appears incorrect."}
+        
+        status = "Mocked (Pass)"
 
-    # All checks passed (in our mock world)
-    status = "Passed"
-    
-    if status == "Passed":
-        # Save progress
+    # 2. SAVE PROGRESS IF PASSED
+    if status in ["Passed", "Mocked (Pass)"]:
         existing = db.query(ProblemProgress).filter(
             ProblemProgress.user_id == request.user_id,
             ProblemProgress.problem_id == request.problem_id
