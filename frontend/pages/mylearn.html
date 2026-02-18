@@ -150,13 +150,16 @@
 
                                     const card = document.createElement('div');
                                     card.className = 'course-card';
+                                    const langKey = lang.id.toLowerCase();
+                                    const displayTitle = `Problem Solving: ${lang.name}`;
+
                                     card.innerHTML = `
-                                    <div class="course-header" style="background:var(--primary-color)">PS</div>
+                                    <div class="course-header ${langKey}">PS</div>
                                     <div class="course-content">
                                         <span class="course-status ${isCompleted ? 'status-completed' : 'status-progress'}">
                                             ${isCompleted ? 'Completed' : 'In Progress'}
                                         </span>
-                                        <h3 class="course-title">Problem Solving: ${lang.name}</h3>
+                                        <h3 class="course-title">${displayTitle}</h3>
                                         
                                         <div class="progress-section">
                                             <div class="progress-info">

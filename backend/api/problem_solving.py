@@ -115,13 +115,21 @@ def get_problems(lang_id: str, db: Session = Depends(get_db), current_user: User
 
 @router.post("/submit")
 def submit_solution(request: SubmitRequest, db: Session = Depends(get_db)):
-    # Mock Judgement
     code = request.code.strip()
-    if len(code) < 10:
-        return {"status": "Failed", "error": "Code too short"}
     
-    # Mock Success logic
-    status = "Passed" # Assume pass for now to allow user to complete flow
+    if len(code) < 15:
+        return {"status": "Failed", "error": "Code is too short to be a valid solution."}
+    
+    # Simple heuristic judge
+    # Checks if code has 'solve' function and some basic logic
+    has_solve = "def solve" in code or "public" in code or "function solve" in code
+    has_logic = any(op in code for op in ["+", "-", "*", "/", "%", "if", "for", "while", "return", "Solution"])
+    
+    if not (has_solve and has_logic):
+         return {"status": "Failed", "error": "Test case failed: Your code doesn't seem to implement the logic correctly."}
+
+    # All checks passed (in our mock world)
+    status = "Passed"
     
     if status == "Passed":
         # Save progress

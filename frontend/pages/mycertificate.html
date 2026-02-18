@@ -130,10 +130,10 @@
                         if (lang.solved === 21) {
                             unlocked.push({
                                 key: `ps-${lang.id}`,
-                                title: `Problem Solving in ${lang.name}`,
+                                title: `Problem Solving: ${lang.name}`,
                                 type: "Skill Verification",
                                 score: 100,
-                                styleClass: 'python' // Reuse existing style or add new one
+                                styleClass: lang.id.toLowerCase()
                             });
                         }
                     });

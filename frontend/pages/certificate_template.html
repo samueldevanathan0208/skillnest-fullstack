@@ -512,10 +512,11 @@
                 <p class="description-text">
                     For successfully completing the comprehensive training program with
                     <strong><span id="percentageText">0</span>% score</strong> and demonstrating
-                    exceptional dedication, skill development, and outstanding performance in the course.
+                    exceptional dedication, skill development, and outstanding performance in <span
+                        id="courseContext">the course</span>.
                 </p>
 
-                <p class="course-label">Course Completed:</p>
+                <p class="course-label" id="courseLabel">Course Completed:</p>
                 <div class="course-name" id="courseName">Course Name</div>
             </div>
 
@@ -592,7 +593,15 @@
                     }
 
                     if (data.name) document.getElementById("studentName").textContent = data.name;
-                    if (data.course) document.getElementById("courseName").textContent = data.course;
+                    if (data.course) {
+                        document.getElementById("courseName").textContent = data.course;
+
+                        // Condition for Problem Solving
+                        if (data.course.toLowerCase().includes("problem solving")) {
+                            document.getElementById("courseLabel").textContent = "Problem Solving Completed:";
+                            document.getElementById("courseContext").textContent = "problem solving";
+                        }
+                    }
                     if (data.percentage) {
                         document.getElementById("percentageText").textContent = data.percentage;
                         document.getElementById("badgeScore").textContent = data.percentage + "%";

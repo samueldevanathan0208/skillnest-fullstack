@@ -102,9 +102,11 @@ def root():
 # --------------------------------------------------
 # DB INIT
 # --------------------------------------------------
-@app.on_event("startup")
-def on_startup():
-    Base.metadata.create_all(bind=engine)
+# @app.on_event("startup")
+# def on_startup():
+#     # NOTE: Disabled for Vercel to prevent startup timeouts
+#     # Base.metadata.create_all(bind=engine)
+#     pass
 
 
 # ==================================================

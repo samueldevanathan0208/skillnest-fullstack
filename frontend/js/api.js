@@ -1,7 +1,13 @@
-const API_BASE = "https://skillnest-fullstack-5hws.vercel.app";
-// const API_BASE = "http://127.0.0.1:8000";
+const isLocal = window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1" ||
+    window.location.protocol === "file:";
+const API_BASE = isLocal
+    ? "http://127.0.0.1:8000"
+    : "https://skillnest-fullstack-5hws.vercel.app";
+
 console.log("%c SKILLNEST API V3 LOADED ", "background: #222; color: #bada55; font-size: 20px;");
 console.log("Current API_BASE:", API_BASE);
+console.log("Current Environment:", isLocal ? "Localhost" : "Production");
 console.log("Current Page Path:", window.location.pathname);
 
 async function apiFetch(url, options = {}) {
