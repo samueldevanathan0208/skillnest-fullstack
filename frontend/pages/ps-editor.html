@@ -20,12 +20,12 @@
         }
 
         .editor-container {
-            max-width: 1200px;
+            max-width: 1000px;
             margin: 2rem auto;
             padding: 0 2rem;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
         }
 
         .problem-info {
@@ -138,7 +138,7 @@
 
     <div id="loading-overlay" class="loading-overlay">
         <div class="spinner"></div>
-        <p style="margin-top: 1rem; font-weight: 600; color: var(--primary-color);">Judging your code...</p>
+        <p style="margin-top: 1rem; font-weight: 600; color: var(--primary-color);">Running Test Cases...</p>
     </div>
 
     <script>
