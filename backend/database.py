@@ -9,6 +9,12 @@ load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
+if DATABASE_URL:
+    import re
+    # Mask password for safety in logs
+    masked_url = re.sub(r':([^@]+)@', ':****@', DATABASE_URL)
+    print(f"[DB] Attempting connection to: {masked_url}")
+
 if not DATABASE_URL:
     raise RuntimeError("DATABASE_URL not set")
 
