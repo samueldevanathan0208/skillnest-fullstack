@@ -1,7 +1,8 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 import os
-from openai import OpenAI
+import requests
+import json
 
 router = APIRouter()
 
@@ -15,26 +16,33 @@ async def chat_with_ai(request: ChatRequest):
         print("ERROR: API Key is missing.")
         raise HTTPException(status_code=500, detail="API Key not configured")
 
-    print(f"DEBUG: Using API Key: {api_key[:5]}... (Length: {len(api_key)})")
+    # print(f"DEBUG: Using API Key: {api_key[:5]}... (Length: {len(api_key)})")
 
-    # OpenRouter Configuration
-    base_url = "https://openrouter.ai/api/v1"
+    # OpenRouter Text Completion API (Direct HTTP)
+    url = "https://openrouter.ai/api/v1/chat/completions"
     
-    client = OpenAI(
-        api_key=api_key,
-        base_url=base_url,
-        default_headers={
-            "HTTP-Referer": "http://localhost:3000", # Required by OpenRouter for ranking
-            "X-Title": "SkillNest Chatbot"
-        }
-    )
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://skillnest-fullstack.vercel.app", 
+        "X-Title": "SkillNest Chatbot"
+    }
+    
+    payload = {
+        "model": "openai/gpt-4o-mini",
+        "messages": [{"role": "user", "content": request.message}]
+    }
 
     try:
-        response = client.chat.completions.create(
-            model="openai/gpt-4o-mini", # Explicit OpenRouter model ID
-            messages=[{"role": "user", "content": request.message}]
-        )
-        return {"reply": response.choices[0].message.content}
+        response = requests.post(url, headers=headers, data=json.dumps(payload))
+        
+        if response.status_code != 200:
+            print(f"AI API Error: {response.text}")
+            raise HTTPException(status_code=response.status_code, detail=f"AI Provider Error: {response.text}")
+            
+        result = response.json()
+        return {"reply": result["choices"][0]["message"]["content"]}
+        
     except Exception as e:
-        print(f"AI Error: {e}")
-        raise HTTPException(status_code=500, detail=f"AI Error: {str(e)}")
+        print(f"AI Internal Error: {e}")
+        raise HTTPException(status_code=500, detail=f"AI Internal Error: {str(e)}")
