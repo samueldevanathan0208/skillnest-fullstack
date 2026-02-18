@@ -125,9 +125,6 @@
                 <a href="quizzes.html" class="nav-item">
                     <span>Quizzes</span>
                 </a>
-                <a href="#" class="nav-item active">
-                    <span>Problem Solving</span>
-                </a>
             </div>
 
             <div class="nav-section">
@@ -160,8 +157,15 @@
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             try {
+                console.log("Fetching languages from /problem-solving/languages");
                 const languages = await apiFetch("/problem-solving/languages");
+                console.log("Languages received:", languages);
+
                 const grid = document.getElementById('lang-grid');
+                if (!languages || languages.length === 0) {
+                    grid.innerHTML = '<div class="empty-state"><h3>No languages available.</h3></div>';
+                    return;
+                }
 
                 const icons = {
                     "python": "🐍",
@@ -170,7 +174,7 @@
                 };
 
                 grid.innerHTML = languages.map(lang => `
-                    <a href="ps-list.html?lang=${lang.id}" class="lang-card">
+                    <a href="./ps-list.html?lang=${lang.id}" class="lang-card">
                         <div class="lang-icon">${icons[lang.id.toLowerCase()] || '💻'}</div>
                         <div class="lang-name">${lang.name}</div>
                         <div class="progress-text">Progress: ${lang.solved} / ${lang.total} solved</div>

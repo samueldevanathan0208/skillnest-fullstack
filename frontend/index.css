@@ -111,20 +111,24 @@ img {
     font-family: Serif;
 }
 
-.hire {
-    font-family: 'Segoe UI';
-    margin-left: 480px;
-    font-size: 60px;
-    margin-top: 100px;
+.hiring {
+    text-align: center;
+    width: 100%;
+    padding: 0 20px;
 }
 
-.hirespace {
-    margin-left: 80px;
+.hire {
+    font-family: 'Segoe UI';
+    font-size: 60px;
+    margin-top: 100px;
+    margin-bottom: 20px;
 }
 
 .hirep {
-    margin-left: 550px;
     font-size: 25px;
+    color: #4b5563;
+    max-width: 800px;
+    margin: 0 auto;
 }
 
 @keyframes scrollleft {

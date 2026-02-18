@@ -268,7 +268,8 @@ img {
     background: linear-gradient(135deg, #3b82f6, #2563eb);
 }
 
-.course-header.js {
+.course-header.js,
+.course-header.javascript {
     background: linear-gradient(135deg, #fbbf24, #f59e0b);
 }
 
@@ -288,7 +289,8 @@ img {
     background: linear-gradient(135deg, #10B981, #047857);
 }
 
-.course-header.postgresql {
+.course-header.postgresql,
+.course-header.db {
     background: linear-gradient(135deg, #A855F7, #7E22CE);
 }
 

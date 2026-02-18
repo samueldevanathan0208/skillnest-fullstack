@@ -145,9 +145,6 @@
                 <a href="quizzes.html" class="nav-item">
                     <span>Quizzes</span>
                 </a>
-                <a href="problem-solving.html" class="nav-item active">
-                    <span>Problem Solving</span>
-                </a>
             </div>
 
             <div class="nav-section">
@@ -197,7 +194,7 @@
                             <h3 style="margin: 0.5rem 0;">${p.title}</h3>
                             <p style="font-size: 0.85rem; color: #666; margin-bottom: 1rem;">${p.description}</p>
                         </div>
-                        <a href="ps-editor.html?problem=${p.id}&lang=${langId}" class="solve-btn ${isSolved ? 'solved' : ''}">
+                        <a href="./ps-editor.html?problem=${p.id}&lang=${langId}" class="solve-btn ${isSolved ? 'solved' : ''}">
                             ${isSolved ? 'Solved ✔' : 'Solve Challenge'}
                         </a>
                     </div>

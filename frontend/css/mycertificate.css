@@ -296,21 +296,26 @@ img {
     border-bottom: 4px solid #d4a253;
 }
 
+.certificate-preview.html,
 .certificate-preview.HTML {
     background: linear-gradient(135deg, #f97316, #ea580c);
     border-bottom-color: #4338ca;
 }
 
+.certificate-preview.css,
 .certificate-preview.CSS {
     background: linear-gradient(135deg, #3b82f6, #2563eb);
     border-bottom-color: #4338ca;
 }
 
+.certificate-preview.js,
+.certificate-preview.javascript,
 .certificate-preview.JavaScript {
     background: linear-gradient(135deg, #fbbf24, #f59e0b);
     border-bottom-color: #4338ca;
 }
 
+.certificate-preview.python,
 .certificate-preview.Python {
     background: linear-gradient(135deg, #1e40af, #1e3a8a);
     border-bottom-color: #4338ca;

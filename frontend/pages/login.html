@@ -106,8 +106,17 @@
 
                 if (result && result.access_token) {
                     console.log("Login successful, received token:", result.access_token);
-
                     localStorage.setItem("token", result.access_token);
+
+                    // --- NEW: FETCH AND STORE USER PROFILE ---
+                    console.log("Fetching user profile...");
+                    const userProfile = await apiFetch("/user/me");
+                    if (userProfile && userProfile.user_id) {
+                        localStorage.setItem("user", JSON.stringify(userProfile));
+                        console.log("User profile stored:", userProfile);
+                    } else {
+                        console.error("Failed to fetch user profile after login");
+                    }
 
                     alert("Login successful!");
                     window.location.href = "dashboard.html";
