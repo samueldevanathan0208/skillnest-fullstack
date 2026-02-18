@@ -2,9 +2,28 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 from dotenv import load_dotenv
+from pathlib import Path
 
-# Load .env for LOCAL development only (Vercel ignores this)
-load_dotenv()
+# Load .env for LOCAL development only (Ve# Load .env for LOCAL development only (Vercel ignores this)
+# Try multiple paths to find .env
+
+# 1. Check parent directory (Standard structure)
+env_path = Path(__file__).parent.parent / '.env' 
+
+# 2. Check direct path if running from root
+if not env_path.exists():
+    env_path = Path(os.getcwd()) / '.env'
+
+# 3. Check hardcoded path as fallback
+if not env_path.exists():
+    env_path = Path("C:/Users/SamuelDevanathan/Desktop/LMS(fullstack)/.env")
+
+if env_path.exists():
+    print(f"Loading .env from: {env_path}")
+    load_dotenv(env_path)
+else:
+    print("WARNING: .env file not found!")
+    load_dotenv() # Final fallback
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
