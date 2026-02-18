@@ -4,19 +4,42 @@ import os
 import requests
 import json
 
-router = APIRouter()
+SYSTEM_PROMPT = """
+You are SkillNest AI Tutor.
 
-class ChatRequest(BaseModel):
-    message: str
+You ONLY answer questions related to:
+
+• Programming
+• Web Development
+• Frontend (HTML, CSS, JavaScript, React)
+• Backend (Python, FastAPI, Node.js)
+• Databases (PostgreSQL, SQL)
+• UI/UX
+• Debugging
+• Coding problems
+• Software engineering
+
+You MUST refuse unrelated questions like:
+
+• Politics
+• History
+• Movies
+• Sports
+• General knowledge
+
+If question is unrelated, respond EXACTLY:
+
+Sorry, I can only help with programming and course-related questions.
+
+Keep answers simple, clear, and beginner-friendly.
+"""
 
 @router.post("/ai/chat")
-async def chat_with_ai(request: ChatRequest):
+async def chat_with_ai(data: ChatRequest):
     api_key = os.getenv("OPENROUTER_API_KEY") or os.getenv("OPENAI_API_KEY")
     if not api_key:
         print("ERROR: API Key is missing.")
         raise HTTPException(status_code=500, detail="API Key not configured")
-
-    # print(f"DEBUG: Using API Key: {api_key[:5]}... (Length: {len(api_key)})")
 
     # OpenRouter Text Completion API (Direct HTTP)
     url = "https://openrouter.ai/api/v1/chat/completions"
@@ -30,7 +53,16 @@ async def chat_with_ai(request: ChatRequest):
     
     payload = {
         "model": "openai/gpt-4o-mini",
-        "messages": [{"role": "user", "content": request.message}]
+        "messages": [
+            {
+                "role": "system",
+                "content": SYSTEM_PROMPT
+            },
+            {
+                "role": "user",
+                "content": data.message
+            }
+        ]
     }
 
     try:
@@ -41,7 +73,11 @@ async def chat_with_ai(request: ChatRequest):
             raise HTTPException(status_code=response.status_code, detail=f"AI Provider Error: {response.text}")
             
         result = response.json()
-        return {"reply": result["choices"][0]["message"]["content"]}
+        ai_response = result["choices"][0]["message"]["content"]
+        
+        return {
+            "reply": ai_response
+        }
         
     except Exception as e:
         print(f"AI Internal Error: {e}")
