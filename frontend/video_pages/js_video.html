@@ -307,6 +307,8 @@
         let requiredWatchTime = 0;
         let maxWatchedTime = 0;
         let watchInterval = null;
+        let heartbeatInterval = null;
+        let hasResumed = false;
 
         function onYouTubeIframeAPIReady() {
             isApiReady = true;
@@ -320,6 +322,15 @@
             } catch (error) {
                 console.error('Error fetching progress:', error);
                 return [];
+            }
+        }
+
+        async function fetchVideoState(videoIndex) {
+            try {
+                return await apiFetch(`/progress/${courseId}/${videoIndex}`);
+            } catch (e) {
+                console.error("Fetch state failed", e);
+                return null;
             }
         }
 
@@ -351,7 +362,7 @@
             });
         }
 
-        function playVideo(index) {
+        async function playVideo(index) {
 
             currentIndex = index;
             const video = videos[index];
@@ -363,18 +374,26 @@
             const isCompleted = courseProgressData.includes(index);
             nextBtn.disabled = !isCompleted;
 
+            const videoId = video.src.split("/embed/")[1];
+
+            // Reset state for new video
             maxWatchedTime = 0;
             totalDuration = 0;
             requiredWatchTime = 0;
+            hasResumed = false;
 
-            const videoId = video.src.split("/embed/")[1];
+            // Fetch saved progress for resume
+            const savedState = await fetchVideoState(index);
+            if (savedState && savedState.last_watched_time > 0) {
+                maxWatchedTime = savedState.last_watched_time;
+                console.log(`Resuming at ${maxWatchedTime}s`);
+            }
 
             // Calculate duration from metadata (assuming minutes)
             const metaDuration = parseFloat(video.duration) * 60;
             if (!isNaN(metaDuration) && metaDuration > 0) {
                 totalDuration = metaDuration;
                 requiredWatchTime = totalDuration * 0.5;
-                console.log(`Watch requirement: ${requiredWatchTime}s (from metadata)`);
             }
 
             if (!isApiReady) {
@@ -394,7 +413,13 @@
                         'rel': 0
                     },
                     events: {
-                        onReady: onPlayerReady
+                        onReady: onPlayerReady,
+                        onStateChange: (event) => {
+                            // YT.PlayerState.PLAYING is 1
+                            if (event.data === 1) {
+                                startWatchTracking();
+                            }
+                        }
                     }
                 });
             }
@@ -409,36 +434,72 @@
         ================================= */
 
         function onPlayerReady() {
+            if (maxWatchedTime > 0 && !hasResumed) {
+                player.seekTo(maxWatchedTime);
+                hasResumed = true;
+            }
+            startWatchTracking();
+        }
 
-            // Only use player duration if metadata wasn't available or valid
+        function startWatchTracking() {
             if (totalDuration <= 0) {
                 totalDuration = player.getDuration();
                 requiredWatchTime = totalDuration * 0.5;
-                console.log(`Watch requirement: ${requiredWatchTime}s (from player)`);
             }
 
             if (watchInterval) clearInterval(watchInterval);
+            if (heartbeatInterval) clearInterval(heartbeatInterval);
 
+            // Real-time local tracking (every 1s)
             watchInterval = setInterval(() => {
+                if (!player || typeof player.getCurrentTime !== 'function') return;
 
                 const currentTime = player.getCurrentTime();
 
-                if (currentTime > maxWatchedTime) {
+                // Anti-cheat: only update max if user is watching naturally
+                if (currentTime > maxWatchedTime && currentTime <= maxWatchedTime + 2) {
                     maxWatchedTime = currentTime;
                 }
 
-                // Prevent skipping
-                if (currentTime > maxWatchedTime + 2) {
+                // If they seek too far ahead of their history, pull them back
+                if (currentTime > maxWatchedTime + 5) {
                     player.seekTo(maxWatchedTime);
                 }
 
-                // Unlock next
-                if (maxWatchedTime >= requiredWatchTime) {
-                    document.getElementById("nextBtn").disabled = false;
-                    clearInterval(watchInterval);
-                }
+                const percentage = totalDuration > 0 ? (maxWatchedTime / totalDuration) * 100 : 0;
+                console.log(`Watch: ${Math.floor(maxWatchedTime)}s / ${Math.floor(totalDuration)}s (${Math.floor(percentage)}%)`);
 
+                // Local UI unlock if 50% met
+                if (percentage >= 50) {
+                    const nextBtn = document.getElementById("nextBtn");
+                    if (nextBtn && nextBtn.disabled) {
+                        nextBtn.disabled = false;
+                        console.log("Goal reached! Next button unlocked.");
+                    }
+                }
             }, 1000);
+
+            // Production-level Heartbeat (every 5s)
+            heartbeatInterval = setInterval(async () => {
+                if (!player || player.getPlayerState() !== 1) return; // Only if playing
+
+                const percentage = (maxWatchedTime / totalDuration) * 100;
+
+                try {
+                    await apiFetch("/progress/update", {
+                        method: "POST",
+                        body: JSON.stringify({
+                            course_id: courseId,
+                            video_id: currentIndex,
+                            last_watched_time: maxWatchedTime,
+                            duration: totalDuration,
+                            percentage: percentage
+                        })
+                    });
+                } catch (e) {
+                    console.error("Heartbeat failed", e);
+                }
+            }, 5000);
         }
 
         async function markComplete() {
@@ -467,14 +528,22 @@
            NAVIGATION
         ================================= */
 
+        let isNavigating = false;
         async function goNext() {
-            // Save progress when clicking Next
-            if (!courseProgressData.includes(currentIndex)) {
-                await markComplete();
-            }
+            if (isNavigating) return;
+            isNavigating = true;
 
-            if (currentIndex < videos.length - 1) {
-                playVideo(currentIndex + 1);
+            try {
+                // Save progress when clicking Next
+                if (!courseProgressData.includes(currentIndex)) {
+                    await markComplete();
+                }
+
+                if (currentIndex < videos.length - 1) {
+                    playVideo(currentIndex + 1);
+                }
+            } finally {
+                isNavigating = false;
             }
         }
 
