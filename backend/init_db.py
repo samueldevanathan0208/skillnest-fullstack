@@ -15,6 +15,7 @@ try:
     import py_models.quiz_models
     import py_models.problem_models
     import py_models.note_models
+    import py_models.progress_models
     
     print("Connecting to database...")
     # Create all tables

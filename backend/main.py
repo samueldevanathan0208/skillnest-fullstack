@@ -21,7 +21,7 @@ from database import engine, get_db, Base
 from py_models.signin_models import User
 from py_models.course_models import Course
 from py_models.quiz_models import Quiz
-from py_models.progress_models import CourseVideoProgress, QuizPartialProgress
+from py_models.progress_models import CourseVideoProgress, QuizPartialProgress, VideoProgress
 from py_models.problem_models import ProblemProgress
 
 from py_schemas.signin_schemas import (
@@ -34,7 +34,9 @@ from py_schemas.course_schemas import Create_course
 from py_schemas.progress_schemas import (
     VideoProgressCreate,
     QuizPartialProgressCreate,
-    QuizResultCreate
+    QuizResultCreate,
+    ProgressUpdate,
+    ProgressResponse
 )
 
 from auth import hash_password, verify_password, create_access_token, get_current_user
@@ -275,6 +277,59 @@ def mark_video(data: VideoProgressCreate, db: Session = Depends(get_db), current
         db.commit()
 
     return {"status": "saved"}
+
+# -----------------------------
+# NEW PRODUCTION TRACKING APIs
+# -----------------------------
+
+@app.post("/progress/update")
+def update_video_progress(data: ProgressUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    # Check if record already exists
+    existing = db.query(VideoProgress).filter(
+        VideoProgress.user_id == current_user.user_id,
+        VideoProgress.course_id == data.course_id,
+        VideoProgress.video_id == data.video_id
+    ).first()
+
+    if existing:
+        existing.last_watched_time = data.last_watched_time
+        existing.duration = data.duration
+        existing.percentage = data.percentage
+        # Completion logic: if >= 50, mark as completed
+        if data.percentage >= 50:
+            existing.is_completed = True
+    else:
+        new_progress = VideoProgress(
+            user_id=current_user.user_id,
+            course_id=data.course_id,
+            video_id=data.video_id,
+            last_watched_time=data.last_watched_time,
+            duration=data.duration,
+            percentage=data.percentage,
+            is_completed=True if data.percentage >= 50 else False
+        )
+        db.add(new_progress)
+
+    db.commit()
+    return {"status": "success", "percentage": data.percentage}
+
+@app.get("/progress/{course_id}/{video_id}", response_model=ProgressResponse)
+def get_video_progress_state(course_id: str, video_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    progress = db.query(VideoProgress).filter(
+        VideoProgress.user_id == current_user.user_id,
+        VideoProgress.course_id == course_id,
+        VideoProgress.video_id == video_id
+    ).first()
+
+    if not progress:
+        return {
+            "last_watched_time": 0.0,
+            "duration": 0.0,
+            "percentage": 0.0,
+            "is_completed": False
+        }
+
+    return progress
 
 
 @app.post("/progress/quiz/partial")
