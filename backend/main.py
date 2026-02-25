@@ -303,12 +303,8 @@ def get_course_progress(db: Session = Depends(get_db), current_user: User = Depe
     result = {}
     for r in records:
         if r.course_id not in result:
-            result[r.course_id] = set()
-        result[r.course_id].add(r.video_index)
-
-    # Convert sets to lists for JSON serialization
-    for course_id in result:
-        result[course_id] = list(result[course_id])
+            result[r.course_id] = []
+        result[r.course_id].append(r.video_index)
 
     return result
 

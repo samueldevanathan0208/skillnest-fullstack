@@ -165,6 +165,133 @@ def run_python_test(code: str, problem_id: str):
         except Exception as e:
             return {"passed": False, "error": f"Internal Error: {str(e)}"}
 
+import os
+import tempfile
+import json
+
+def run_java_test(code: str, problem_id: str):
+    numeric_id = "".join(filter(str.isdigit, problem_id))
+    spec = TEST_CASES.get(numeric_id)
+    if not spec:
+        return {"passed": False, "error": f"Test cases not defined for {problem_id}"}
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        # Write Solution.java
+        java_file = os.path.join(tmpdir, "Solution.java")
+        with open(java_file, "w") as f:
+            f.write(code)
+
+        # Compile
+        compile_res = subprocess.run(["javac", java_file], capture_output=True, text=True)
+        if compile_res.returncode != 0:
+            return {"passed": False, "error": f"Compilation Error: {compile_res.stderr}"}
+
+        # For each test case, we run a small Java wrapper
+        for i, case in enumerate(spec['cases']):
+            # Convert input to Java-friendly string
+            args_str = ", ".join(map(lambda x: json.dumps(x), case['input']))
+            
+            # This is a bit complex for Java because we need to call the method.
+            # We'll create a TestRunner.java
+            runner_code = f"""
+import java.util.*;
+
+public class TestRunner {{
+    public static void main(String[] args) {{
+        Solution sol = new Solution();
+        try {{
+            Object result = sol.solve({args_str});
+            System.out.println(JSONSerializer.serialize(result));
+        }} catch (Exception e) {{
+            e.printStackTrace();
+        }}
+    }}
+}}
+
+class JSONSerializer {{
+    public static String serialize(Object obj) {{
+        if (obj == null) return "null";
+        if (obj instanceof String) return "\\"" + obj + "\\"";
+        if (obj instanceof List) {{
+           return Arrays.toString(((List)obj).toArray());
+        }}
+        if (obj.getClass().isArray()) {{
+            if (obj instanceof int[]) return Arrays.toString((int[])obj);
+            if (obj instanceof boolean[]) return Arrays.toString((boolean[])obj);
+            return Arrays.deepToString((Object[])obj);
+        }}
+        return obj.toString();
+    }}
+}}
+"""
+            runner_file = os.path.join(tmpdir, "TestRunner.java")
+            with open(runner_file, "w") as f:
+                f.write(runner_code)
+            
+            subprocess.run(["javac", "-cp", tmpdir, runner_file], capture_output=True, text=True)
+            
+            run_res = subprocess.run(["java", "-cp", tmpdir, "TestRunner"], capture_output=True, text=True, timeout=2)
+            if run_res.returncode != 0:
+                return {"passed": False, "error": f"Runtime Error on case {i+1}: {run_res.stderr}"}
+            
+            actual_str = run_res.stdout.strip()
+            expected_str = str(case['expected']).replace("True", "true").replace("False", "false")
+            
+            # Simple string comparison for now, can be improved
+            if actual_str != expected_str and actual_str.lower() != expected_str.lower():
+                return {
+                    "passed": False,
+                    "error": f"Test case {i+1} failed",
+                    "details": f"Input: {case['input']}, Expected: {expected_str}, Got: {actual_str}"
+                }
+        
+        return {"passed": True}
+
+def run_javascript_test(code: str, problem_id: str):
+    numeric_id = "".join(filter(str.isdigit, problem_id))
+    spec = TEST_CASES.get(numeric_id)
+    if not spec:
+        return {"passed": False, "error": f"Test cases not defined for {problem_id}"}
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        js_file = os.path.join(tmpdir, "solution.js")
+        
+        # Prepare valid JS code that exports solve
+        full_code = code + "\n\n"
+        
+        for i, case in enumerate(spec['cases']):
+            args_str = ", ".join(map(lambda x: json.dumps(x), case['input']))
+            test_runner_js = f"""
+{code}
+try {{
+    const result = solve({args_str});
+    console.log(JSON.stringify(result));
+}} catch (e) {{
+    console.error(e.message);
+    process.exit(1);
+}}
+"""
+            runner_file = os.path.join(tmpdir, f"test_{i}.js")
+            with open(runner_file, "w") as f:
+                f.write(test_runner_js)
+            
+            run_res = subprocess.run(["node", runner_file], capture_output=True, text=True, timeout=2)
+            if run_res.returncode != 0:
+                return {"passed": False, "error": f"Runtime Error on case {i+1}: {run_res.stderr}"}
+            
+            actual_str = run_res.stdout.strip()
+            expected_json = json.dumps(case['expected'])
+            
+            if actual_str != expected_json:
+                return {
+                    "passed": False,
+                    "error": f"Test case {i+1} failed",
+                    "details": f"Input: {case['input']}, Expected: {expected_json}, Got: {actual_str}"
+                }
+                
+        return {"passed": True}
+import subprocess
+
 # --------------------------------------------------
 # GENERATE PROBLEMS
 # --------------------------------------------------
@@ -262,22 +389,20 @@ def submit_solution(request: SubmitRequest, db: Session = Depends(get_db)):
     # 1. EVALUATE BASED ON LANGUAGE
     if request.language == "python":
         result = run_python_test(code, request.problem_id)
-        if not result["passed"]:
-            return {
-                "status": "Failed", 
-                "error": result["error"],
-                "details": result.get("details", "")
-            }
-        status = "Passed"
+    elif request.language == "java":
+        result = run_java_test(code, request.problem_id)
+    elif request.language == "javascript":
+        result = run_javascript_test(code, request.problem_id)
     else:
-        # Mocked validation for other languages
-        has_solve = "public" in code or "function solve" in code
-        has_logic = any(op in code for op in ["+", "-", "*", "/", "%", "if", "for", "while", "return", "Solution"])
-        
-        if not (has_solve and has_logic):
-            return {"status": "Failed", "error": f"Mock Test Failed: {request.language} logic appears incorrect."}
-        
-        status = "Mocked (Pass)"
+        return {"status": "Failed", "error": f"Language {request.language} not supported."}
+
+    if not result["passed"]:
+        return {
+            "status": "Failed", 
+            "error": result["error"],
+            "details": result.get("details", "")
+        }
+    status = "Passed"
 
     # 2. SAVE PROGRESS IF PASSED
     if status in ["Passed", "Mocked (Pass)"]:
