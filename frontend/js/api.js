@@ -147,15 +147,15 @@ const COURSES_DATA = {
     ],
     js: [
         { title: "1. JavaScript Video 1", duration: "1", thumbnail: "https://img.youtube.com/vi/YrOkVD_YUro/hqdefault.jpg", src: "https://www.youtube.com/embed/YrOkVD_YUro" },
-        { title: "2. JavaScript Video 2", duration: "2", thumbnail: "https://img.youtube.com/vi/4zlr_Ez_EYo/hqdefault.jpg", src: "https://www.youtube.com/embed/4zlr_Ez_EYo" },
-        { title: "3. JavaScript Video 3", duration: "3", thumbnail: "https://img.youtube.com/vi/AoEohhf6Avc/hqdefault.jpg", src: "https://www.youtube.com/embed/AoEohhf6Avc" },
-        { title: "4. JavaScript Video 4", duration: "4", thumbnail: "https://img.youtube.com/vi/xs8bTPpONqA/hqdefault.jpg", src: "https://www.youtube.com/embed/xs8bTPpONqA" },
-        { title: "5. JavaScript Video 5", duration: "5", thumbnail: "https://img.youtube.com/vi/BSXQC4ZN8p4/hqdefault.jpg", src: "https://www.youtube.com/embed/BSXQC4ZN8p4" },
-        { title: "6. JavaScript Video 6", duration: "6", thumbnail: "https://img.youtube.com/vi/csFBVXrsxck/hqdefault.jpg", src: "https://www.youtube.com/embed/csFBVXrsxck" },
-        { title: "7. JavaScript Video 7", duration: "7", thumbnail: "https://img.youtube.com/vi/Ub87voAYIWQ/hqdefault.jpg", src: "https://www.youtube.com/embed/Ub87voAYIWQ" },
-        { title: "8. JavaScript Video 8", duration: "8", thumbnail: "https://img.youtube.com/vi/eTaqetO9Ey8/hqdefault.jpg", src: "https://www.youtube.com/embed/eTaqetO9Ey8" },
-        { title: "9. JavaScript Video 9", duration: "9", thumbnail: "https://img.youtube.com/vi/fbQ7xxXCusE/hqdefault.jpg", src: "https://www.youtube.com/embed/fbQ7xxXCusE" },
-        { title: "10. JavaScript Video 10", duration: "10", thumbnail: "https://img.youtube.com/vi/OOHduxkXQAw/hqdefault.jpg", src: "https://www.youtube.com/embed/OOHduxkXQAw" }
+        { title: "2. JavaScript Video 2", duration: "1", thumbnail: "https://img.youtube.com/vi/4zlr_Ez_EYo/hqdefault.jpg", src: "https://www.youtube.com/embed/4zlr_Ez_EYo" },
+        { title: "3. JavaScript Video 3", duration: "1", thumbnail: "https://img.youtube.com/vi/AoEohhf6Avc/hqdefault.jpg", src: "https://www.youtube.com/embed/AoEohhf6Avc" },
+        { title: "4. JavaScript Video 4", duration: "1", thumbnail: "https://img.youtube.com/vi/xs8bTPpONqA/hqdefault.jpg", src: "https://www.youtube.com/embed/xs8bTPpONqA" },
+        { title: "5. JavaScript Video 5", duration: "1", thumbnail: "https://img.youtube.com/vi/BSXQC4ZN8p4/hqdefault.jpg", src: "https://www.youtube.com/embed/BSXQC4ZN8p4" },
+        { title: "6. JavaScript Video 6", duration: "1", thumbnail: "https://img.youtube.com/vi/csFBVXrsxck/hqdefault.jpg", src: "https://www.youtube.com/embed/csFBVXrsxck" },
+        { title: "7. JavaScript Video 7", duration: "1", thumbnail: "https://img.youtube.com/vi/Ub87voAYIWQ/hqdefault.jpg", src: "https://www.youtube.com/embed/Ub87voAYIWQ" },
+        { title: "8. JavaScript Video 8", duration: "1", thumbnail: "https://img.youtube.com/vi/eTaqetO9Ey8/hqdefault.jpg", src: "https://www.youtube.com/embed/eTaqetO9Ey8" },
+        { title: "9. JavaScript Video 9", duration: "1", thumbnail: "https://img.youtube.com/vi/fbQ7xxXCusE/hqdefault.jpg", src: "https://www.youtube.com/embed/fbQ7xxXCusE" },
+        { title: "10. JavaScript Video 10", duration: "1", thumbnail: "https://img.youtube.com/vi/OOHduxkXQAw/hqdefault.jpg", src: "https://www.youtube.com/embed/OOHduxkXQAw" }
     ]
 };
 
