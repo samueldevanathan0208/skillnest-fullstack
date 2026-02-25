@@ -6,8 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JavaScript Course</title>
 
-    <!-- YouTube API (Required for tracking) -->
-    <script src="https://www.youtube.com/iframe_api"></script>
 
     <link rel="stylesheet" href="../css/chatbot.css">
     <style>
@@ -310,10 +308,10 @@
         let heartbeatInterval = null;
         let hasResumed = false;
 
-        function onYouTubeIframeAPIReady() {
+        window.onYouTubeIframeAPIReady = function () {
             isApiReady = true;
             console.log("YouTube API Ready");
-        }
+        };
 
         async function fetchProgress() {
             try {
@@ -396,10 +394,12 @@
                 requiredWatchTime = totalDuration * 0.5;
             }
 
-            if (!isApiReady) {
+            if (!isApiReady && (!window.YT || !window.YT.Player)) {
                 console.warn("API not ready yet, waiting...");
                 setTimeout(() => playVideo(index), 500);
                 return;
+            } else if (window.YT && window.YT.Player) {
+                isApiReady = true;
             }
 
             if (player && typeof player.loadVideoById === 'function') {
@@ -607,6 +607,8 @@
             loadNotes();
         };
     </script>
+    <script src="https://www.youtube.com/iframe_api"></script>
 </body>
 
 </html>
+```
