@@ -132,6 +132,19 @@
             border-color: #4900c1;
         }
 
+        .video-item.locked {
+            opacity: 0.45;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .lock-icon {
+            font-size: 18px;
+            color: #9ca3af;
+            display: flex;
+            align-items: center;
+        }
+
         .video-thumb {
             width: 120px;
             height: 68px;
@@ -273,19 +286,9 @@
         </div>
     </div>
 
+
     <script>
-        const videos = [
-            { title: "1. PostgreSQL Introduction in Tamil", duration: "11:20", thumbnail: "https://img.youtube.com/vi/qw--VYLpxG4/hqdefault.jpg", src: "https://www.youtube.com/embed/qw--VYLpxG4" },
-            { title: "2. Installing PostgreSQL", duration: "13:45", thumbnail: "https://img.youtube.com/vi/36819q1F25Y/hqdefault.jpg", src: "https://www.youtube.com/embed/36819q1F25Y" },
-            { title: "3. Creating and Managing Databases", duration: "15:30", thumbnail: "https://img.youtube.com/vi/ZtV7WWtULKw/hqdefault.jpg", src: "https://www.youtube.com/embed/ZtV7WWtULKw" },
-            { title: "4. Basic SQL Queries", duration: "12:50", thumbnail: "https://img.youtube.com/vi/qw--VYLpxG4/hqdefault.jpg", src: "https://www.youtube.com/embed/qw--VYLpxG4" },
-            { title: "5. Filtering Data (WHERE)", duration: "14:15", thumbnail: "https://img.youtube.com/vi/36819q1F25Y/hqdefault.jpg", src: "https://www.youtube.com/embed/36819q1F25Y" },
-            { title: "6. Joins in PostgreSQL", duration: "18:40", thumbnail: "https://img.youtube.com/vi/ZtV7WWtULKw/hqdefault.jpg", src: "https://www.youtube.com/embed/ZtV7WWtULKw" },
-            { title: "7. Aggregation Functions", duration: "16:20", thumbnail: "https://img.youtube.com/vi/qw--VYLpxG4/hqdefault.jpg", src: "https://www.youtube.com/embed/qw--VYLpxG4" },
-            { title: "8. Group By and Having", duration: "15:00", thumbnail: "https://img.youtube.com/vi/36819q1F25Y/hqdefault.jpg", src: "https://www.youtube.com/embed/36819q1F25Y" },
-            { title: "9. Subqueries and CTEs", duration: "20:30", thumbnail: "https://img.youtube.com/vi/ZtV7WWtULKw/hqdefault.jpg", src: "https://www.youtube.com/embed/ZtV7WWtULKw" },
-            { title: "10. Indexing and Performance", duration: "25:00", thumbnail: "https://img.youtube.com/vi/qw--VYLpxG4/hqdefault.jpg", src: "https://www.youtube.com/embed/qw--VYLpxG4" }
-        ];
+        const videos = COURSES_DATA.postgresql;
 
         let currentIndex = 0;
         const courseId = 'postgresql';
@@ -308,21 +311,21 @@
 
             videos.forEach((video, index) => {
                 const isCompleted = courseProgressData.includes(index);
+                const isUnlocked = index === 0 || isCompleted || courseProgressData.includes(index - 1);
                 const item = document.createElement('div');
-                item.className = `video-item ${index === currentIndex ? 'active' : ''}`;
+                item.className = `video-item ${index === currentIndex ? 'active' : ''} ${!isUnlocked ? 'locked' : ''}`;
 
-                if (isCompleted || index === 0 || courseProgressData.includes(index - 1)) {
-                    item.style.pointerEvents = 'auto';
-                    item.style.opacity = '1';
+                if (isUnlocked) {
+                    item.onclick = () => { currentIndex = index; playVideo(index); };
                 }
 
-                item.onclick = () => { currentIndex = index; playVideo(index); };
                 item.innerHTML = `
                     <img src="${video.thumbnail}" class="video-thumb">
-                    <div>
+                    <div class="item-content">
                         <div class="item-title">${video.title} ${isCompleted ? '✅' : ''}</div>
                         <div class="item-duration">${video.duration}</div>
                     </div>
+                    ${!isUnlocked ? '<div class="lock-icon">🔒</div>' : ''}
                 `;
                 list.appendChild(item);
             });
@@ -357,7 +360,6 @@
         async function markComplete() {
             if (courseProgressData.includes(currentIndex)) return;
 
-            // Optimistic update: Enable Next button instantly
             courseProgressData.push(currentIndex);
             playVideo(currentIndex);
 
@@ -370,7 +372,6 @@
                     })
                 });
 
-                // update sidebar checkmarks and unlock next
                 await loadVideos();
             } catch (error) {
                 console.error('Error saving progress:', error);
@@ -392,13 +393,10 @@
             }
         }
 
-        // --- NOTES FUNCTIONALITY ---
         async function loadNotes() {
             try {
                 const user = JSON.parse(localStorage.getItem("user"));
                 if (!user) return;
-
-                // Use apiFetch which handles tokens automatically
                 const data = await apiFetch(`/notes/${user.user_id}/${courseId}`);
                 if (data && data.notes !== undefined) {
                     document.getElementById('notesTextarea').value = data.notes;
@@ -410,24 +408,14 @@
 
         async function saveNotes() {
             const user = JSON.parse(localStorage.getItem("user"));
-            if (!user) {
-                alert("Please login to save notes");
-                return;
-            }
-
-            // JWT Token Check
-            if (!localStorage.getItem("token")) {
-                console.warn("Stopping script: No token found.");
-                window.location.href = "../pages/login.html";
-                return;
-            }
+            if (!user) { alert("Please login to save notes"); return; }
+            if (!localStorage.getItem("token")) { window.location.href = "../pages/login.html"; return; }
 
             const noteContent = document.getElementById('notesTextarea').value;
             const status = document.getElementById('save-status');
             status.textContent = "Saving...";
 
             try {
-                // Use apiFetch for authenticated request
                 const response = await apiFetch("/notes/save", {
                     method: "POST",
                     body: JSON.stringify({
@@ -454,7 +442,7 @@
         window.onload = () => {
             loadVideos();
             playVideo(0);
-            loadNotes(); // Load notes on page load
+            loadNotes();
         };
     </script>
 </body>

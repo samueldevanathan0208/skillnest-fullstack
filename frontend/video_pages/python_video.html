@@ -132,6 +132,19 @@
             border-color: #4900c1;
         }
 
+        .video-item.locked {
+            opacity: 0.45;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .lock-icon {
+            font-size: 18px;
+            color: #9ca3af;
+            display: flex;
+            align-items: center;
+        }
+
         .video-thumb {
             width: 120px;
             height: 68px;
@@ -274,22 +287,11 @@
     </div>
 
     <script>
-        const videos = [
-            { title: "1. Python Introduction in Tamil", duration: "10:00", thumbnail: "https://img.youtube.com/vi/_uQrJ0TkZlc/hqdefault.jpg", src: "https://www.youtube.com/embed/_uQrJ0TkZlc" },
-            { title: "2. Setting up Python & VS Code", duration: "12:00", thumbnail: "https://img.youtube.com/vi/6L7V2d0R0Xg/hqdefault.jpg", src: "https://www.youtube.com/embed/6L7V2d0R0Xg" },
-            { title: "3. Variables and Data Types", duration: "15:00", thumbnail: "https://img.youtube.com/vi/5H0N_jI8zK8/hqdefault.jpg", src: "https://www.youtube.com/embed/5H0N_jI8zK8" },
-            { title: "4. Numbers and String Methods", duration: "14:00", thumbnail: "https://img.youtube.com/vi/r_oQvVOnvG8/hqdefault.jpg", src: "https://www.youtube.com/embed/r_oQvVOnvG8" },
-            { title: "5. List and Tuples in Python", duration: "18:00", thumbnail: "https://img.youtube.com/vi/zN9WqP-o1zI/hqdefault.jpg", src: "https://www.youtube.com/embed/zN9WqP-o1zI" },
-            { title: "6. Dictionaries and Sets", duration: "16:00", thumbnail: "https://img.youtube.com/vi/q5uN1mU7l98/hqdefault.jpg", src: "https://www.youtube.com/embed/q5uN1mU7l98" },
-            { title: "7. Conditional Statements", duration: "13:00", thumbnail: "https://img.youtube.com/vi/Vz_hKq6Z6S0/hqdefault.jpg", src: "https://www.youtube.com/embed/Vz_hKq6Z6S0" },
-            { title: "8. For and While Loops", duration: "20:00", thumbnail: "https://img.youtube.com/vi/8W0IIdg_Cnk/hqdefault.jpg", src: "https://www.youtube.com/embed/8W0IIdg_Cnk" },
-            { title: "9. Functions and Modules", duration: "22:00", thumbnail: "https://img.youtube.com/vi/f3k9wO0j_Z4/hqdefault.jpg", src: "https://www.youtube.com/embed/f3k9wO0j_Z4" },
-            { title: "10. File Handling in Python", duration: "25:00", thumbnail: "https://img.youtube.com/vi/T9v8xI0y_W1/hqdefault.jpg", src: "https://www.youtube.com/embed/T9v8xI0y_W1" }
-        ];
+        const videos = COURSES_DATA.python;
 
         let currentIndex = 0;
         const courseId = 'python';
-        let courseProgressData = [];
+        let courseProgressData = []; // Now an object: { videoIndex: { last_watched_time: X } }
 
         async function fetchProgress() {
             try {
@@ -308,21 +310,22 @@
 
             videos.forEach((video, index) => {
                 const isCompleted = courseProgressData.includes(index);
-                const item = document.createElement('div');
-                item.className = `video-item ${index === currentIndex ? 'active' : ''}`;
+                const isUnlocked = index === 0 || isCompleted || courseProgressData.includes(index - 1);
 
-                if (isCompleted || index === 0 || courseProgressData.includes(index - 1)) {
-                    item.style.pointerEvents = 'auto';
-                    item.style.opacity = '1';
+                const item = document.createElement('div');
+                item.className = `video-item ${index === currentIndex ? 'active' : ''} ${!isUnlocked ? 'locked' : ''}`;
+
+                if (isUnlocked) {
+                    item.onclick = () => { currentIndex = index; playVideo(index); };
                 }
 
-                item.onclick = () => { currentIndex = index; playVideo(index); };
                 item.innerHTML = `
                     <img src="${video.thumbnail}" class="video-thumb">
-                    <div>
+                    <div class="item-content">
                         <div class="item-title">${video.title} ${isCompleted ? '✅' : ''}</div>
                         <div class="item-duration">${video.duration}</div>
                     </div>
+                    ${!isUnlocked ? '<div class="lock-icon">🔒</div>' : ''}
                 `;
                 list.appendChild(item);
             });
@@ -339,6 +342,7 @@
             completeBtn.disabled = isCompleted;
             completeBtn.textContent = isCompleted ? 'Completed' : 'Mark Complete';
             completeBtn.style.opacity = isCompleted ? '0.7' : '1';
+            nextBtn.disabled = !isCompleted;
 
             document.querySelectorAll(".video-item").forEach((item, i) => {
                 item.classList.toggle("active", i === index);
@@ -350,17 +354,12 @@
                 yt.src = video.src + "?enablejsapi=1";
                 yt.dataset.index = index;
             }
-
-            nextBtn.disabled = !isCompleted;
         }
 
         async function markComplete() {
             if (courseProgressData.includes(currentIndex)) return;
-
-            // Optimistic update: Enable Next button instantly
             courseProgressData.push(currentIndex);
             playVideo(currentIndex);
-
             try {
                 await apiFetch("/progress/course/video", {
                     method: "POST",
@@ -369,14 +368,11 @@
                         video_index: currentIndex
                     })
                 });
-
-                // update sidebar checkmarks and unlock next
                 await loadVideos();
             } catch (error) {
-                console.error('Error saving progress:', error);
+                console.error('Error saving completeness:', error);
             }
         }
-
 
         function goNext() {
             if (currentIndex < videos.length - 1) {
@@ -392,13 +388,10 @@
             }
         }
 
-        // --- NOTES FUNCTIONALITY ---
         async function loadNotes() {
             try {
                 const user = JSON.parse(localStorage.getItem("user"));
                 if (!user) return;
-
-                // Use apiFetch which handles tokens automatically
                 const data = await apiFetch(`/notes/${user.user_id}/${courseId}`);
                 if (data && data.notes !== undefined) {
                     document.getElementById('notesTextarea').value = data.notes;
@@ -410,24 +403,14 @@
 
         async function saveNotes() {
             const user = JSON.parse(localStorage.getItem("user"));
-            if (!user) {
-                alert("Please login to save notes");
-                return;
-            }
-
-            // JWT Token Check
-            if (!localStorage.getItem("token")) {
-                console.warn("Stopping script: No token found.");
+            if (!user || !localStorage.getItem("token")) {
                 window.location.href = "../pages/login.html";
                 return;
             }
-
             const noteContent = document.getElementById('notesTextarea').value;
             const status = document.getElementById('save-status');
             status.textContent = "Saving...";
-
             try {
-                // Use apiFetch for authenticated request
                 const response = await apiFetch("/notes/save", {
                     method: "POST",
                     body: JSON.stringify({
@@ -436,7 +419,6 @@
                         notes: noteContent
                     })
                 });
-
                 if (response && (response.status === "saved" || response.status === "updated")) {
                     status.textContent = "Saved!";
                     setTimeout(() => status.textContent = "", 2000);
@@ -451,10 +433,10 @@
             }
         }
 
-        window.onload = () => {
-            loadVideos();
+        window.onload = async () => {
+            await loadVideos();
             playVideo(0);
-            loadNotes(); // Load notes on page load
+            loadNotes();
         };
     </script>
 </body>

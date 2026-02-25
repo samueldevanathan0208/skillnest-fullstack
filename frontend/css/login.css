@@ -21,15 +21,14 @@ body {
 .navbar {
     display: flex;
     align-items: center;
-    gap: 0;
     background-color: #ffffff;
     padding: 15px 40px;
+    gap: 50px;
 }
 
 .logo {
     width: 70px;
     margin: 0;
-    margin-right: auto;
 }
 
 .navbar a {
@@ -37,7 +36,6 @@ body {
     color: rgb(0, 0, 0);
     font-size: 18px;
     font-weight: 400;
-    margin-right: 75px;
 }
 
 .navbar .Signin {
@@ -46,14 +44,11 @@ body {
     padding: 10px 25px;
     border-radius: 50px;
     font-weight: 550;
-    margin-left: auto;
-    /* Push to far right */
     margin-right: 0;
 }
 
 .firsta {
-    margin-left: 500px;
-    /* Reset specific margin */
+    margin-left: auto;
 }
 
 /* ===== LAYOUT ===== */
@@ -63,21 +58,18 @@ body {
     align-items: center;
     gap: 60px;
     padding: 40px;
+    min-height: calc(100vh - 100px);
 }
 
 /* ===== LOGIN CARD ===== */
 .login-container {
     background-color: #6200ff;
     border-radius: 24px;
-    padding: 60px 50px;
+    padding: 60px 40px;
     width: 420px;
-    /* consistent with signup container width */
-    height: 680px;
-    /* consistent height */
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
     display: flex;
     flex-direction: column;
-    justify-content: center;
 }
 
 h1 {

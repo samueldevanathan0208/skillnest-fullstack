@@ -110,24 +110,24 @@
         </main>
 
         <script>
-            const courseData = {
-                'html': { title: 'HTML Course', headerText: 'HTML5', total: 10, link: '../video_pages/html_video.html' },
-                'css': { title: 'CSS Course', headerText: 'CSS3', total: 10, link: '../video_pages/css_video.html' },
-                'js': { title: 'JavaScript Course', headerText: 'JS', total: 10, link: '../video_pages/js_video.html' },
-                'python': { title: 'Learn Python', headerText: 'PY', total: 10, link: '../video_pages/python_video.html' },
-                'java': { title: 'Java Course', headerText: 'JAVA', total: 10, link: '../video_pages/java_video.html' },
-                'react': { title: 'React JS', headerText: 'REACT', total: 10, link: '../video_pages/react_video.html' },
-                'fastapi': { title: 'FastAPI', headerText: 'FASTAPI', total: 10, link: '../video_pages/fastapi_video.html' },
-                'db': { title: 'PostgreSQL', headerText: 'SQL', total: 10, link: '../video_pages/postgresql_video.html' }
-            };
-
-
             async function updateUI() {
                 const container = document.getElementById('courses-container');
 
                 try {
                     const progressData = await apiFetch("/progress/course");
                     if (!progressData) return;
+
+                    // course metadata (ui-specific)
+                    const courseMeta = {
+                        'html': { title: 'HTML Course', headerText: 'HTML5', link: '../video_pages/html_video.html' },
+                        'css': { title: 'CSS Course', headerText: 'CSS3', link: '../video_pages/css_video.html' },
+                        'js': { title: 'JavaScript Course', headerText: 'JS', link: '../video_pages/js_video.html' },
+                        'python': { title: 'Learn Python', headerText: 'PY', link: '../video_pages/python_video.html' },
+                        'java': { title: 'Java Course', headerText: 'JAVA', link: '../video_pages/java_video.html' },
+                        'react': { title: 'React JS', headerText: 'REACT', link: '../video_pages/react_video.html' },
+                        'fastapi': { title: 'FastAPI', headerText: 'FASTAPI', link: '../video_pages/fastapi_video.html' },
+                        'db': { title: 'PostgreSQL', headerText: 'SQL', link: '../video_pages/postgresql_video.html', key: 'postgresql' }
+                    };
                     // Build v5
 
                     let totalStarted = 0;
@@ -186,11 +186,18 @@
                         container.innerHTML = `<div class="empty-state"><h3>No courses started yet.</h3><p>Go to the dashboard to start learning!</p></div>`;
                     } else {
                         startedCourses.forEach(id => {
-                            const course = courseData[id];
-                            if (!course) return;
+                            const meta = courseMeta[id];
+                            if (!meta) return;
 
-                            const uniqueVideos = new Set(progressData[id]).size;
-                            const percent = Math.min(100, Math.round((uniqueVideos / course.total) * 100));
+                            const dataKey = meta.key || id;
+                            const courseVideos = COURSES_DATA[dataKey] || [];
+                            const totalVideos = courseVideos.length;
+
+                            if (totalVideos === 0) return; // Skip if no data found
+
+                            const completedIndices = progressData[id] || [];
+                            const uniqueCompleted = new Set(completedIndices).size;
+                            const percent = Math.min(100, Math.round((uniqueCompleted / totalVideos) * 100));
                             const isCompleted = percent === 100;
 
                             totalStarted++;
@@ -200,24 +207,24 @@
                             const card = document.createElement('div');
                             card.className = 'course-card';
                             card.innerHTML = `
-                            <div class="course-header ${id}">${course.headerText}</div>
+                            <div class="course-header ${id}">${meta.headerText}</div>
                             <div class="course-content">
                                 <span class="course-status ${isCompleted ? 'status-completed' : 'status-progress'}">
                                     ${isCompleted ? 'Completed' : 'In Progress'}
                                 </span>
-                                <h3 class="course-title">${course.title}</h3>
+                                <h3 class="course-title">${meta.title}</h3>
                                 
                                 <div class="progress-section">
                                     <div class="progress-info">
                                         <span>${isCompleted ? '100% Complete' : percent + '% in progress'}</span>
-                                        <span>${uniqueVideos}/${course.total} videos</span>
+                                        <span>${uniqueCompleted}/${totalVideos} videos</span>
                                     </div>
                                     <div class="progress-bar-bg">
                                         <div class="progress-bar-fill" style="width: ${percent}%"></div>
                                     </div>
                                 </div>
 
-                                <a href="${course.link}" class="continue-btn">
+                                <a href="${meta.link}" class="continue-btn">
                                     ${isCompleted ? 'Review Course' : 'Continue Learning'}
                                 </a>
                             </div>

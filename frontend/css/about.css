@@ -24,16 +24,15 @@ img {
     padding: 15px 40px;
     background-color: #ffffff;
     width: 100%;
+    gap: 50px;
 }
 
 .logo {
     width: 70px;
     margin: 0;
-    margin-right: auto;
 }
 
 .navbar a {
-    margin-right: 75px;
     text-decoration: none;
     color: #000;
     font-size: 18px;
@@ -46,14 +45,11 @@ img {
     padding: 10px 25px;
     border-radius: 50px;
     font-weight: 550;
-    margin-left: auto;
-    /* Push to far right */
     margin-right: 0;
 }
 
 .firsta {
-    margin-left: 500px;
-    /* Reset specific margin */
+    margin-left: auto;
 }
 
 @media (max-width: 768px) {

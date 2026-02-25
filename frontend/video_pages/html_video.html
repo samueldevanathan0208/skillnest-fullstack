@@ -132,6 +132,19 @@
             border-color: #4900c1;
         }
 
+        .video-item.locked {
+            opacity: 0.45;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .lock-icon {
+            font-size: 18px;
+            color: #9ca3af;
+            display: flex;
+            align-items: center;
+        }
+
         .video-thumb {
             width: 120px;
             height: 68px;
@@ -274,18 +287,7 @@
     </div>
 
     <script>
-        const videos = [
-            { title: "1. HTML Introduction in Tamil", duration: "08:30", thumbnail: "https://img.youtube.com/vi/ok-plXXHlWw/hqdefault.jpg", src: "https://www.youtube.com/embed/ok-plXXHlWw" },
-            { title: "2. Setting up Workspace", duration: "10:15", thumbnail: "https://img.youtube.com/vi/ok-plXXHlWw/hqdefault.jpg", src: "https://www.youtube.com/embed/ok-plXXHlWw" },
-            { title: "3. HTML Structure & Headings", duration: "12:45", thumbnail: "https://img.youtube.com/vi/ok-plXXHlWw/hqdefault.jpg", src: "https://www.youtube.com/embed/ok-plXXHlWw" },
-            { title: "4. Paragraphs and Formatting", duration: "11:20", thumbnail: "https://img.youtube.com/vi/ok-plXXHlWw/hqdefault.jpg", src: "https://www.youtube.com/embed/ok-plXXHlWw" },
-            { title: "5. Lists in HTML", duration: "09:30", thumbnail: "https://img.youtube.com/vi/ok-plXXHlWw/hqdefault.jpg", src: "https://www.youtube.com/embed/ok-plXXHlWw" },
-            { title: "6. Images and Links", duration: "14:50", thumbnail: "https://img.youtube.com/vi/ok-plXXHlWw/hqdefault.jpg", src: "https://www.youtube.com/embed/ok-plXXHlWw" },
-            { title: "7. Tables in HTML", duration: "16:20", thumbnail: "https://img.youtube.com/vi/ok-plXXHlWw/hqdefault.jpg", src: "https://www.youtube.com/embed/ok-plXXHlWw" },
-            { title: "8. HTML Forms (Tamil)", duration: "18:10", thumbnail: "https://img.youtube.com/vi/ok-plXXHlWw/hqdefault.jpg", src: "https://www.youtube.com/embed/ok-plXXHlWw" },
-            { title: "9. Media Elements (Video/Audio)", duration: "13:40", thumbnail: "https://img.youtube.com/vi/ok-plXXHlWw/hqdefault.jpg", src: "https://www.youtube.com/embed/ok-plXXHlWw" },
-            { title: "10. Semantic HTML & SEO", duration: "15:15", thumbnail: "https://img.youtube.com/vi/ok-plXXHlWw/hqdefault.jpg", src: "https://www.youtube.com/embed/ok-plXXHlWw" }
-        ];
+        const videos = COURSES_DATA.html;
 
         let currentIndex = 0;
         const courseId = 'html';
@@ -308,21 +310,23 @@
 
             videos.forEach((video, index) => {
                 const isCompleted = courseProgressData.includes(index);
-                const item = document.createElement('div');
-                item.className = `video-item ${index === currentIndex ? 'active' : ''}`;
+                // Unlock if first video, or current is completed, or previous is completed
+                const isUnlocked = index === 0 || isCompleted || courseProgressData.includes(index - 1);
 
-                if (isCompleted || index === 0 || courseProgressData.includes(index - 1)) {
-                    item.style.pointerEvents = 'auto';
-                    item.style.opacity = '1';
+                const item = document.createElement('div');
+                item.className = `video-item ${index === currentIndex ? 'active' : ''} ${!isUnlocked ? 'locked' : ''}`;
+
+                if (isUnlocked) {
+                    item.onclick = () => { currentIndex = index; playVideo(index); };
                 }
 
-                item.onclick = () => { currentIndex = index; playVideo(index); };
                 item.innerHTML = `
                     <img src="${video.thumbnail}" class="video-thumb">
-                    <div>
+                    <div class="item-content">
                         <div class="item-title">${video.title} ${isCompleted ? '✅' : ''}</div>
                         <div class="item-duration">${video.duration}</div>
                     </div>
+                    ${!isUnlocked ? '<div class="lock-icon">🔒</div>' : ''}
                 `;
                 list.appendChild(item);
             });
@@ -376,7 +380,6 @@
                 console.error('Error saving progress:', error);
             }
         }
-
 
         function goNext() {
             if (currentIndex < videos.length - 1) {
@@ -451,8 +454,8 @@
             }
         }
 
-        window.onload = () => {
-            loadVideos();
+        window.onload = async () => {
+            await loadVideos();
             playVideo(0);
             loadNotes(); // Load notes on page load
         };

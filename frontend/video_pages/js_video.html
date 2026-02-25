@@ -5,6 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JavaScript Course</title>
+
+    <!-- YouTube API (Required for tracking) -->
+    <script src="https://www.youtube.com/iframe_api"></script>
+
+    <link rel="stylesheet" href="../css/chatbot.css">
     <style>
         * {
             box-sizing: border-box;
@@ -132,6 +137,19 @@
             border-color: #4900c1;
         }
 
+        .video-item.locked {
+            opacity: 0.45;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .lock-icon {
+            font-size: 18px;
+            color: #9ca3af;
+            display: flex;
+            align-items: center;
+        }
+
         .video-thumb {
             width: 120px;
             height: 68px;
@@ -237,7 +255,7 @@
                 ← Back to Dashboard
             </a>
             <div class="video-player">
-                <iframe id="ytVideo" width="100%" height="100%" style="display:block;" allowfullscreen></iframe>
+                <div id="ytVideo" style="width: 100%; height: 100%;"></div>
             </div>
 
             <h2 class="video-title" id="videoTitle">Loading...</h2>
@@ -245,8 +263,6 @@
 
             <div class="btn-container">
                 <button class="nav-btn" id="prevBtn" onclick="goPrev()">Previous</button>
-                <button class="nav-btn" id="completeBtn" onclick="markComplete()" style="background: #28a745;">Mark
-                    Complete</button>
                 <button class="nav-btn" id="nextBtn" onclick="goNext()" disabled>Next</button>
             </div>
         </div>
@@ -275,22 +291,27 @@
     </div>
 
     <script>
-        const videos = [
-            { title: "1. What is JavaScript in Tamil?", duration: "11:47", thumbnail: "https://img.youtube.com/vi/YrOkVD_YUro/hqdefault.jpg", src: "https://www.youtube.com/embed/YrOkVD_YUro" },
-            { title: "2. Environment Setup for JS", duration: "13:51", thumbnail: "https://img.youtube.com/vi/4zlr_Ez_EYo/hqdefault.jpg", src: "https://www.youtube.com/embed/4zlr_Ez_EYo" },
-            { title: "3. Alerts and External Scripts", duration: "15:59", thumbnail: "https://img.youtube.com/vi/AoEohhf6Avc/hqdefault.jpg", src: "https://www.youtube.com/embed/AoEohhf6Avc" },
-            { title: "4. Data Types in Tamil", duration: "14:35", thumbnail: "https://img.youtube.com/vi/xs8bTPpONqA/hqdefault.jpg", src: "https://www.youtube.com/embed/xs8bTPpONqA" },
-            { title: "5. Comments and Hot Keys in JS", duration: "10:25", thumbnail: "https://img.youtube.com/vi/BSXQC4ZN8p4/hqdefault.jpg", src: "https://www.youtube.com/embed/BSXQC4ZN8p4" },
-            { title: "6. Variables in JavaScript (Tamil)", duration: "25:43", thumbnail: "https://img.youtube.com/vi/csFBVXrsxck/hqdefault.jpg", src: "https://www.youtube.com/embed/csFBVXrsxck" },
-            { title: "7. Let, Const and Var", duration: "14:40", thumbnail: "https://img.youtube.com/vi/Ub87voAYIWQ/hqdefault.jpg", src: "https://www.youtube.com/embed/Ub87voAYIWQ" },
-            { title: "8. Operators in JS (Tamil)", duration: "18:20", thumbnail: "https://img.youtube.com/vi/YrOkVD_YUro/hqdefault.jpg", src: "https://www.youtube.com/embed/YrOkVD_YUro" },
-            { title: "9. Conditional Statements in JS", duration: "20:15", thumbnail: "https://img.youtube.com/vi/4zlr_Ez_EYo/hqdefault.jpg", src: "https://www.youtube.com/embed/4zlr_Ez_EYo" },
-            { title: "10. Functions and Scopes", duration: "22:50", thumbnail: "https://img.youtube.com/vi/AoEohhf6Avc/hqdefault.jpg", src: "https://www.youtube.com/embed/AoEohhf6Avc" }
-        ];
+        const videos = COURSES_DATA.js;
 
         let currentIndex = 0;
         const courseId = 'js';
         let courseProgressData = [];
+
+        /* ===============================
+           YOUTUBE TRACKING
+        ================================= */
+
+        let player;
+        let isApiReady = false;
+        let totalDuration = 0;
+        let requiredWatchTime = 0;
+        let maxWatchedTime = 0;
+        let watchInterval = null;
+
+        function onYouTubeIframeAPIReady() {
+            isApiReady = true;
+            console.log("YouTube API Ready");
+        }
 
         async function fetchProgress() {
             try {
@@ -309,58 +330,122 @@
 
             videos.forEach((video, index) => {
                 const isCompleted = courseProgressData.includes(index);
-                const item = document.createElement('div');
-                item.className = `video-item ${index === currentIndex ? 'active' : ''}`;
+                const isUnlocked = index === 0 || isCompleted || courseProgressData.includes(index - 1);
 
-                if (isCompleted || index === 0 || courseProgressData.includes(index - 1)) {
-                    item.style.pointerEvents = 'auto';
-                    item.style.opacity = '1';
+                const item = document.createElement('div');
+                item.className = `video-item ${index === currentIndex ? 'active' : ''} ${!isUnlocked ? 'locked' : ''}`;
+
+                if (isUnlocked) {
+                    item.onclick = () => { playVideo(index); };
                 }
 
-                item.onclick = () => { currentIndex = index; playVideo(index); };
                 item.innerHTML = `
                     <img src="${video.thumbnail}" class="video-thumb">
-                    <div>
+                    <div class="item-content">
                         <div class="item-title">${video.title} ${isCompleted ? '✅' : ''}</div>
                         <div class="item-duration">${video.duration}</div>
                     </div>
+                    ${!isUnlocked ? '<div class="lock-icon">🔒</div>' : ''}
                 `;
                 list.appendChild(item);
             });
         }
 
         function playVideo(index) {
+
+            currentIndex = index;
             const video = videos[index];
-            const yt = document.getElementById("ytVideo");
+
+            document.getElementById("videoTitle").textContent = video.title;
+            document.getElementById("videoInfo").textContent = "Duration: " + video.duration;
+
             const nextBtn = document.getElementById("nextBtn");
-            const completeBtn = document.getElementById("completeBtn");
-
             const isCompleted = courseProgressData.includes(index);
+            nextBtn.disabled = !isCompleted;
 
-            completeBtn.disabled = isCompleted;
-            completeBtn.textContent = isCompleted ? 'Completed' : 'Mark Complete';
-            completeBtn.style.opacity = isCompleted ? '0.7' : '1';
+            maxWatchedTime = 0;
+            totalDuration = 0;
+            requiredWatchTime = 0;
+
+            const videoId = video.src.split("/embed/")[1];
+
+            // Calculate duration from metadata (assuming minutes)
+            const metaDuration = parseFloat(video.duration) * 60;
+            if (!isNaN(metaDuration) && metaDuration > 0) {
+                totalDuration = metaDuration;
+                requiredWatchTime = totalDuration * 0.5;
+                console.log(`Watch requirement: ${requiredWatchTime}s (from metadata)`);
+            }
+
+            if (!isApiReady) {
+                console.warn("API not ready yet, waiting...");
+                setTimeout(() => playVideo(index), 500);
+                return;
+            }
+
+            if (player && typeof player.loadVideoById === 'function') {
+                player.loadVideoById(videoId);
+            } else {
+                player = new YT.Player('ytVideo', {
+                    videoId: videoId,
+                    playerVars: {
+                        'autoplay': 1,
+                        'modestbranding': 1,
+                        'rel': 0
+                    },
+                    events: {
+                        onReady: onPlayerReady
+                    }
+                });
+            }
 
             document.querySelectorAll(".video-item").forEach((item, i) => {
                 item.classList.toggle("active", i === index);
             });
-            document.getElementById("videoTitle").textContent = video.title;
-            document.getElementById("videoInfo").textContent = "Duration: " + video.duration;
+        }
 
-            if (yt.dataset.index !== index.toString()) {
-                yt.src = video.src + "?enablejsapi=1";
-                yt.dataset.index = index;
+        /* ===============================
+           YOUTUBE READY
+        ================================= */
+
+        function onPlayerReady() {
+
+            // Only use player duration if metadata wasn't available or valid
+            if (totalDuration <= 0) {
+                totalDuration = player.getDuration();
+                requiredWatchTime = totalDuration * 0.5;
+                console.log(`Watch requirement: ${requiredWatchTime}s (from player)`);
             }
 
-            nextBtn.disabled = !isCompleted;
+            if (watchInterval) clearInterval(watchInterval);
+
+            watchInterval = setInterval(() => {
+
+                const currentTime = player.getCurrentTime();
+
+                if (currentTime > maxWatchedTime) {
+                    maxWatchedTime = currentTime;
+                }
+
+                // Prevent skipping
+                if (currentTime > maxWatchedTime + 2) {
+                    player.seekTo(maxWatchedTime);
+                }
+
+                // Unlock next
+                if (maxWatchedTime >= requiredWatchTime) {
+                    document.getElementById("nextBtn").disabled = false;
+                    clearInterval(watchInterval);
+                }
+
+            }, 1000);
         }
 
         async function markComplete() {
+
             if (courseProgressData.includes(currentIndex)) return;
 
-            // Optimistic update: Enable Next button instantly
             courseProgressData.push(currentIndex);
-            playVideo(currentIndex);
 
             try {
                 await apiFetch("/progress/course/video", {
@@ -371,35 +456,38 @@
                     })
                 });
 
-                // update sidebar checkmarks and unlock next
                 await loadVideos();
-            } catch (error) {
-                console.error('Error saving progress:', error);
+
+            } catch (e) {
+                console.log("Save failed");
             }
         }
 
+        /* ===============================
+           NAVIGATION
+        ================================= */
 
-        function goNext() {
+        async function goNext() {
+            // Save progress when clicking Next
+            if (!courseProgressData.includes(currentIndex)) {
+                await markComplete();
+            }
+
             if (currentIndex < videos.length - 1) {
-                currentIndex++;
-                playVideo(currentIndex);
+                playVideo(currentIndex + 1);
             }
         }
 
         function goPrev() {
             if (currentIndex > 0) {
-                currentIndex--;
-                playVideo(currentIndex);
+                playVideo(currentIndex - 1);
             }
         }
 
-        // --- NOTES FUNCTIONALITY ---
         async function loadNotes() {
             try {
                 const user = JSON.parse(localStorage.getItem("user"));
                 if (!user) return;
-
-                // Use apiFetch which handles tokens automatically
                 const data = await apiFetch(`/notes/${user.user_id}/${courseId}`);
                 if (data && data.notes !== undefined) {
                     document.getElementById('notesTextarea').value = data.notes;
@@ -411,24 +499,13 @@
 
         async function saveNotes() {
             const user = JSON.parse(localStorage.getItem("user"));
-            if (!user) {
-                alert("Please login to save notes");
-                return;
-            }
-
-            // JWT Token Check
-            if (!localStorage.getItem("token")) {
-                console.warn("Stopping script: No token found.");
-                window.location.href = "../pages/login.html";
-                return;
-            }
+            if (!user) { alert("Please login to save notes"); return; }
+            if (!localStorage.getItem("token")) { window.location.href = "../pages/login.html"; return; }
 
             const noteContent = document.getElementById('notesTextarea').value;
             const status = document.getElementById('save-status');
             status.textContent = "Saving...";
-
             try {
-                // Use apiFetch for authenticated request
                 const response = await apiFetch("/notes/save", {
                     method: "POST",
                     body: JSON.stringify({
@@ -437,7 +514,6 @@
                         notes: noteContent
                     })
                 });
-
                 if (response && (response.status === "saved" || response.status === "updated")) {
                     status.textContent = "Saved!";
                     setTimeout(() => status.textContent = "", 2000);
@@ -452,10 +528,14 @@
             }
         }
 
-        window.onload = () => {
-            loadVideos();
+        /* ===============================
+           INIT
+        ================================= */
+
+        window.onload = async () => {
+            await loadVideos();
             playVideo(0);
-            loadNotes(); // Load notes on page load
+            loadNotes();
         };
     </script>
 </body>

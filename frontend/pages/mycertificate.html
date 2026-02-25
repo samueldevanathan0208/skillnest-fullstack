@@ -73,14 +73,14 @@
     <script>
 
         const certMetadata = {
-            html: { styleClass: "HTML", title: "HTML5", type: "Course Completion", totalVideos: 10 },
-            css: { styleClass: "CSS", title: "CSS3", type: "Professional Certificate", totalVideos: 10 },
-            js: { styleClass: "JavaScript", title: "JavaScript", type: "Course Completion", totalVideos: 10 },
-            python: { styleClass: "Python", title: "Python", type: "Course Completion", totalVideos: 10 },
-            java: { styleClass: "java", title: "Java", type: "Course Completion", totalVideos: 10 },
-            react: { styleClass: "React", title: "React JS", type: "Course Completion", totalVideos: 10 },
-            fastapi: { styleClass: "fastapi", title: "FastAPI", type: "Backend Specialization", totalVideos: 10 },
-            db: { styleClass: "db", title: "PostgreSQL", type: "Database Expert", totalVideos: 10 }
+            html: { styleClass: "HTML", title: "HTML5", type: "Course Completion", courseKey: "html" },
+            css: { styleClass: "CSS", title: "CSS3", type: "Professional Certificate", courseKey: "css" },
+            js: { styleClass: "JavaScript", title: "JavaScript", type: "Course Completion", courseKey: "js" },
+            python: { styleClass: "Python", title: "Python", type: "Course Completion", courseKey: "python" },
+            java: { styleClass: "java", title: "Java", type: "Course Completion", courseKey: "java" },
+            react: { styleClass: "React", title: "React JS", type: "Course Completion", courseKey: "react" },
+            fastapi: { styleClass: "fastapi", title: "FastAPI", type: "Backend Specialization", courseKey: "fastapi" },
+            db: { styleClass: "db", title: "PostgreSQL", type: "Database Expert", courseKey: "postgresql" }
         };
 
         document.addEventListener("DOMContentLoaded", init);
@@ -110,14 +110,19 @@
                 const unlocked = [];
 
                 for (const key in certMetadata) {
-                    const uniqueVideos = new Set(courseProgress[key] || []).size;
+                    const meta = certMetadata[key];
+                    // Use the correct COURSES_DATA key to count videos
+                    const totalVideos = (COURSES_DATA[meta.courseKey] || []).length;
+                    const uniqueVideos = new Set(courseProgress[meta.courseKey] || []).size;
                     const quiz = quizProgress[key];
 
+                    console.log(`[CERT CHECK] ${key}: videos ${uniqueVideos}/${totalVideos}, quiz attempts: ${quiz?.attempts}`);
+
                     // Rule: 100% video completion AND at least one quiz attempt
-                    if (uniqueVideos === certMetadata[key].totalVideos && quiz?.attempts > 0) {
+                    if (totalVideos > 0 && uniqueVideos === totalVideos && quiz?.attempts > 0) {
                         unlocked.push({
                             key,
-                            ...certMetadata[key],
+                            ...meta,
                             score: quiz.bestScore || 0
                         });
                     }

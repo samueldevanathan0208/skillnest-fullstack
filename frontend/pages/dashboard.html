@@ -38,42 +38,22 @@
 
 
         async function updateCourseProgress() {
-            const courseIds = ['html', 'css', 'js', 'python', 'java', 'react', 'fastapi', 'postgresql'];
-            const totalVideosPerCourse = 10;
-            const totalPossibleVideos = courseIds.length * totalVideosPerCourse;
-
             try {
-                // Progress endpoint no longer needs user_id in path
                 const progressData = await apiFetch("/progress/course");
                 if (!progressData) {
                     console.warn("No progress data received from API.");
                     return;
                 }
 
-                let totalCompletedVideos = 0;
-                let completedCoursesCount = 0;
-
-                courseIds.forEach(id => {
-                    if (progressData[id]) {
-                        // Use Set to ensure unique video indices are counted (preventing >100%)
-                        const completedInCourse = new Set(progressData[id]).size;
-                        totalCompletedVideos += completedInCourse;
-                        if (completedInCourse === totalVideosPerCourse) {
-                            completedCoursesCount++;
-                        }
-                    }
-                });
-
-                const rawPercent = (totalCompletedVideos / totalPossibleVideos) * 100;
-                const overallPercent = Math.min(100, Math.round(rawPercent));
+                const stats = getProgressStats(progressData);
 
                 // Update UI
                 const label = document.querySelector('.progress-label span');
                 const fill = document.querySelector('.progress-fill');
 
                 if (label && fill) {
-                    label.innerHTML = `Learning Progress: ${overallPercent}% Complete<br><small>${completedCoursesCount} of 8 Courses Completed</small>`;
-                    fill.style.width = `${overallPercent}%`;
+                    label.innerHTML = `Learning Progress: ${stats.overallPercentage}% Complete<br><small>${stats.completedCoursesCount} of ${stats.totalCoursesCount} Courses Completed</small>`;
+                    fill.style.width = `${stats.overallPercentage}%`;
                 }
 
             } catch (error) {
@@ -169,7 +149,7 @@
 
         <div class="courses-header">
             <h2 class="courses-title">Learn</h2>
-            <button class="view-all-btn">View All</button>
+
         </div>
 
         <div class="courses-grid">

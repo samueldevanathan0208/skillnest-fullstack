@@ -324,12 +324,21 @@
 
         <div class="quiz-container">
             <!-- Start Screen -->
-            <div class="start-screen active">
+            <div class="start-screen active" id="startScreen">
                 <h2>Welcome to the HTML Quiz!</h2>
                 <p>This quiz contains 20 questions covering various aspects of HTML including elements, attributes,
                     semantics, forms, and best practices. You'll have unlimited time to complete the quiz. Good luck!
                 </p>
                 <button class="btn" onclick="startQuiz()">Start Quiz</button>
+            </div>
+
+            <div class="start-screen" id="completedScreen" style="text-align:center;">
+                <div style="font-size:4em;">✅</div>
+                <h2 style="color:#28a745;margin:15px 0;">Quiz Already Completed!</h2>
+                <p style="color:#666;margin-bottom:25px;">You have already completed this quiz. Each quiz can only be
+                    taken once.</p>
+                <a href="../pages/quizzes.html" class="btn" style="text-decoration:none;display:inline-block;">← Back to
+                    Quizzes</a>
             </div>
 
             <!-- Quiz Screen -->
@@ -370,7 +379,8 @@
                         <span id="percentage">0%</span>
                     </div>
                 </div>
-                <button class="btn" onclick="restartQuiz()">Restart Quiz</button>
+                <a href="../pages/quizzes.html" class="btn" style="text-decoration:none;display:inline-block;">← Back to
+                    Quizzes</a>
             </div>
         </div>
     </div>
@@ -504,28 +514,17 @@
             const quizId = 'html';
 
             try {
-                const response = await apiFetch("/progress/quiz/partial");
-                if (response.ok) {
-                    const partials = await response.json();
-                    const myPartial = partials[quizId];
-
-                    if (myPartial && myPartial.currentIndex > 0) {
-                        if (confirm('You have a quiz in progress. Would you like to resume?')) {
-                            currentQuestion = myPartial.currentIndex;
-                            score = myPartial.score;
-                        } else {
-                            // Clear partial if not resuming
-                            await apiFetch(`/progress/quiz/partial/${quizId}`, {
-                                method: 'DELETE'
-                            });
-                        }
-                    }
+                const results = await apiFetch("/progress/quiz");
+                if (results && results[quizId] && results[quizId].attempts > 0) {
+                    document.getElementById('startScreen').classList.remove('active');
+                    document.getElementById('completedScreen').classList.add('active');
+                    return;
                 }
             } catch (error) {
-                console.error('Error checking progress:', error);
+                console.error('Error checking quiz completion:', error);
             }
 
-            document.querySelector('.start-screen').classList.remove('active');
+            document.getElementById('startScreen').classList.remove('active');
             document.querySelector('.quiz-screen').classList.add('active');
             loadQuestion();
         }
@@ -642,22 +641,8 @@
             document.getElementById('resultMessage').textContent = message;
         }
 
-        async function restartQuiz() {
-            const quizId = 'html';
-
-            try {
-                await apiFetch(`/progress/quiz/partial/${quizId}`, {
-                    method: 'DELETE'
-                });
-            } catch (error) {
-                console.error('Error clearing progress:', error);
-            }
-
-            currentQuestion = 0;
-            score = 0;
-            selectedAnswer = null;
-            document.querySelector('.result-screen').classList.remove('active');
-            document.querySelector('.start-screen').classList.add('active');
+        function restartQuiz() {
+            window.location.href = '../pages/quizzes.html';
         }
     </script>
 </body>

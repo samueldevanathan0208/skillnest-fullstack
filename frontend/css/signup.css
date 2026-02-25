@@ -18,34 +18,30 @@ body {
 .navbar {
     display: flex;
     align-items: center;
-    gap: 0;
     background: #fff;
     padding: 15px 40px;
+    gap: 50px;
 }
 
 .logo {
     width: 70px;
     margin: 0;
-    margin-right: auto;
 }
 
 .navbar a {
     text-decoration: none;
     color: #000;
-    margin-right: 75px;
 }
 
 .navbar .Signin {
     background-color: #ffd700;
     padding: 10px 25px;
     border-radius: 50px;
-    margin-left: auto;
     margin-right: 0;
 }
 
 .firsta {
-    margin-left: 500px;
-    /* Reset specific margin */
+    margin-left: auto;
 }
 
 /* ===== LAYOUT ===== */
@@ -61,9 +57,8 @@ body {
 .container {
     background: #6200ff;
     border-radius: 24px;
-    padding: 60px 50px;
+    padding: 50px 40px;
     width: 420px;
-    height: 680px;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
 }
 
@@ -98,7 +93,7 @@ button {
 }
 
 #signup-form {
-    margin-top: -40px;
+    margin-top: 0;
 }
 
 /* ================================================= */

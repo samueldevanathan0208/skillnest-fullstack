@@ -132,6 +132,19 @@
             border-color: #4900c1;
         }
 
+        .video-item.locked {
+            opacity: 0.45;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .lock-icon {
+            font-size: 18px;
+            color: #9ca3af;
+            display: flex;
+            align-items: center;
+        }
+
         .video-thumb {
             width: 120px;
             height: 68px;
@@ -274,22 +287,11 @@
     </div>
 
     <script>
-        const videos = [
-            { title: "1. FastAPI Introduction in Tamil", duration: "08:45", thumbnail: "https://img.youtube.com/vi/tLKKmouUams/hqdefault.jpg", src: "https://www.youtube.com/embed/tLKKmouUams" },
-            { title: "2. Setting up FastAPI", duration: "10:30", thumbnail: "https://img.youtube.com/vi/7t2alSnE2-I/hqdefault.jpg", src: "https://www.youtube.com/embed/7t2alSnE2-I" },
-            { title: "3. Path Parameters", duration: "12:15", thumbnail: "https://img.youtube.com/vi/tLKKmouUams/hqdefault.jpg", src: "https://www.youtube.com/embed/tLKKmouUams" },
-            { title: "4. Query Parameters", duration: "11:50", thumbnail: "https://img.youtube.com/vi/0sOvCWFmrtA/hqdefault.jpg", src: "https://www.youtube.com/embed/0sOvCWFmrtA" },
-            { title: "5. Request Body", duration: "14:20", thumbnail: "https://img.youtube.com/vi/7t2alSnE2-I/hqdefault.jpg", src: "https://www.youtube.com/embed/7t2alSnE2-I" },
-            { title: "6. Form Data and File Uploads", duration: "16:40", thumbnail: "https://img.youtube.com/vi/tLKKmouUams/hqdefault.jpg", src: "https://www.youtube.com/embed/tLKKmouUams" },
-            { title: "7. Handling Errors", duration: "13:10", thumbnail: "https://img.youtube.com/vi/0sOvCWFmrtA/hqdefault.jpg", src: "https://www.youtube.com/embed/0sOvCWFmrtA" },
-            { title: "8. Middleware in FastAPI", duration: "15:30", thumbnail: "https://img.youtube.com/vi/tLKKmouUams/hqdefault.jpg", src: "https://www.youtube.com/embed/tLKKmouUams" },
-            { title: "9. Authentication with JWT", duration: "20:15", thumbnail: "https://img.youtube.com/vi/7t2alSnE2-I/hqdefault.jpg", src: "https://www.youtube.com/embed/7t2alSnE2-I" },
-            { title: "10. Connecting to Database", duration: "22:50", thumbnail: "https://img.youtube.com/vi/0sOvCWFmrtA/hqdefault.jpg", src: "https://www.youtube.com/embed/0sOvCWFmrtA" }
-        ];
+        const videos = COURSES_DATA.fastapi;
 
         let currentIndex = 0;
         const courseId = 'fastapi';
-        let courseProgressData = [];
+        let courseProgressData = []; // Now an object: { videoIndex: { last_watched_time: X } }
 
         async function fetchProgress() {
             try {
@@ -308,21 +310,22 @@
 
             videos.forEach((video, index) => {
                 const isCompleted = courseProgressData.includes(index);
-                const item = document.createElement('div');
-                item.className = `video-item ${index === currentIndex ? 'active' : ''}`;
+                const isUnlocked = index === 0 || isCompleted || courseProgressData.includes(index - 1);
 
-                if (isCompleted || index === 0 || courseProgressData.includes(index - 1)) {
-                    item.style.pointerEvents = 'auto';
-                    item.style.opacity = '1';
+                const item = document.createElement('div');
+                item.className = `video-item ${index === currentIndex ? 'active' : ''} ${!isUnlocked ? 'locked' : ''}`;
+
+                if (isUnlocked) {
+                    item.onclick = () => { currentIndex = index; playVideo(index); };
                 }
 
-                item.onclick = () => { currentIndex = index; playVideo(index); };
                 item.innerHTML = `
                     <img src="${video.thumbnail}" class="video-thumb">
-                    <div>
+                    <div class="item-content">
                         <div class="item-title">${video.title} ${isCompleted ? '✅' : ''}</div>
                         <div class="item-duration">${video.duration}</div>
                     </div>
+                    ${!isUnlocked ? '<div class="lock-icon">🔒</div>' : ''}
                 `;
                 list.appendChild(item);
             });
@@ -357,7 +360,6 @@
         async function markComplete() {
             if (courseProgressData.includes(currentIndex)) return;
 
-            // Optimistic update: Enable Next button instantly
             courseProgressData.push(currentIndex);
             playVideo(currentIndex);
 
@@ -370,13 +372,11 @@
                     })
                 });
 
-                // update sidebar checkmarks and unlock next
                 await loadVideos();
             } catch (error) {
                 console.error('Error saving progress:', error);
             }
         }
-
 
         function goNext() {
             if (currentIndex < videos.length - 1) {
@@ -392,13 +392,10 @@
             }
         }
 
-        // --- NOTES FUNCTIONALITY ---
         async function loadNotes() {
             try {
                 const user = JSON.parse(localStorage.getItem("user"));
                 if (!user) return;
-
-                // Use apiFetch which handles tokens automatically
                 const data = await apiFetch(`/notes/${user.user_id}/${courseId}`);
                 if (data && data.notes !== undefined) {
                     document.getElementById('notesTextarea').value = data.notes;
@@ -410,24 +407,14 @@
 
         async function saveNotes() {
             const user = JSON.parse(localStorage.getItem("user"));
-            if (!user) {
-                alert("Please login to save notes");
-                return;
-            }
-
-            // JWT Token Check
-            if (!localStorage.getItem("token")) {
-                console.warn("Stopping script: No token found.");
+            if (!user || !localStorage.getItem("token")) {
                 window.location.href = "../pages/login.html";
                 return;
             }
-
             const noteContent = document.getElementById('notesTextarea').value;
             const status = document.getElementById('save-status');
             status.textContent = "Saving...";
-
             try {
-                // Use apiFetch for authenticated request
                 const response = await apiFetch("/notes/save", {
                     method: "POST",
                     body: JSON.stringify({
@@ -436,7 +423,6 @@
                         notes: noteContent
                     })
                 });
-
                 if (response && (response.status === "saved" || response.status === "updated")) {
                     status.textContent = "Saved!";
                     setTimeout(() => status.textContent = "", 2000);
@@ -451,10 +437,10 @@
             }
         }
 
-        window.onload = () => {
-            loadVideos();
+        window.onload = async () => {
+            await loadVideos();
             playVideo(0);
-            loadNotes(); // Load notes on page load
+            loadNotes();
         };
     </script>
 </body>

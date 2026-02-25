@@ -71,20 +71,12 @@
 
             <div class="stats-banner">
                 <div class="stat-item">
+                    <div class="stat-number">8</div>
+                    <div class="stat-label">Total Quizzes</div>
+                </div>
+                <div class="stat-item">
                     <div class="stat-number" id="totalCompleted">0</div>
                     <div class="stat-label">Quizzes Completed</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number" id="avgScore">0%</div>
-                    <div class="stat-label">Average Score</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number" id="perfectScores">0</div>
-                    <div class="stat-label">Perfect Scores</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number" id="totalAttempts">0</div>
-                    <div class="stat-label">Total Attempts</div>
                 </div>
             </div>
 
@@ -129,34 +121,23 @@
             grid.innerHTML = '';
 
             let completedCount = 0;
-            let totalScore = 0;
-            let perfectCount = 0;
-            let totalAttempts = 0;
-            let quizzesWithAttempts = 0;
 
             quizData.forEach(quiz => {
                 const result = results[quiz.id] || { attempts: 0, bestScore: 0, lastScore: 0 };
                 const partial = partials[quiz.id] || { currentIndex: 0, score: 0 };
+                const isCompleted = result.attempts > 0;
 
-                if (result.attempts > 0) {
-                    completedCount++;
-                    totalScore += result.bestScore;
-                    totalAttempts += result.attempts;
-                    quizzesWithAttempts++;
-                    if (result.bestScore === 100) perfectCount++;
-                }
+                if (isCompleted) completedCount++;
 
-                // Calculate progress
+                // Calculate progress for the progress bar
                 let progressPercent = 0;
                 let progressText = `0/${quiz.qCount}`;
 
-                if (result.attempts > 0) {
-                    progressPercent = 100; // Completed
+                if (isCompleted) {
+                    progressPercent = 100;
                     progressText = `${quiz.qCount}/${quiz.qCount}`;
                 } else if (partial.currentIndex > 0) {
-                    progressPercent = Math.round((partial.currentIndex / quiz.qCount) * 100);
-                    // Ensure it doesn't exceed 100 visual
-                    if (progressPercent > 100) progressPercent = 100;
+                    progressPercent = Math.min(Math.round((partial.currentIndex / quiz.qCount) * 100), 100);
                     progressText = `${partial.currentIndex}/${quiz.qCount}`;
                 }
 
@@ -173,18 +154,14 @@
                             <div class="info-item"><span>${quiz.qCount} Questions</span></div>
                             <div class="info-item"><span>${quiz.time}</span></div>
                         </div>
-                        <div class="quiz-stats">
-                            <div class="quiz-stat">
-                                <div class="quiz-stat-value">${result.attempts > 0 ? '100%' : progressPercent + '%'}</div>
-                                <div class="quiz-stat-label">Progress</div>
+                        <div style="display:flex;justify-content:space-around;text-align:center;margin:14px 0 8px;padding:12px 0;border-top:1px solid #f0f0f0;border-bottom:1px solid #f0f0f0;">
+                            <div>
+                                <div style="font-size:1.3em;font-weight:700;color:#1a1a2e;">${progressPercent}%</div>
+                                <div style="font-size:0.78em;color:#888;margin-top:2px;">Progress</div>
                             </div>
-                            <div class="quiz-stat">
-                                <div class="quiz-stat-value">${result.bestScore}%</div>
-                                <div class="quiz-stat-label">Best Score</div>
-                            </div>
-                            <div class="quiz-stat">
-                                <div class="quiz-stat-value">${result.attempts}</div>
-                                <div class="quiz-stat-label">Attempts</div>
+                            <div>
+                                <div style="font-size:1.3em;font-weight:700;color:#1a1a2e;">${isCompleted ? result.bestScore : 0}%</div>
+                                <div style="font-size:0.78em;color:#888;margin-top:2px;">Best Score</div>
                             </div>
                         </div>
                         <div class="quiz-progress">
@@ -196,9 +173,10 @@
                                 <div class="progress-fill ${quiz.class}" style="width: ${progressPercent}%"></div>
                             </div>
                         </div>
-                        <button class="start-btn" onclick="location.href='${quiz.link}'">
-                            <span>${result.attempts > 0 ? 'Retake Quiz' : (partial.currentIndex > 0 ? 'Resume Quiz' : 'Start Quiz')}</span>
-                        </button>
+                        ${isCompleted
+                        ? `<button class="start-btn" disabled style="opacity:0.6;cursor:not-allowed;background:#28a745;">Completed ✅</button>`
+                        : `<button class="start-btn" onclick="location.href='${quiz.link}'">${partial.currentIndex > 0 ? 'Resume Quiz' : 'Start Quiz'}</button>`
+                    }
                     </div>
                 `;
                 grid.appendChild(card);
@@ -206,10 +184,6 @@
 
             // Update stats banner
             document.getElementById('totalCompleted').textContent = completedCount;
-            // Avoid division by zero
-            document.getElementById('avgScore').textContent = quizzesWithAttempts > 0 ? Math.round(totalScore / quizzesWithAttempts) + '%' : '0%';
-            document.getElementById('perfectScores').textContent = perfectCount;
-            document.getElementById('totalAttempts').textContent = totalAttempts;
         }
 
         window.onload = loadQuizStats;

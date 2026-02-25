@@ -132,6 +132,19 @@
             border-color: #4900c1;
         }
 
+        .video-item.locked {
+            opacity: 0.45;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .lock-icon {
+            font-size: 18px;
+            color: #9ca3af;
+            display: flex;
+            align-items: center;
+        }
+
         .video-thumb {
             width: 120px;
             height: 68px;
@@ -273,19 +286,9 @@
         </div>
     </div>
 
+
     <script>
-        const videos = [
-            { title: "1. React Introduction in Tamil", duration: "10:30", thumbnail: "https://img.youtube.com/vi/SqcY0pETC5E/hqdefault.jpg", src: "https://www.youtube.com/embed/SqcY0pETC5E" },
-            { title: "2. Setting up React Environment", duration: "12:15", thumbnail: "https://img.youtube.com/vi/RVFAyFWO4go/hqdefault.jpg", src: "https://www.youtube.com/embed/RVFAyFWO4go" },
-            { title: "3. JSX and Components", duration: "14:45", thumbnail: "https://img.youtube.com/vi/QFaFIcGhPoM/hqdefault.jpg", src: "https://www.youtube.com/embed/QFaFIcGhPoM" },
-            { title: "4. Props and State", duration: "16:20", thumbnail: "https://img.youtube.com/vi/9VIiLJL0H4Y/hqdefault.jpg", src: "https://www.youtube.com/embed/9VIiLJL0H4Y" },
-            { title: "5. Handling Events in React", duration: "11:50", thumbnail: "https://img.youtube.com/vi/SqcY0pETC5E/hqdefault.jpg", src: "https://www.youtube.com/embed/SqcY0pETC5E" },
-            { title: "6. Conditional Rendering", duration: "13:10", thumbnail: "https://img.youtube.com/vi/Ke90Tje7VS0/hqdefault.jpg", src: "https://www.youtube.com/embed/Ke90Tje7VS0" },
-            { title: "7. Lists and Keys", duration: "15:30", thumbnail: "https://img.youtube.com/vi/RVFAyFWO4go/hqdefault.jpg", src: "https://www.youtube.com/embed/RVFAyFWO4go" },
-            { title: "8. Forms in React", duration: "18:40", thumbnail: "https://img.youtube.com/vi/QFaFIcGhPoM/hqdefault.jpg", src: "https://www.youtube.com/embed/QFaFIcGhPoM" },
-            { title: "9. React Hooks (useState, useEffect)", duration: "22:15", thumbnail: "https://img.youtube.com/vi/9VIiLJL0H4Y/hqdefault.jpg", src: "https://www.youtube.com/embed/9VIiLJL0H4Y" },
-            { title: "10. React Router Integration", duration: "25:00", thumbnail: "https://img.youtube.com/vi/Ke90Tje7VS0/hqdefault.jpg", src: "https://www.youtube.com/embed/Ke90Tje7VS0" }
-        ];
+        const videos = COURSES_DATA.react;
 
         let currentIndex = 0;
         const courseId = 'react';
@@ -308,21 +311,21 @@
 
             videos.forEach((video, index) => {
                 const isCompleted = courseProgressData.includes(index);
+                const isUnlocked = index === 0 || isCompleted || courseProgressData.includes(index - 1);
                 const item = document.createElement('div');
-                item.className = `video-item ${index === currentIndex ? 'active' : ''}`;
+                item.className = `video-item ${index === currentIndex ? 'active' : ''} ${!isUnlocked ? 'locked' : ''}`;
 
-                if (isCompleted || index === 0 || courseProgressData.includes(index - 1)) {
-                    item.style.pointerEvents = 'auto';
-                    item.style.opacity = '1';
+                if (isUnlocked) {
+                    item.onclick = () => { currentIndex = index; playVideo(index); };
                 }
 
-                item.onclick = () => { currentIndex = index; playVideo(index); };
                 item.innerHTML = `
                     <img src="${video.thumbnail}" class="video-thumb">
-                    <div>
+                    <div class="item-content">
                         <div class="item-title">${video.title} ${isCompleted ? '✅' : ''}</div>
                         <div class="item-duration">${video.duration}</div>
                     </div>
+                    ${!isUnlocked ? '<div class="lock-icon">🔒</div>' : ''}
                 `;
                 list.appendChild(item);
             });
@@ -357,7 +360,6 @@
         async function markComplete() {
             if (courseProgressData.includes(currentIndex)) return;
 
-            // Optimistic update: Enable Next button instantly
             courseProgressData.push(currentIndex);
             playVideo(currentIndex);
 
@@ -370,7 +372,6 @@
                     })
                 });
 
-                // update sidebar checkmarks and unlock next
                 await loadVideos();
             } catch (error) {
                 console.error('Error saving progress:', error);
@@ -392,13 +393,10 @@
             }
         }
 
-        // --- NOTES FUNCTIONALITY ---
         async function loadNotes() {
             try {
                 const user = JSON.parse(localStorage.getItem("user"));
                 if (!user) return;
-
-                // Use apiFetch which handles tokens automatically
                 const data = await apiFetch(`/notes/${user.user_id}/${courseId}`);
                 if (data && data.notes !== undefined) {
                     document.getElementById('notesTextarea').value = data.notes;
@@ -410,24 +408,14 @@
 
         async function saveNotes() {
             const user = JSON.parse(localStorage.getItem("user"));
-            if (!user) {
-                alert("Please login to save notes");
-                return;
-            }
-
-            // JWT Token Check
-            if (!localStorage.getItem("token")) {
-                console.warn("Stopping script: No token found.");
-                window.location.href = "../pages/login.html";
-                return;
-            }
+            if (!user) { alert("Please login to save notes"); return; }
+            if (!localStorage.getItem("token")) { window.location.href = "../pages/login.html"; return; }
 
             const noteContent = document.getElementById('notesTextarea').value;
             const status = document.getElementById('save-status');
             status.textContent = "Saving...";
 
             try {
-                // Use apiFetch for authenticated request
                 const response = await apiFetch("/notes/save", {
                     method: "POST",
                     body: JSON.stringify({
@@ -454,7 +442,7 @@
         window.onload = () => {
             loadVideos();
             playVideo(0);
-            loadNotes(); // Load notes on page load
+            loadNotes();
         };
     </script>
 </body>
