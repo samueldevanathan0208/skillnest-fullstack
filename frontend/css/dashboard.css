@@ -419,6 +419,10 @@ img {
     background: linear-gradient(135deg, #A855F7, #7E22CE);
 }
 
+.course-header.demo {
+    background: linear-gradient(135deg, #6b7280, #374151);
+}
+
 .course-body {
     padding: 1.5rem;
     display: flex;
@@ -477,5 +481,10 @@ img {
 
 .start-btn-db {
     background-color: #A855F7;
+    color: white;
+}
+
+.start-btn-demo {
+    background-color: #4b5563;
     color: white;
 }

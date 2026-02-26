@@ -20,8 +20,8 @@ try:
     print("Connecting to database...")
     # Create all tables
     Base.metadata.create_all(bind=engine)
-    print("✅ Success! All database tables have been created/verified.")
+    print("Success! All database tables have been created/verified.")
     
 except Exception as e:
-    print(f"❌ Error initializing database: {e}")
+    print(f"Error initializing database: {e}")
     sys.exit(1)

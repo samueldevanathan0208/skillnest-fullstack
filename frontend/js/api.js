@@ -100,22 +100,14 @@ const COURSES_DATA = {
         { title: "12. Python Video 12", duration: "", thumbnail: "https://img.youtube.com/vi/QyM6bq5JzmU/hqdefault.jpg", src: "https://www.youtube.com/embed/QyM6bq5JzmU" }
     ],
     java: [
-        { title: "1. Java Introduction in Tamil", duration: "10:15", thumbnail: "https://img.youtube.com/vi/8W0IIdg_Cnk/hqdefault.jpg", src: "https://www.youtube.com/embed/8W0IIdg_Cnk" },
-        { title: "2. Setting up Java Environment", duration: "12:30", thumbnail: "https://img.youtube.com/vi/Vz_hKq6Z6S0/hqdefault.jpg", src: "https://www.youtube.com/embed/Vz_hKq6Z6S0" },
-        { title: "3. Variables and Data Types", duration: "15:45", thumbnail: "https://img.youtube.com/vi/lMAnN6uV1eE/hqdefault.jpg", src: "https://www.youtube.com/embed/lMAnN6uV1eE" },
-        { title: "4. Basic Programs in Java", duration: "11:20", thumbnail: "https://img.youtube.com/vi/r_oQvVOnvG8/hqdefault.jpg", src: "https://www.youtube.com/embed/r_oQvVOnvG8" },
-        { title: "5. Operators in Java", duration: "14:10", thumbnail: "https://img.youtube.com/vi/zN9WqP-o1zI/hqdefault.jpg", src: "https://www.youtube.com/embed/zN9WqP-o1zI" },
-        { title: "6. If Else Condition in Tamil", duration: "09:50", thumbnail: "https://img.youtube.com/vi/q5uN1mU7l98/hqdefault.jpg", src: "https://www.youtube.com/embed/q5uN1mU7l98" },
-        { title: "7. Switch Case Explained", duration: "13:25", thumbnail: "https://img.youtube.com/vi/5H0N_jI8zK8/hqdefault.jpg", src: "https://www.youtube.com/embed/5H0N_jI8zK8" },
-        { title: "8. For Loop and While Loop", duration: "16:40", thumbnail: "https://img.youtube.com/vi/6L7V2d0R0Xg/hqdefault.jpg", src: "https://www.youtube.com/embed/6L7V2d0R0Xg" },
-        { title: "9. Methods/Functions in Java", duration: "18:15", thumbnail: "https://img.youtube.com/vi/f3k9wO0j_Z4/hqdefault.jpg", src: "https://www.youtube.com/embed/f3k9wO0j_Z4" },
-        { title: "10. Classes and Objects Intro", duration: "20:30", thumbnail: "https://img.youtube.com/vi/T9v8xI0y_W1/hqdefault.jpg", src: "https://www.youtube.com/embed/T9v8xI0y_W1" },
-        { title: "11. Abstract and Interface", duration: "15:20", thumbnail: "https://img.youtube.com/vi/8XTcagpacRg/hqdefault.jpg", src: "https://www.youtube.com/embed/8XTcagpacRg" },
-        { title: "12. Exception Handling", duration: "12:10", thumbnail: "https://img.youtube.com/vi/7uXfOWalJW4/hqdefault.jpg", src: "https://www.youtube.com/embed/7uXfOWalJW4" },
-        { title: "13. Collections Framework", duration: "25:00", thumbnail: "https://img.youtube.com/vi/-yJC5N3CNL8/hqdefault.jpg", src: "https://www.youtube.com/embed/-yJC5N3CNL8" },
-        { title: "14. Multithreading in Java", duration: "20:00", thumbnail: "https://img.youtube.com/vi/BtaIHsGv5dA/hqdefault.jpg", src: "https://www.youtube.com/embed/BtaIHsGv5dA" },
-        { title: "15. Java 8 Features", duration: "18:00", thumbnail: "https://img.youtube.com/vi/of9qSRvsgXQ/hqdefault.jpg", src: "https://www.youtube.com/embed/of9qSRvsgXQ" },
-        { title: "16. Java DBMS Connection", duration: "22:00", thumbnail: "https://img.youtube.com/vi/sMI4pXjQBRU/hqdefault.jpg", src: "https://www.youtube.com/embed/sMI4pXjQBRU" }
+        { title: "1. Java Introduction in Tamil", duration: "10:15", thumbnail: "https://img.youtube.com/vi/A-Csfhj47s0/hqdefault.jpg", src: "https://www.youtube.com/embed/A-Csfhj47s0" },
+        { title: "2. Setting up Java Environment", duration: "12:30", thumbnail: "https://img.youtube.com/vi/OOHduxkXQAw/hqdefault.jpg", src: "https://www.youtube.com/embed/OOHduxkXQAw" },
+        { title: "3. Variables and Data Types", duration: "15:45", thumbnail: "https://img.youtube.com/vi/7jR_Wf-YjLw/hqdefault.jpg", src: "https://www.youtube.com/embed/7jR_Wf-YjLw" },
+        { title: "4. Basic Programs in Java", duration: "11:20", thumbnail: "https://img.youtube.com/vi/p8g1_gOWr7c/hqdefault.jpg", src: "https://www.youtube.com/embed/p8g1_gOWr7c" },
+        { title: "5. Operators in Java", duration: "14:10", thumbnail: "https://img.youtube.com/vi/gxhDDT9zC0w/hqdefault.jpg", src: "https://www.youtube.com/embed/gxhDDT9zC0w" },
+        { title: "6. If Else Condition in Tamil", duration: "09:50", thumbnail: "https://img.youtube.com/vi/z3pxOkL0b04/hqdefault.jpg", src: "https://www.youtube.com/embed/z3pxOkL0b04" },
+        { title: "7. Switch Case Explained", duration: "13:25", thumbnail: "https://img.youtube.com/vi/fbQ7xxXCusE/hqdefault.jpg", src: "https://www.youtube.com/embed/fbQ7xxXCusE" },
+        { title: "8. For Loop and While Loop", duration: "16:40", thumbnail: "https://img.youtube.com/vi/OOHduxkXQAw/hqdefault.jpg", src: "https://www.youtube.com/embed/OOHduxkXQAw" }
     ],
     react: [
         { title: "1. React Video 1", duration: "", thumbnail: "https://img.youtube.com/vi/UYFtY7Acngw/hqdefault.jpg", src: "https://www.youtube.com/embed/UYFtY7Acngw" },
@@ -156,6 +148,32 @@ const COURSES_DATA = {
         { title: "8. JavaScript Video 8", duration: "1", thumbnail: "https://img.youtube.com/vi/eTaqetO9Ey8/hqdefault.jpg", src: "https://www.youtube.com/embed/eTaqetO9Ey8" },
         { title: "9. JavaScript Video 9", duration: "1", thumbnail: "https://img.youtube.com/vi/fbQ7xxXCusE/hqdefault.jpg", src: "https://www.youtube.com/embed/fbQ7xxXCusE" },
         { title: "10. JavaScript Video 10", duration: "1", thumbnail: "https://img.youtube.com/vi/OOHduxkXQAw/hqdefault.jpg", src: "https://www.youtube.com/embed/OOHduxkXQAw" }
+    ],
+    demo: [
+        {
+            title: "1. Demo Video 1",
+            duration: "1",
+            thumbnail: "https://img.youtube.com/vi/YLslsZuEaNE/hqdefault.jpg",
+            src: "https://www.youtube.com/embed/YLslsZuEaNE"
+        },
+        {
+            title: "2. Demo Video 2",
+            duration: "1",
+            thumbnail: "https://img.youtube.com/vi/r6zFZQm0hcc/hqdefault.jpg",
+            src: "https://www.youtube.com/embed/r6zFZQm0hcc"
+        },
+        {
+            title: "3. Demo Video 3",
+            duration: "1",
+            thumbnail: "https://img.youtube.com/vi/FC0fdP41HJo/hqdefault.jpg",
+            src: "https://www.youtube.com/embed/FC0fdP41HJo"
+        },
+        {
+            title: "4. Demo Video 4",
+            duration: "1",
+            thumbnail: "https://img.youtube.com/vi/y_GpIJFM51k/hqdefault.jpg",
+            src: "https://www.youtube.com/embed/y_GpIJFM51k"
+        }
     ]
 };
 
