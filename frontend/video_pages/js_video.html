@@ -288,29 +288,27 @@
         </div>
     </div>
 
+    <script src="../js/video-tracking.js"></script>
     <script>
         const videos = COURSES_DATA.js;
 
         let currentIndex = 0;
         const courseId = 'js';
         let courseProgressData = [];
-
-        /* ===============================
-           YOUTUBE TRACKING
-        ================================= */
-
-        let player;
-        let isApiReady = false;
-        let totalDuration = 0;
-        let requiredWatchTime = 0;
-        let maxWatchedTime = 0;
-        let watchInterval = null;
-        let heartbeatInterval = null;
-        let hasResumed = false;
+        let tracker = null;
 
         window.onYouTubeIframeAPIReady = function () {
-            isApiReady = true;
             console.log("YouTube API Ready");
+            tracker = new VideoTracker({
+                courseId: courseId,
+                videos: videos,
+                onUnlock: (index) => {
+                    if (!courseProgressData.includes(index)) {
+                        markComplete(index);
+                    }
+                }
+            });
+            playVideo(0);
         };
 
         async function fetchProgress() {
@@ -320,15 +318,6 @@
             } catch (error) {
                 console.error('Error fetching progress:', error);
                 return [];
-            }
-        }
-
-        async function fetchVideoState(videoIndex) {
-            try {
-                return await apiFetch(`/progress/${courseId}/${videoIndex}`);
-            } catch (e) {
-                console.error("Fetch state failed", e);
-                return null;
             }
         }
 
@@ -361,7 +350,6 @@
         }
 
         async function playVideo(index) {
-
             currentIndex = index;
             const video = videos[index];
 
@@ -372,163 +360,34 @@
             const isCompleted = courseProgressData.includes(index);
             nextBtn.disabled = !isCompleted;
 
-            const videoId = video.src.split("/embed/")[1];
-
-            // Reset state for new video
-            maxWatchedTime = 0;
-            totalDuration = 0;
-            requiredWatchTime = 0;
-            hasResumed = false;
-
-            // Fetch saved progress for resume
-            const savedState = await fetchVideoState(index);
-            if (savedState && savedState.last_watched_time > 0) {
-                maxWatchedTime = savedState.last_watched_time;
-                console.log(`Resuming at ${maxWatchedTime}s`);
-            }
-
-            // Calculate duration from metadata (assuming minutes)
-            const metaDuration = parseFloat(video.duration) * 60;
-            if (!isNaN(metaDuration) && metaDuration > 0) {
-                totalDuration = metaDuration;
-                requiredWatchTime = totalDuration * 0.5;
-            }
-
-            if (!isApiReady && (!window.YT || !window.YT.Player)) {
-                console.warn("API not ready yet, waiting...");
-                setTimeout(() => playVideo(index), 500);
-                return;
-            } else if (window.YT && window.YT.Player) {
-                isApiReady = true;
-            }
-
-            if (player && typeof player.loadVideoById === 'function') {
-                player.loadVideoById(videoId);
-            } else {
-                player = new YT.Player('ytVideo', {
-                    videoId: videoId,
-                    playerVars: {
-                        'autoplay': 1,
-                        'modestbranding': 1,
-                        'rel': 0,
-                        'enablejsapi': 1,
-                        'origin': window.location.origin
-                    },
-                    events: {
-                        onReady: onPlayerReady,
-                        onStateChange: (event) => {
-                            // YT.PlayerState.PLAYING is 1
-                            if (event.data === 1) {
-                                startWatchTracking();
-                            }
-                        }
-                    }
-                });
-            }
-
             document.querySelectorAll(".video-item").forEach((item, i) => {
                 item.classList.toggle("active", i === index);
             });
-        }
 
-        /* ===============================
-           YOUTUBE READY
-        ================================= */
-
-        function onPlayerReady() {
-            if (maxWatchedTime > 0 && !hasResumed) {
-                player.seekTo(maxWatchedTime);
-                hasResumed = true;
+            if (tracker) {
+                tracker.init(index);
             }
-            startWatchTracking();
         }
 
-        function startWatchTracking() {
-            if (totalDuration <= 0) {
-                totalDuration = player.getDuration();
-                requiredWatchTime = totalDuration * 0.5;
-            }
+        async function markComplete(index = currentIndex) {
+            if (courseProgressData.includes(index)) return;
 
-            if (watchInterval) clearInterval(watchInterval);
-            if (heartbeatInterval) clearInterval(heartbeatInterval);
-
-            // Real-time local tracking (every 1s)
-            watchInterval = setInterval(() => {
-                if (!player || typeof player.getCurrentTime !== 'function') return;
-
-                const currentTime = player.getCurrentTime();
-
-                // Anti-cheat: only update max if user is watching naturally
-                if (currentTime > maxWatchedTime && currentTime <= maxWatchedTime + 2) {
-                    maxWatchedTime = currentTime;
-                }
-
-                // If they seek too far ahead of their history, pull them back
-                if (currentTime > maxWatchedTime + 5) {
-                    player.seekTo(maxWatchedTime);
-                }
-
-                const percentage = totalDuration > 0 ? (maxWatchedTime / totalDuration) * 100 : 0;
-                console.log(`Watch: ${Math.floor(maxWatchedTime)}s / ${Math.floor(totalDuration)}s (${Math.floor(percentage)}%)`);
-
-                // Local UI unlock if 50% met
-                if (percentage >= 50) {
-                    const nextBtn = document.getElementById("nextBtn");
-                    if (nextBtn && nextBtn.disabled) {
-                        nextBtn.disabled = false;
-                        console.log("Goal reached! Next button unlocked.");
-                    }
-                }
-            }, 1000);
-
-            // Production-level Heartbeat (every 5s)
-            heartbeatInterval = setInterval(async () => {
-                if (!player || player.getPlayerState() !== 1) return; // Only if playing
-
-                const percentage = (maxWatchedTime / totalDuration) * 100;
-
-                try {
-                    await apiFetch("/progress/update", {
-                        method: "POST",
-                        body: JSON.stringify({
-                            course_id: courseId,
-                            video_id: currentIndex,
-                            last_watched_time: maxWatchedTime,
-                            duration: totalDuration,
-                            percentage: percentage
-                        })
-                    });
-                } catch (e) {
-                    console.error("Heartbeat failed", e);
-                }
-            }, 5000);
-        }
-
-        async function markComplete() {
-
-            if (courseProgressData.includes(currentIndex)) return;
-
-            courseProgressData.push(currentIndex);
+            courseProgressData.push(index);
 
             try {
                 await apiFetch("/progress/course/video", {
                     method: "POST",
                     body: JSON.stringify({
                         course_id: courseId,
-                        video_index: currentIndex
+                        video_index: index
                     })
                 });
 
                 await loadVideos();
-
             } catch (e) {
-                console.log("Save failed");
+                console.log("Save failed", e);
             }
         }
-
-        /* ===============================
-           NAVIGATION
-        ================================= */
 
         let isNavigating = false;
         async function goNext() {
@@ -536,11 +395,6 @@
             isNavigating = true;
 
             try {
-                // Save progress when clicking Next
-                if (!courseProgressData.includes(currentIndex)) {
-                    await markComplete();
-                }
-
                 if (currentIndex < videos.length - 1) {
                     playVideo(currentIndex + 1);
                 }
@@ -599,13 +453,8 @@
             }
         }
 
-        /* ===============================
-           INIT
-        ================================= */
-
         window.onload = async () => {
             await loadVideos();
-            playVideo(0);
             loadNotes();
         };
     </script>

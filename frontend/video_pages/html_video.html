@@ -166,6 +166,7 @@
             margin-bottom: 4px;
             display: -webkit-box;
             -webkit-line-clamp: 2;
+            line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
@@ -249,7 +250,7 @@
                 ← Back to Dashboard
             </a>
             <div class="video-player">
-                <iframe id="ytVideo" width="100%" height="100%" style="display:block;" allowfullscreen></iframe>
+                <div id="ytVideo" style="width: 100%; height: 100%;"></div>
             </div>
 
             <h2 class="video-title" id="videoTitle">Loading...</h2>
@@ -257,8 +258,6 @@
 
             <div class="btn-container">
                 <button class="nav-btn" id="prevBtn" onclick="goPrev()">Previous</button>
-                <button class="nav-btn" id="completeBtn" onclick="markComplete()" style="background: #28a745;">Mark
-                    Complete</button>
                 <button class="nav-btn" id="nextBtn" onclick="goNext()" disabled>Next</button>
             </div>
         </div>
@@ -286,12 +285,28 @@
         </div>
     </div>
 
+    <script src="../js/video-tracking.js"></script>
     <script>
         const videos = COURSES_DATA.html;
 
         let currentIndex = 0;
         const courseId = 'html';
         let courseProgressData = [];
+        let tracker = null;
+
+        window.onYouTubeIframeAPIReady = function () {
+            console.log("YouTube API Ready");
+            tracker = new VideoTracker({
+                courseId: courseId,
+                videos: videos,
+                onUnlock: (index) => {
+                    if (!courseProgressData.includes(index)) {
+                        markComplete(index);
+                    }
+                }
+            });
+            playVideo(0);
+        };
 
         async function fetchProgress() {
             try {
@@ -310,14 +325,13 @@
 
             videos.forEach((video, index) => {
                 const isCompleted = courseProgressData.includes(index);
-                // Unlock if first video, or current is completed, or previous is completed
                 const isUnlocked = index === 0 || isCompleted || courseProgressData.includes(index - 1);
 
                 const item = document.createElement('div');
                 item.className = `video-item ${index === currentIndex ? 'active' : ''} ${!isUnlocked ? 'locked' : ''}`;
 
                 if (isUnlocked) {
-                    item.onclick = () => { currentIndex = index; playVideo(index); };
+                    item.onclick = () => { playVideo(index); };
                 }
 
                 item.innerHTML = `
@@ -332,49 +346,40 @@
             });
         }
 
-        function playVideo(index) {
+        async function playVideo(index) {
+            currentIndex = index;
             const video = videos[index];
-            const yt = document.getElementById("ytVideo");
+
+            document.getElementById("videoTitle").textContent = video.title;
+            document.getElementById("videoInfo").textContent = "Duration: " + video.duration;
+
             const nextBtn = document.getElementById("nextBtn");
-            const completeBtn = document.getElementById("completeBtn");
-
             const isCompleted = courseProgressData.includes(index);
-
-            completeBtn.disabled = isCompleted;
-            completeBtn.textContent = isCompleted ? 'Completed' : 'Mark Complete';
-            completeBtn.style.opacity = isCompleted ? '0.7' : '1';
+            nextBtn.disabled = !isCompleted;
 
             document.querySelectorAll(".video-item").forEach((item, i) => {
                 item.classList.toggle("active", i === index);
             });
-            document.getElementById("videoTitle").textContent = video.title;
-            document.getElementById("videoInfo").textContent = "Duration: " + video.duration;
 
-            if (yt.dataset.index !== index.toString()) {
-                yt.src = video.src + "?enablejsapi=1";
-                yt.dataset.index = index;
+            if (tracker) {
+                tracker.init(index);
             }
-
-            nextBtn.disabled = !isCompleted;
         }
 
-        async function markComplete() {
-            if (courseProgressData.includes(currentIndex)) return;
+        async function markComplete(index = currentIndex) {
+            if (courseProgressData.includes(index)) return;
 
-            // Optimistic update: Enable Next button instantly
-            courseProgressData.push(currentIndex);
-            playVideo(currentIndex);
+            courseProgressData.push(index);
 
             try {
                 await apiFetch("/progress/course/video", {
                     method: "POST",
                     body: JSON.stringify({
                         course_id: courseId,
-                        video_index: currentIndex
+                        video_index: index
                     })
                 });
 
-                // update sidebar checkmarks and unlock next
                 await loadVideos();
             } catch (error) {
                 console.error('Error saving progress:', error);
@@ -383,25 +388,20 @@
 
         function goNext() {
             if (currentIndex < videos.length - 1) {
-                currentIndex++;
-                playVideo(currentIndex);
+                playVideo(currentIndex + 1);
             }
         }
 
         function goPrev() {
             if (currentIndex > 0) {
-                currentIndex--;
-                playVideo(currentIndex);
+                playVideo(currentIndex - 1);
             }
         }
 
-        // --- NOTES FUNCTIONALITY ---
         async function loadNotes() {
             try {
                 const user = JSON.parse(localStorage.getItem("user"));
                 if (!user) return;
-
-                // Use apiFetch which handles tokens automatically
                 const data = await apiFetch(`/notes/${user.user_id}/${courseId}`);
                 if (data && data.notes !== undefined) {
                     document.getElementById('notesTextarea').value = data.notes;
@@ -413,24 +413,14 @@
 
         async function saveNotes() {
             const user = JSON.parse(localStorage.getItem("user"));
-            if (!user) {
-                alert("Please login to save notes");
-                return;
-            }
-
-            // JWT Token Check
-            if (!localStorage.getItem("token")) {
-                console.warn("Stopping script: No token found.");
-                window.location.href = "../pages/login.html";
-                return;
-            }
+            if (!user) { alert("Please login to save notes"); return; }
+            if (!localStorage.getItem("token")) { window.location.href = "../pages/login.html"; return; }
 
             const noteContent = document.getElementById('notesTextarea').value;
             const status = document.getElementById('save-status');
             status.textContent = "Saving...";
 
             try {
-                // Use apiFetch for authenticated request
                 const response = await apiFetch("/notes/save", {
                     method: "POST",
                     body: JSON.stringify({
@@ -456,10 +446,10 @@
 
         window.onload = async () => {
             await loadVideos();
-            playVideo(0);
-            loadNotes(); // Load notes on page load
+            loadNotes();
         };
     </script>
+    <script src="https://www.youtube.com/iframe_api"></script>
 </body>
 
 </html>
