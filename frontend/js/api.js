@@ -173,6 +173,54 @@ const COURSES_DATA = {
             duration: "1",
             thumbnail: "https://img.youtube.com/vi/y_GpIJFM51k/hqdefault.jpg",
             src: "https://www.youtube.com/embed/y_GpIJFM51k"
+        },
+        {
+            title: "5. Demo Video 5",
+            duration: "1",
+            thumbnail: "https://img.youtube.com/vi/YLslsZuEaNE/hqdefault.jpg",
+            src: "https://www.youtube.com/embed/YLslsZuEaNE"
+        },
+        {
+            title: "6. Demo Video 6",
+            duration: "1",
+            thumbnail: "https://img.youtube.com/vi/r6zFZQm0hcc/hqdefault.jpg",
+            src: "https://www.youtube.com/embed/r6zFZQm0hcc"
+        },
+        {
+            title: "7. Demo Video 7",
+            duration: "1",
+            thumbnail: "https://img.youtube.com/vi/FC0fdP41HJo/hqdefault.jpg",
+            src: "https://www.youtube.com/embed/FC0fdP41HJo"
+        },
+        {
+            title: "8. Demo Video 8",
+            duration: "1",  
+            thumbnail: "https://img.youtube.com/vi/y_GpIJFM51k/hqdefault.jpg",
+            src: "https://www.youtube.com/embed/y_GpIJFM51k"
+        },
+         {
+            title: "9. Demo Video 9",
+            duration: "1",
+            thumbnail: "https://img.youtube.com/vi/YLslsZuEaNE/hqdefault.jpg",
+            src: "https://www.youtube.com/embed/YLslsZuEaNE"
+        },
+        {
+            title: "10. Demo Video 10",
+            duration: "1",
+            thumbnail: "https://img.youtube.com/vi/r6zFZQm0hcc/hqdefault.jpg",
+            src: "https://www.youtube.com/embed/r6zFZQm0hcc"
+        },
+        {
+            title: "11. Demo Video 11",
+            duration: "1",
+            thumbnail: "https://img.youtube.com/vi/FC0fdP41HJo/hqdefault.jpg",
+            src: "https://www.youtube.com/embed/FC0fdP41HJo"
+        },
+        {
+            title: "12. Demo Video 12",
+            duration: "1",  
+            thumbnail: "https://img.youtube.com/vi/y_GpIJFM51k/hqdefault.jpg",
+            src: "https://www.youtube.com/embed/y_GpIJFM51k"
         }
     ]
 };
