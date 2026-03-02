@@ -18,26 +18,44 @@ body {
 .navbar {
     display: flex;
     align-items: center;
-    background: #fff;
-    padding: 15px 40px;
-    gap: 50px;
+    padding: 10px 5%;
+    background-color: #ffffff;
+    width: 100%;
+    gap: 35px;
+    border-bottom: 1px solid #f5f5f5;
 }
 
 .logo {
-    width: 70px;
+    width: 80px;
+    height: auto;
     margin: 0;
 }
 
 .navbar a {
     text-decoration: none;
-    color: #000;
+    color: #333;
+    font-size: 17px;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.navbar a:hover {
+    color: #4900c1;
 }
 
 .navbar .Signin {
     background-color: #ffd700;
-    padding: 10px 25px;
-    border-radius: 50px;
+    color: #000;
+    padding: 12px 32px;
+    border-radius: 100px;
+    font-weight: 700;
     margin-right: 0;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.navbar .Signin:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
 }
 
 .firsta {

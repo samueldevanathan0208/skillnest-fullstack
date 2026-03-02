@@ -5,11 +5,34 @@
     <meta charset="UTF-8">
     <title>Login | SkillNest</title>
     <link rel="stylesheet" href="../css/login.css">
+    <link rel="stylesheet" href="../index.css">
     <script src="../js/api.js?v=4"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 
 <body>
+
+    <!-- Mobile Header -->
+    <header class="mobile-header">
+        <div class="menu-icon" id="menuToggle">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <img class="mobile-logo" src="../assests/Gemini_Generated_Image_awja8lawja8lawja-removebg-preview.png"
+            alt="logo">
+    </header>
+
+    <!-- Sidebar for Mobile -->
+    <aside class="sidebar-public" id="sidebar">
+        <nav class="sidebar-nav">
+            <a href="../index.html">Home</a>
+            <a href="../index.html#course-a">Courses</a>
+            <a href="about.html">About</a>
+            <div class="nav-divider"></div>
+            <a href="signup.html" class="Signin">Sign up</a>
+        </nav>
+    </aside>
 
     <div class="class">
 
@@ -131,6 +154,34 @@
         });
     </script>
 
+    <!-- Overlay -->
+    <div class="overlay" id="overlay"></div>
+
+    <script>
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+
+        function toggleMenu() {
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+            menuToggle.classList.toggle('active');
+            document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
+        }
+
+        menuToggle.addEventListener('click', toggleMenu);
+        overlay.addEventListener('click', toggleMenu);
+
+        // Close sidebar when clicking a link
+        const navLinks = document.querySelectorAll('.sidebar-nav a');
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                if (sidebar.classList.contains('active')) {
+                    toggleMenu();
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>

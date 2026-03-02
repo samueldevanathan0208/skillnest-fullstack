@@ -236,7 +236,9 @@ function getProgressStats(progressData) {
     for (const [courseId, videos] of Object.entries(COURSES_DATA)) {
         const totalInCourse = videos.length;
         const completedInCourseList = progressData[courseId] || [];
-        const completedInCourseCount = new Set(completedInCourseList).size;
+        // Filter to ensure we only count indices that actually exist in the current course
+        const validCompletedIndices = completedInCourseList.filter(index => index < totalInCourse);
+        const completedInCourseCount = new Set(validCompletedIndices).size;
 
         courseStats[courseId] = {
             total: totalInCourse,

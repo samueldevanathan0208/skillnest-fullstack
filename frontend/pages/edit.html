@@ -17,6 +17,19 @@
 </head>
 
 <body>
+    <!-- Mobile Header -->
+    <header class="mobile-header">
+        <div class="menu-icon" id="menuToggle">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="header-brand">
+            <img src="../assests/Gemini_Generated_Image_awja8lawja8lawja-removebg-preview.png" alt="Logo"
+                class="header-logo">
+            <span>SkillNest</span>
+        </div>
+    </header>
 
     <aside class="sidebar">
         <nav>
@@ -28,9 +41,6 @@
                 </a>
                 <a href="mylearn.html" class="nav-item">
                     <span>My Learning</span>
-                </a>
-                <a href="mycertificate.html" class="nav-item">
-                    <span>Certificate</span>
                 </a>
             </div>
 
@@ -209,6 +219,35 @@
         }
 
         // Modal Handlers and functions moved to sidebar-handlers.js
+    </script>
+
+    <!-- Overlay -->
+    <div class="overlay" id="overlay"></div>
+
+    <script>
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.querySelector('.sidebar');
+        const overlay = document.getElementById('overlay');
+
+        function toggleMenu() {
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+            menuToggle.classList.toggle('active');
+            document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
+        }
+
+        menuToggle.addEventListener('click', toggleMenu);
+        overlay.addEventListener('click', toggleMenu);
+
+        // Close sidebar when clicking a link (on mobile)
+        const navItems = document.querySelectorAll('.nav-item');
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                if (window.innerWidth <= 768 && sidebar.classList.contains('active')) {
+                    toggleMenu();
+                }
+            });
+        });
     </script>
 </body>
 

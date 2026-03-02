@@ -6,10 +6,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About Us - LMS Platform</title>
     <link rel="stylesheet" href="../css/about.css">
+    <link rel="stylesheet" href="../index.css">
 </head>
 
 <body>
 
+
+    <!-- Mobile Header -->
+    <header class="mobile-header">
+        <div class="menu-icon" id="menuToggle">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <img class="mobile-logo" src="../assests/Gemini_Generated_Image_awja8lawja8lawja-removebg-preview.png"
+            alt="logo">
+    </header>
+
+    <!-- Sidebar for Mobile -->
+    <aside class="sidebar-public" id="sidebar">
+        <nav class="sidebar-nav">
+            <a href="../index.html">Home</a>
+            <a href="../index.html#course-a">Courses</a>
+            <a href="about.html">About</a>
+            <div class="nav-divider"></div>
+            <a href="login.html" class="Signin">Sign in</a>
+        </nav>
+    </aside>
 
     <div class="class">
         <div class="navbar">
@@ -19,7 +42,7 @@
             <a href="../index.html#course-a">Courses</a>
             <a href="about.html">About</a>
 
-            <a class="Signin" href="login.html">Sign in</a>
+            <a class="Signin" href="login.html">Sign up</a>
         </div>
 
 
@@ -148,6 +171,34 @@
                 <a href="signup.html" class="cta-button">Register Now</a>
             </div>
         </div>
+        <!-- Overlay -->
+        <div class="overlay" id="overlay"></div>
+
+        <script>
+            const menuToggle = document.getElementById('menuToggle');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+
+            function toggleMenu() {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+                menuToggle.classList.toggle('active');
+                document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
+            }
+
+            menuToggle.addEventListener('click', toggleMenu);
+            overlay.addEventListener('click', toggleMenu);
+
+            // Close sidebar when clicking a link
+            const navLinks = document.querySelectorAll('.sidebar-nav a');
+            navLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    if (sidebar.classList.contains('active')) {
+                        toggleMenu();
+                    }
+                });
+            });
+        </script>
 </body>
 
 </html>

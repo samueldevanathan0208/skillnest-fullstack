@@ -27,6 +27,20 @@
 </head>
 
 <body>
+    <!-- Mobile Header -->
+    <header class="mobile-header">
+        <div class="menu-icon" id="menuToggle">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="header-brand">
+            <img src="../assests/Gemini_Generated_Image_awja8lawja8lawja-removebg-preview.png" alt="Logo"
+                class="header-logo">
+            <span>SkillNest</span>
+        </div>
+    </header>
+
     <aside class="sidebar">
         <nav>
             <div class="nav-section">
@@ -36,9 +50,6 @@
                 </a>
                 <a href="#" class="nav-item active">
                     <span>My Learning</span>
-                </a>
-                <a href="mycertificate.html" class="nav-item">
-                    <span>Certificate</span>
                 </a>
             </div>
 
@@ -196,7 +207,8 @@
                             if (totalVideos === 0) return; // Skip if no data found
 
                             const completedIndices = progressData[id] || [];
-                            const uniqueCompleted = new Set(completedIndices).size;
+                            const validCompletedIndices = completedIndices.filter(idx => idx < totalVideos);
+                            const uniqueCompleted = new Set(validCompletedIndices).size;
                             const percent = Math.min(100, Math.round((uniqueCompleted / totalVideos) * 100));
                             const isCompleted = percent === 100;
 
@@ -244,6 +256,35 @@
             }
 
             window.onload = updateUI;
+        </script>
+
+        <!-- Overlay -->
+        <div class="overlay" id="overlay"></div>
+
+        <script>
+            const menuToggle = document.getElementById('menuToggle');
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.getElementById('overlay');
+
+            function toggleMenu() {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+                menuToggle.classList.toggle('active');
+                document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
+            }
+
+            menuToggle.addEventListener('click', toggleMenu);
+            overlay.addEventListener('click', toggleMenu);
+
+            // Close sidebar when clicking a link (on mobile)
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    if (window.innerWidth <= 768 && sidebar.classList.contains('active')) {
+                        toggleMenu();
+                    }
+                });
+            });
         </script>
 </body>
 

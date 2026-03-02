@@ -6,10 +6,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Signup | SkillNest</title>
     <link rel="stylesheet" href="../css/signup.css">
+    <link rel="stylesheet" href="../index.css">
     <script src="../js/api.js?v=4"></script>
 </head>
 
 <body>
+
+    <!-- Mobile Header -->
+    <header class="mobile-header">
+        <div class="menu-icon" id="menuToggle">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <img class="mobile-logo" src="../assests/Gemini_Generated_Image_awja8lawja8lawja-removebg-preview.png"
+            alt="logo">
+    </header>
+
+    <!-- Sidebar for Mobile -->
+    <aside class="sidebar-public" id="sidebar">
+        <nav class="sidebar-nav">
+            <a href="../index.html">Home</a>
+            <a href="../index.html#course-a">Courses</a>
+            <a href="about.html">About</a>
+            <div class="nav-divider"></div>
+            <a href="login.html" class="Signin">Login</a>
+        </nav>
+    </aside>
 
     <div class="class">
         <div class="navbar">
@@ -165,6 +188,34 @@
         });
     </script>
 
+    <!-- Overlay -->
+    <div class="overlay" id="overlay"></div>
+
+    <script>
+        const menuToggle_mobile = document.getElementById('menuToggle');
+        const sidebar_mobile = document.getElementById('sidebar');
+        const overlay_mobile = document.getElementById('overlay');
+
+        function toggleMenuMobile() {
+            sidebar_mobile.classList.toggle('active');
+            overlay_mobile.classList.toggle('active');
+            menuToggle_mobile.classList.toggle('active');
+            document.body.style.overflow = sidebar_mobile.classList.contains('active') ? 'hidden' : '';
+        }
+
+        menuToggle_mobile.addEventListener('click', toggleMenuMobile);
+        overlay_mobile.addEventListener('click', toggleMenuMobile);
+
+        // Close sidebar when clicking a link
+        const navLinksMobile = document.querySelectorAll('.sidebar-nav a');
+        navLinksMobile.forEach(link => {
+            link.addEventListener('click', () => {
+                if (sidebar_mobile.classList.contains('active')) {
+                    toggleMenuMobile();
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>
