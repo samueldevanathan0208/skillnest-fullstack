@@ -421,7 +421,7 @@
                 console.error('Error loading notes:', error);
             }
         }
-
+        
         async function saveNotes() {
             const user = JSON.parse(localStorage.getItem("user"));
             if (!user) { alert("Please login to save notes"); return; }
