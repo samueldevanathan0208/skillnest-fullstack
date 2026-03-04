@@ -73,161 +73,7 @@ img {
     }
 }
 
-/* Sidebar */
-.sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 200px;
-    height: 100vh;
-    background-color: white;
-    padding: 1.5rem;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
-    overflow-y: auto;
-    z-index: 1000;
-    transition: left 0.3s ease-in-out;
-}
-
-/* --- MOBILE HEADER --- */
-.mobile-header {
-    display: none;
-    align-items: center;
-    padding: 15px 20px;
-    background-color: white;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-    position: sticky;
-    top: 0;
-    z-index: 1001;
-    gap: 20px;
-}
-
-.header-brand {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-weight: 700;
-    font-size: 20px;
-}
-
-.header-logo {
-    width: 40px;
-}
-
-/* --- HAMBURGER MENU ICON --- */
-.menu-icon {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    width: 25px;
-    height: 18px;
-    cursor: pointer;
-}
-
-.menu-icon span {
-    display: block;
-    height: 3px;
-    width: 100%;
-    background-color: #333;
-    border-radius: 3px;
-    transition: all 0.3s ease;
-}
-
-.menu-icon.active span:nth-child(1) {
-    transform: translateY(7.5px) rotate(45deg);
-}
-
-.menu-icon.active span:nth-child(2) {
-    opacity: 0;
-}
-
-.menu-icon.active span:nth-child(3) {
-    transform: translateY(-7.5px) rotate(-45deg);
-}
-
-/* --- OVERLAY --- */
-.overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 999;
-    display: none;
-    backdrop-filter: blur(2px);
-}
-
-.overlay.active {
-    display: block;
-}
-
-.logo-sidebar {
-    margin-left: 25px;
-    height: 80px;
-    width: 80px;
-    margin-bottom: 1.5rem;
-    display: block;
-}
-
-.nav-section {
-    margin-bottom: 2rem;
-}
-
-.nav-section-title {
-    font-size: 0.875rem;
-    font-weight: bold;
-    color: #6b7280;
-    margin-bottom: 1rem;
-    text-transform: uppercase;
-}
-
-.nav-item {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.75rem 1rem;
-    border-radius: 0.5rem;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    margin-bottom: 0.5rem;
-    text-decoration: none;
-    color: inherit;
-}
-
-.nav-item:hover {
-    background-color: #f3f4f6;
-}
-
-.nav-item.active {
-    background-color: #e5e7eb;
-}
-
-@media (max-width: 768px) {
-    .mobile-header {
-        display: flex;
-    }
-
-    .sidebar {
-        left: -250px;
-        width: 250px;
-        transition: left 0.3s ease-in-out;
-    }
-
-    .sidebar.active {
-        left: 0;
-    }
-
-    .logo-sidebar {
-        display: block;
-        margin-left: 0;
-        width: 60px;
-        height: 60px;
-    }
-
-    .nav-section-title {
-        display: block;
-    }
-}
+/* Sidebar and Mobile Header styles moved to dashboard.css */
 
 /* Main Content Wrapper */
 .main-wrapper {
@@ -299,9 +145,9 @@ img {
 }
 
 .courses-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1.5rem;
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 1.5rem !important;
 }
 
 .course-card {
@@ -468,7 +314,7 @@ img {
     }
 
     .courses-grid {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: repeat(2, 1fr);
     }
 }
 

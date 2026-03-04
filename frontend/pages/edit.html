@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Profile</title>
     <link rel="stylesheet" href="../css/edit.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
     <link rel="stylesheet" href="../css/modals.css">
     <script src="../js/api.js?v=5"></script>
     <script>
@@ -31,22 +32,26 @@
         </div>
     </header>
 
+    <!-- Sidebar -->
     <aside class="sidebar">
+        <div class="sidebar-brand">
+            <img src="../assests/Gemini_Generated_Image_awja8lawja8lawja-removebg-preview.png" alt="Logo">
+        </div>
         <nav>
             <div class="nav-section">
-                <img class="logo" src="../assests/Gemini_Generated_Image_awja8lawja8lawja-removebg-preview.png"
-                    alt="Logo">
                 <a href="dashboard.html" class="nav-item">
                     <span>Dashboard</span>
                 </a>
                 <a href="mylearn.html" class="nav-item">
                     <span>My Learning</span>
                 </a>
+                <a href="mycertificate.html" class="nav-item">
+                    <span>Certificates</span>
+                </a>
             </div>
 
             <div class="nav-section">
                 <h3 class="nav-section-title">Learn</h3>
-
                 <a href="learingpath.html" class="nav-item">
                     <span>Learning Path</span>
                 </a>
@@ -57,7 +62,7 @@
 
             <div class="nav-section">
                 <h3 class="nav-section-title">Account Setting</h3>
-                <a href="#" class="nav-item active">
+                <a href="edit.html" class="nav-item active">
                     <span>Edit Profile</span>
                 </a>
                 <a href="#" id="delete-profile-link" class="nav-item">

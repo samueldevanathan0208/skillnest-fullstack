@@ -13,9 +13,9 @@ router = APIRouter(prefix="/problem-solving", tags=["Problem Solving"])
 import multiprocessing
 import queue
 
-# --------------------------------------------------
+
 # 21 Problems Data
-# --------------------------------------------------
+
 PROBLEMS_DATA = [
     {"id": "1", "title": "Add Two Numbers", "desc": "Write a function `solve(a, b)` to return the sum of two numbers.", "diff": "Easy", "args": "a, b", "j_args": "int a, int b", "j_ret": "int", "fname": "solve", "input": "a=5, b=3", "output": "8"},
     {"id": "2", "title": "Check Even or Odd", "desc": "Check if a number `solve(n)` is even or odd.", "diff": "Easy", "args": "n", "j_args": "int n", "j_ret": "boolean", "fname": "solve", "input": "n=4", "output": "True (\"Even\")"},
@@ -40,12 +40,12 @@ PROBLEMS_DATA = [
     {"id": "21", "title": "Leap Year", "desc": "Check if a year is a leap year.", "diff": "Easy", "args": "year", "j_args": "int year", "j_ret": "boolean", "input": "year=2024", "output": "True"},
 ]
 
-# --------------------------------------------------
+
 # TEST CASES
-# --------------------------------------------------
-# --------------------------------------------------
+
+
 # COMPREHENSIVE TEST CASES (All 21 Problems)
-# --------------------------------------------------
+
 TEST_CASES = {
     # 1. Add Two Numbers
     "1": {"cases": [{"input": (5, 3), "expected": 8}, {"input": (10, 2), "expected": 12}, {"input": (0, 0), "expected": 0}]},
@@ -91,9 +91,9 @@ TEST_CASES = {
     "21": {"cases": [{"input": (2024,), "expected": True}, {"input": (2023,), "expected": False}, {"input": (2000,), "expected": True}]},
 }
 
-# --------------------------------------------------
+
 # SAFETY & TIMEOUT (using multiprocessing)
-# --------------------------------------------------
+
 import concurrent.futures
 
 def run_python_test(code: str, problem_id: str):
@@ -292,9 +292,9 @@ try {{
         return {"passed": True}
 import subprocess
 
-# --------------------------------------------------
+
 # GENERATE PROBLEMS
-# --------------------------------------------------
+
 def generate_problems(lang):
     problems = []
     for p in PROBLEMS_DATA:
@@ -337,9 +337,9 @@ class SubmitRequest(BaseModel):
     language: str
     code: str
 
-# --------------------------------------------------
+
 # API ENDPOINTS
-# --------------------------------------------------
+
 @router.get("/languages")
 def get_languages(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     user_id = current_user.user_id
@@ -422,3 +422,5 @@ def submit_solution(request: SubmitRequest, db: Session = Depends(get_db)):
             db.commit()
             
     return {"status": status}
+
+

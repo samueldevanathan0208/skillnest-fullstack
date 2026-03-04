@@ -73,93 +73,7 @@ img {
     }
 }
 
-/* Sidebar */
-.sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 200px;
-    height: 100vh;
-    background-color: white;
-    padding: 1.5rem;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
-    overflow-y: auto;
-    z-index: 1000;
-}
-
-.logo-sidebar {
-    margin-left: 25px;
-    height: 80px;
-    width: 80px;
-    margin-bottom: 1.5rem;
-    display: block;
-}
-
-.nav-section {
-    margin-bottom: 2rem;
-}
-
-.nav-section-title {
-    font-size: 0.875rem;
-    font-weight: bold;
-    color: #6b7280;
-    margin-bottom: 1rem;
-    text-transform: uppercase;
-}
-
-.nav-item {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.75rem 1rem;
-    border-radius: 0.5rem;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    margin-bottom: 0.5rem;
-    text-decoration: none;
-    color: inherit;
-}
-
-.nav-item:hover {
-    background-color: #f3f4f6;
-}
-
-.nav-item.active {
-    background-color: #e5e7eb;
-}
-
-/* Sidebar → Top scroll navbar on Mobile */
-@media(max-width:768px) {
-    .sidebar {
-        width: 100%;
-        display: flex;
-        overflow-x: auto;
-        flex-direction: row;
-        position: static;
-        height: auto;
-        padding: 10px;
-        background: white;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    }
-
-    .sidebar a,
-    .nav-item {
-        white-space: nowrap;
-        padding: 10px 15px;
-        margin-bottom: 0 !important;
-    }
-
-    .nav-section {
-        margin-bottom: 0;
-        display: flex;
-        flex-direction: row;
-    }
-
-    .nav-section-title,
-    .logo-sidebar {
-        display: none;
-    }
-}
+/* Sidebar styles moved to dashboard.css */
 
 /* Main Content Wrapper */
 .main-wrapper {
@@ -174,23 +88,24 @@ img {
 }
 
 .header {
-    background-color: #4900c1;
-    color: #fff;
-    padding: 3rem 2rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    text-align: center;
+    background-color: transparent;
+    color: #1f2937;
+    padding: 2.5rem 2rem 0 2rem;
+    box-shadow: none;
+    text-align: left;
 }
 
 .header h1 {
-    font-size: 2.5rem;
+    font-size: 2rem;
+    font-weight: bold;
     margin-bottom: 0.5rem;
-    color: white;
+    color: #1f2937;
 }
 
 .header p {
-    font-size: 1.1rem;
-    opacity: 0.95;
-    color: white;
+    font-size: 1rem;
+    opacity: 0.7;
+    color: #4b5563;
 }
 
 .container {
@@ -265,8 +180,8 @@ img {
 /* Certificate Grid & Card Styles */
 .certificates-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 2rem;
 }
 
 .certificate-card {

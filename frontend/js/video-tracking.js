@@ -1,13 +1,3 @@
-/**
- * Unified Video Tracking Logic for LMS
- * Requirements:
- * - Track duration using player.getDuration()
- * - Track watched time using player.getCurrentTime()
- * - Unlock Next button at 50% duration
- * - Anti-cheat: pull back if seeking ahead of maxWatchedTime
- * - Detailed 1s debug logging
- * - Heartbeat to backend every 5s
- */
 
 class VideoTracker {
     constructor(config) {

@@ -77,16 +77,36 @@ img {
 .sidebar {
     position: fixed;
     top: 0;
-    /* Changed to 0 as in original, will adjust overlap if needed */
     left: 0;
     width: 200px;
     height: 100vh;
     background-color: white;
-    padding: 1.5rem;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+    padding: 2rem 1rem;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
     overflow-y: auto;
     z-index: 1000;
     transition: left 0.3s ease-in-out;
+}
+
+.sidebar-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 3rem;
+    text-decoration: none;
+    color: inherit;
+}
+
+.sidebar-brand img {
+    width: 90px;
+    height: auto;
+    margin-bottom: 0.5rem;
+}
+
+.sidebar-brand span {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #1f2937;
 }
 
 /* --- MOBILE HEADER --- */
@@ -163,12 +183,8 @@ img {
 }
 
 .logo-sidebar {
-    /* Renamed logo in sidebar to avoid conflict */
-    margin-left: 25px;
-    height: 80px;
-    width: 80px;
-    margin-bottom: 1.5rem;
-    display: block;
+    display: none;
+    /* Replaced by .sidebar-brand */
 }
 
 .nav-section {
@@ -187,21 +203,25 @@ img {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    padding: 0.75rem 1rem;
-    border-radius: 0.5rem;
+    padding: 0.8rem 1rem;
+    border-radius: 0.75rem;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: all 0.2s ease;
     margin-bottom: 0.5rem;
     text-decoration: none;
-    color: inherit;
+    color: #4b5563;
+    font-weight: 500;
 }
 
 .nav-item:hover {
     background-color: #f3f4f6;
+    color: #1f2937;
 }
 
 .nav-item.active {
-    background-color: #e5e7eb;
+    background-color: #f3f4f6;
+    color: #1f2937;
+    font-weight: 600;
 }
 
 @media (max-width: 768px) {
@@ -234,7 +254,7 @@ img {
 /* Main Content */
 .main-content {
     margin-left: 200px;
-    padding: 2rem;
+    padding: 2.5rem;
     min-height: 100vh;
     transition: margin-left 0.3s;
 }
